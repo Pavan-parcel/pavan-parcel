@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './table.sass'
 import { Link } from 'react-router-dom'
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import supabase from '../../supabase/supabaseClient';
 
 function MyVerticallyCenteredModal(props) {
     return (
@@ -49,6 +50,21 @@ function MyVerticallyCenteredModal(props) {
 const Table = () => {
 
     const [modalShow, setModalShow] = React.useState(false);
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        getData();
+    }, [])
+
+    async function getData(){
+        const {data, error} = await supabase.from("parcels").select("*");
+        if(!error){
+            const filteredData = data.filter(item => new Date(item?.created_at).toLocaleDateString() === new Date().toLocaleDateString())
+            setData(filteredData);
+        } else {
+            throw new Error(error);
+        }
+    }
 
     return (
         <section className='pt__table_print'>
@@ -113,72 +129,41 @@ const Table = () => {
                                     Print & Action
                                 </th>
                             </tr>
-                            <tr>
+                            {data.map((item, index) => (
+                                <tr>
                                 <td>
-                                    Date
+                                    {new Date(item?.created_at).toLocaleDateString()}
                                 </td>
                                 <td>
-                                    Reciept No.
+                                    {item?.id}
                                 </td>
                                 <td>
-                                    Sender Name
+                                    {item?.sender_name}
                                 </td>
                                 <td>
-                                    Reciever Name
+                                    {item?.receiver_name}
                                 </td>
                                 <td>
-                                    Item Detail
+                                    {item?.item_detail}
                                 </td>
                                 <td>
-                                    Quantity No.
+                                    {item?.quantity}
                                 </td>
                                 <td>
-                                    Total Amount
+                                    {item?.total_amount}
                                 </td>
                                 <td>
-                                    Payment Type
+                                    {item?.payment_type}
                                 </td>
                                 <td>
-                                    Place to send
+                                    {item?.place_to_send}
                                 </td>
                                 <td>
                                     Print & Action
                                 </td>
 
                             </tr>
-                            <tr>
-                                <td>
-                                    Date
-                                </td>
-                                <td>
-                                    Reciept No.
-                                </td>
-                                <td>
-                                    Sender Name
-                                </td>
-                                <td>
-                                    Reciever Name
-                                </td>
-                                <td>
-                                    Item Detail
-                                </td>
-                                <td>
-                                    Quantity No.
-                                </td>
-                                <td>
-                                    Total Amount
-                                </td>
-                                <td>
-                                    Payment Type
-                                </td>
-                                <td>
-                                    Place to send
-                                </td>
-                                <td>
-                                    <Link>  </Link>
-                                </td>
-
-                            </tr>
+                            ))}
                         </table>
                     </div>
                 </div>
