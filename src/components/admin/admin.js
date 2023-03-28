@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import './admin.sass'
 import supabase from '../../supabase/supabaseClient.js'
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
 
 const Admin = () => {
     const [color, setColor] = useState('');
@@ -20,9 +22,13 @@ const Admin = () => {
         driver: ''
     })
 
-    const onPrintAndSave = async() => {
-        const {data, error} = await supabase.from("parcels").insert({...parcel})
-        if(!error){
+    const formSchema = Yup.object({
+        sender_name: Yup.string().required("Enter Sender Name")
+    })
+
+    const onPrintAndSave = async () => {
+        const { data, error } = await supabase.from("parcels").insert({ ...parcel })
+        if (!error) {
             console.log("data: ", data);
             window.location.reload(false);
         } else {
@@ -31,18 +37,47 @@ const Admin = () => {
         }
     }
 
+    const validate = Yup.object().shape({
+        sender_name: Yup.string().required("Sender name is required")
+    })
+
+    const formik = useFormik({
+        initialValues: {
+            sender_name: '',
+            sender_number: '',
+            receiver_name: '',
+            receiver_number: '',
+            item_detail: '',
+            quantity: '',
+            rate: '',
+            payment_type: '',
+            total_amount: '',
+            place_to_send: '',
+            remarks: '',
+            drive: ''
+        },
+        validationSchema: validate,
+        onSubmit: async (values) => {
+            console.log("values: ", values)
+        }
+    })
+
     return (
         <section className='pt__admin'>
-            <form>
+            <form onSubmit={formik.handleSubmit}>
                 <div className='container'>
                     <div className='row justify-between'>
                         <div className='col-30'>
                             <div className='form_control_wrapper'>
                                 <label>Sender Name</label>
                                 <input
-                                    value={parcel.sender_name}
-                                    onChange={(e) => setParcel(prev => ({ ...prev, sender_name: e.target.value }))}
+                                    name='sender_name'
+                                    value={formik.values.sender_name}
+                                    onChange={(e) => { setParcel(prev => ({ ...prev, sender_name: e.target.value })); formik.handleChange(e) }}
                                 />
+                                {
+                                    formik.errors.sender_name && <div className='text-danger'>{formik.errors.sender_name}</div>
+                                }
                             </div>
                         </div>
                         <div className='col-2'>
@@ -121,14 +156,14 @@ const Admin = () => {
                                 <label>Total Amount</label>
                                 <input
                                     value={parcel.total_amount}
-                                    onChange={(e) => setParcel(prev => ({...prev, total_amount: e.target.value}))}
+                                    onChange={(e) => setParcel(prev => ({ ...prev, total_amount: e.target.value }))}
                                 />
                             </div>
                         </div>
                         <div className='col-2'>
                             <div className='form_control_wrapper'>
                                 <label>Payment Type</label>
-                                <select name="Payment Type" id="payment_type" onChange={(e) => setParcel(prev => ({...prev, payment_type: e.target.value}))}>
+                                <select name="Payment Type" id="payment_type" onChange={(e) => setParcel(prev => ({ ...prev, payment_type: e.target.value }))}>
                                     <option value="Baki">Baki</option>
                                     <option value="Jama">Jama</option>
                                     <option value="Account">Account</option>
@@ -139,7 +174,7 @@ const Admin = () => {
                         <div className='col-2'>
                             <div className='form_control_wrapper'>
                                 <label>Place to send</label>
-                                <select name="cars" id="cars" onChange={(e) => setParcel(prev => ({...prev, place_to_send: e.target.value}))}>
+                                <select name="cars" id="cars" onChange={(e) => setParcel(prev => ({ ...prev, place_to_send: e.target.value }))}>
                                     <option value="volvo">Volvo</option>
                                     <option value="saab">Saab</option>
                                     <option value="mercedes">Mercedes</option>
@@ -155,7 +190,7 @@ const Admin = () => {
                                 <label>Remarks</label>
                                 <input
                                     value={parcel.remarks}
-                                    onChange={(e) => setParcel(prev => ({...prev, remarks: e.target.value}))}
+                                    onChange={(e) => setParcel(prev => ({ ...prev, remarks: e.target.value }))}
                                 />
                             </div>
                         </div>
@@ -164,7 +199,7 @@ const Admin = () => {
                                 <label>Drive</label>
                                 <input
                                     value={parcel.driver}
-                                    onChange={(e) => setParcel(prev => ({...prev, driver: e.target.value}))}
+                                    onChange={(e) => setParcel(prev => ({ ...prev, driver: e.target.value }))}
                                 />
                             </div>
                         </div>
@@ -172,7 +207,7 @@ const Admin = () => {
                     <div className="row justify-between mt-30">
                         <div className="col-12">
 
-                            <div className='pt__lr_num time_btn btn' onClick={onPrintAndSave}>Print and Save</div>
+                            <button type='submit' className='pt__lr_num time_btn btn btn-submit'>Print and Save</button>
                         </div>
                     </div>
 
