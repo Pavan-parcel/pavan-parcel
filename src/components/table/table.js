@@ -19,8 +19,8 @@ function MyVerticallyCenteredModal(props) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <form action="">
-                    <div className="days_count d-flex justify-between">
+                <form action="" className='form_control_wrapper'>
+                    <div className="days_count d-flex justify-between align-center">
                         <h6>Date : </h6>
                         <select name="" id="" className='col-10'>
                             <option value=""> 03/27/2023 - 03/27/203 </option>
@@ -32,15 +32,27 @@ function MyVerticallyCenteredModal(props) {
                         </select>
                     </div>
                     <div className="line"></div>
-                    <select name="" id="" className='w-100 general_delivery'>
+                    <select name="" id="" className='w-100 general_delivery my-4'>
                         <option value="">Delivery General (In)</option>
                         <option value="">General (Out)</option>
                     </select>
+                    <div className="send-to-rec d-flex justify-between align-center">
+                    <select name="" id="" className='w-100 general_delivery'>
+                        <option value="">Hirabag</option>
+                        <option value="">Bharuch</option>
+                    </select>
+                    <p className='px-3'>To</p>
+                    <select name="" id="" className='w-100 general_delivery'>
+                        <option value="">Amdavad</option>
+                        <option value="">Bapunagar</option>
+                    </select>
+                    </div>
                     
-                </form>
             <Modal.Footer>
+                <Button>Create General</Button>
                 <Button onClick={props.onHide}>Close</Button>
             </Modal.Footer>
+                </form>
             </Modal.Body>
         </Modal>
     );
