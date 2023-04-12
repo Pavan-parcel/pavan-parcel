@@ -3,12 +3,32 @@
 
 .pt__admin
     padding-top: 30px
+    .container
+        max-width: 100%
+    .pt__admin_charges
+        table
+            width: 100%
+            border: 1px solid #000
+            td,th
+                padding: 5px
+                &:last-child
+                    text-align: right
+                    padding-right: 10px
+                    font-weight: 500
+                    background-color: #000
+                    color: #fff
+            tr
+                &:first-child
+                    border-bottom: 1px solid #000
+    .m-15
+        margin: 0 -15px 15px
     .pt__lr_item    
         background-color: #007BFF
     .time_btn
-        padding: 15px 30px
+        padding: 8px 14px
+        font-size: 14px
         border-radius: 5px
-        font-weight: 600
+        font-weight: 500
     .pt__lr_num
         background-color: #FFAD33
         display: inline-block
@@ -16,15 +36,15 @@
         display: flex
         flex-direction: column
         label
-            margin-bottom: 10px
+            margin-bottom: 6px
             color: #000
             font-weight: 600
         input,select
-            border: 2px solid #1E2330
-            height: 50px
+            border: 1px solid #1E2330
+            height: 35px
             border-radius: 5px
-            font-size: 18px
-            padding: 10px 15px
+            font-size: 13px
+            padding: 0px 8px
             &:focus
                 background-color: #1E2330
                 color: $white

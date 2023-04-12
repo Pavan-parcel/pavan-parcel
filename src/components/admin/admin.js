@@ -55,6 +55,29 @@ const Admin = () => {
         <section className='pt__admin'>
             <form onSubmit={formik.handleSubmit}>
                 <div className='container'>
+                    <div className="row">
+                        <div className="col-7">
+                            <div className="container">
+
+                            <div className='row justify-between'>
+                        <div className='m-15'>
+                            <div className="col-12">
+                                <div className='form_control_wrapper'>
+                                    <label>Place to send</label>
+                                    <select name="place_to_send" id="cars" value={formik.values.place_to_send} onChange={formik.handleChange}>
+                                        <option value="">Select Place to Send...</option>
+                                        <option value="volvo">Volvo</option>
+                                        <option value="saab">Saab</option>
+                                        <option value="mercedes">Mercedes</option>
+                                        <option value="audi">Audi</option>
+                                    </select>
+                                    {
+                                        formik.errors.place_to_send && <div className='text-danger'>{formik.errors.place_to_send}</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        </div>
                     <div className='row justify-between'>
                         <div className='col-30'>
                             <div className='form_control_wrapper'>
@@ -142,7 +165,7 @@ const Admin = () => {
                         </div>
                     </div>
                     <div className="row justify-between mt-30">
-                        <div className='col-2'>
+                        <div className='col-25'>
                             <div className='form_control_wrapper'>
                                 <label>Quantity Number</label>
                                 <input
@@ -155,7 +178,7 @@ const Admin = () => {
                                 }
                             </div>
                         </div>
-                        <div className='col-2'>
+                        <div className='col-25'>
                             <div className='form_control_wrapper'>
                                 <label>Rate</label>
                                 <input
@@ -168,7 +191,7 @@ const Admin = () => {
                                 }
                             </div>
                         </div>
-                        <div className='col-2'>
+                        <div className='col-25'>
                             <div className='form_control_wrapper'>
                                 <label>Total Amount</label>
                                 <input
@@ -181,33 +204,17 @@ const Admin = () => {
                                 }
                             </div>
                         </div>
-                        <div className='col-2'>
+                        <div className='col-25'>
                             <div className='form_control_wrapper'>
                                 <label>Payment Type</label>
                                 <select name="payment_type" id="payment_type" value={formik.values.payment_type} onChange={formik.handleChange}>
                                     <option value="">Select Payment Type...</option>
                                     <option value="Baki">Baki</option>
                                     <option value="Jama">Jama</option>
-                                    <option value="Account">Account</option>
                                     <option value="Free of Charge">Free of Charge</option>
                                 </select>
                                 {
                                     formik.errors.payment_type && <div className='text-danger'>{formik.errors.payment_type}</div>
-                                }
-                            </div>
-                        </div>
-                        <div className='col-2'>
-                            <div className='form_control_wrapper'>
-                                <label>Place to send</label>
-                                <select name="place_to_send" id="cars" value={formik.values.place_to_send} onChange={formik.handleChange}>
-                                    <option value="">Select Place to Send...</option>
-                                    <option value="volvo">Volvo</option>
-                                    <option value="saab">Saab</option>
-                                    <option value="mercedes">Mercedes</option>
-                                    <option value="audi">Audi</option>
-                                </select>
-                                {
-                                    formik.errors.place_to_send && <div className='text-danger'>{formik.errors.place_to_send}</div>
                                 }
                             </div>
                         </div>
@@ -227,23 +234,62 @@ const Admin = () => {
                                 }
                             </div>
                         </div>
-                        <div className='col-4'>
-                            <div className='form_control_wrapper'>
-                                <label>Driver</label>
-                                <input
-                                    name='driver'
-                                    value={formik.values.driver}
-                                    onChange={formik.handleChange}
-                                />
-                                {
-                                    formik.errors.driver && <div className='text-danger'>{formik.errors.driver}</div>
-                                }
-                            </div>
-                        </div>
+
                     </div>
                     <div className="row justify-between mt-30">
                         <div className="col-12">
                             <button type='submit' className='pt__lr_num time_btn btn btn-submit'>Print and Save</button>
+                        </div>
+                    </div>
+
+                            </div>
+
+                        </div>
+                        <div className="col-25">
+                        <div className="pt__admin_charges"> 
+                                <table>
+                                    <tr>    
+                                        <th width='50'>
+                                            Charges
+                                        </th>
+                                        <th width='50'>
+
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Freight
+                                        </td>
+                                        <td>
+                                            50
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            LR Charge
+                                        </td>
+                                        <td>
+                                            10
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Total
+                                        </td>
+                                        <td>
+                                            60
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Grand Total
+                                        </td>
+                                        <td>
+                                            60
+                                        </td>
+                                    </tr>
+                                </table>
+                        </div>    
                         </div>
                     </div>
 

@@ -79,7 +79,7 @@ const Table = () => {
     }
 
     return (
-        <section className='pt__table_print'>
+        <section className='pt__table_print mb-5'>
             <div className="container">
                 <div className="row justify-between">
                     <div className="table-other gap-30 col-8">

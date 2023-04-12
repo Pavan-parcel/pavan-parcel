@@ -43,14 +43,14 @@ html
     padding: 0 15px
 
 .btn
-    padding: 15px 30px
+    padding: 8px 14px
     // border-radius: 10px
     background-color: #0083F9
     border: none
     color: $white
     font-family: 'Inter', sans-serif
-    font-weight: 500
-    font-size: 16px
+    font-weight: 400
+    font-size: 14px
     transition: all 0.5s
     cursor: pointer
     &:hover
@@ -115,7 +115,7 @@ a
     max-width: 100%
 
 .mt-30
-    margin-top: 30px
+    margin-top: 15px
 
 .mb-30
     margin-bottom: 30px
@@ -190,3 +190,51 @@ a
 +mobile
     .col-16, .col-2, .col-25, .col-3, .col-4, .col-45, .col-1, .col-6, .col-7, .col-8, .col-9, .col-12
         padding: 0 24px
+
+
+
+
+.setItem
+    .setitem_left
+        height: 100vh
+        background-color: #011442
+        padding: 30px   
+        li
+            padding: 15px 10px
+            &:hover
+                background-color: $gray
+                border-radius: 5px
+                a
+                    color: $dark-blur
+        a
+            color: #fff
+            display: inline-block
+            &:active
+                background-color: $gray
+    .setitem_right
+        padding: 30px   
+        .additem_form
+            display: inline-block
+            border: 2px solid $dark-blur
+            border-radius: 5px
+            margin-left: auto
+        .form_control
+            padding: 15px
+            border: none
+            outline: none
+            height: 50px
+            width: 500px
+        button
+            height: 55px
+            padding: 15px 20px
+        .additem_table
+            margin-top: 30px
+            table
+                width: 100%
+                border: 1px solid $gray
+                td
+                    border: 1px solid $gray
+                    padding: 15px
+                th
+                    border: 1px solid $gray
+                    padding: 15px
