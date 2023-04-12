@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './admin.sass'
 import supabase from '../../supabase/supabaseClient.js'
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 
 const Admin = () => {
+
+    const [branches, setBranches] = useState([]);
+    const [items, setItems] = useState([]);
+
     const validate = Yup.object().shape({
         sender_name: Yup.string().required("Please enter Sender name"),
         sender_number: Yup.string().required("Please enter Sender number"),
@@ -17,7 +21,7 @@ const Admin = () => {
         total_amount: Yup.string().required("Please enter total amount"),
         payment_type: Yup.string().required("Please select Payment type"),
         place_to_send: Yup.string().required("Please select Place to Send"),
-        remarks: Yup.string().required("Please enter remarks"),
+        // remarks: Yup.string().required("Please enter remarks"),
         driver: Yup.string().required("Please enter driver number")
     })
 
@@ -39,10 +43,10 @@ const Admin = () => {
         },
         validationSchema: validate,
         onSubmit: async (values) => {
-            console.log("values: ", values)
+            // console.log("values: ", values)
             const { data, error } = await supabase.from("parcels").insert({ ...values })
             if (!error) {
-                console.log("data: ", data);
+                // console.log("data: ", data);
                 window.location.reload(false);
             } else {
                 console.log("error: ", error);
@@ -50,6 +54,33 @@ const Admin = () => {
             }
         }
     })
+
+    useEffect(() => {
+        getBranches();
+        getItems();
+    }, [])
+
+    const getBranches = async() => {
+        const {data, error} = await supabase.from('branches').select("*");
+        if(!error){
+            console.log("data: ", data)
+            setBranches(data)
+        }
+        else {
+            console.log("error: ", error)
+        }
+    }
+    
+    const getItems = async() => {
+        const {data, error} = await supabase.from('items').select("*");
+        if(!error){
+            console.log("data: ", data)
+            setItems(data)
+        }
+        else {
+            console.log("error: ", error)
+        }
+    }
 
     return (
         <section className='pt__admin'>
@@ -115,10 +146,9 @@ const Admin = () => {
                                 <label>Item Details</label>
                                 <select name="item_detail" id="cars" value={formik.values.item_detail} onChange={formik.handleChange}>
                                     <option value="">Select Item detail...</option>
-                                    <option value="Volvo">Volvo</option>
-                                    <option value="Saab">Saab</option>
-                                    <option value="Mercedes">Mercedes</option>
-                                    <option value="Audi">Audi</option>
+                                    {items && items.map((item) => (
+                                        <option value={item?.item_name}>{item?.item_name}</option>
+                                    ))}
                                 </select>
                                 {
                                     formik.errors.item_detail && <div className='text-danger'>{formik.errors.item_detail}</div>
@@ -201,10 +231,11 @@ const Admin = () => {
                                 <label>Place to send</label>
                                 <select name="place_to_send" id="cars" value={formik.values.place_to_send} onChange={formik.handleChange}>
                                     <option value="">Select Place to Send...</option>
-                                    <option value="volvo">Volvo</option>
-                                    <option value="saab">Saab</option>
-                                    <option value="mercedes">Mercedes</option>
-                                    <option value="audi">Audi</option>
+                                    {
+                                        branches && branches.map((branch) => (
+                                            <option value={branch?.branch_name}>{branch?.branch_name}</option>
+                                        ))
+                                    }
                                 </select>
                                 {
                                     formik.errors.place_to_send && <div className='text-danger'>{formik.errors.place_to_send}</div>
@@ -222,9 +253,9 @@ const Admin = () => {
                                     value={formik.values.remarks}
                                     onChange={formik.handleChange}
                                 />
-                                {
+                                {/* {
                                     formik.errors.remarks && <div className='text-danger'>{formik.errors.remarks}</div>
-                                }
+                                } */}
                             </div>
                         </div>
                         <div className='col-4'>
