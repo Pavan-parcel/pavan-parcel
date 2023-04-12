@@ -1,14 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Route, Routes } from 'react-router-dom';
-import ItemTable from '../itemtable/itemTable';
-import ColorTable from '../itemtable/colorTable';
-import SendPlacetable from '../itemtable/sendPlacetable';
 
 
-const SetItem = () => {
+const SendPlacetable = () => {
     return (
-        <section className='setItem'>
+        <>
+            <section className='setItem'>
             <div className='setitem_container'>
                 <div className='row'>
                     <div className='col-4'>
@@ -28,7 +25,7 @@ const SetItem = () => {
                     </div>
                     <div className='col-8'>
                         
-                        {/* <div className="setitem_right">
+                        <div className="setitem_right">
                             <div className='d-flex justify-content-end'>
 
                                 <div className="additem_form">
@@ -46,20 +43,21 @@ const SetItem = () => {
                                     </tr>
                                     <tr>
                                         <td>1</td>
-                                        <td>Thelo</td>
+                                        <td>Sarangpur</td>
                                     </tr>
                                     <tr>
                                         <td>2</td>
-                                        <td>Box</td>
+                                        <td>Bapunagar</td>
                                     </tr>
                                 </table>
                             </div>
-                        </div> */}
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
+        </>
     )
 }
 
-export default SetItem
+export default SendPlacetable

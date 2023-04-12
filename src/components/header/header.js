@@ -20,13 +20,18 @@ const Header = () => {
                             <nav className="zn__header-menu">
                                 <ul>
                                     <li className="zn__main-menu-list">
-                                        <Link>
-                                        Dashboard
+                                        <Link to='/setting/items'>
+                                        Setting 
                                         </Link>
                                     </li>
                                     <li className="zn__main-menu-list">
-                                        <Link to='/setting'>
-                                        Setting 
+                                        <Link to='/topay' className='btn btn-primary'>
+                                        To Pay 
+                                        </Link>
+                                    </li>
+                                    <li className="zn__main-menu-list">
+                                        <Link to='/paid'  className='btn btn-primary'>
+                                        Paid 
                                         </Link>
                                     </li>
                                 </ul>

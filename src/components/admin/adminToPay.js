@@ -207,10 +207,8 @@ const Admin = () => {
                         <div className='col-25'>
                             <div className='form_control_wrapper'>
                                 <label>Payment Type</label>
-                                <select name="payment_type" id="payment_type" value={formik.values.payment_type} onChange={formik.handleChange}>
-                                    <option value="">Select Payment Type...</option>
-                                    <option value="Baki">To Pay</option>
-                                    <option value="Jama">Paid</option>
+                                <select name="payment_type" id="payment_type" disabled value={formik.values.payment_type} onChange={formik.handleChange}>
+                                    <option value="Jama">To Pay</option>
                                 </select>
                                 {
                                     formik.errors.payment_type && <div className='text-danger'>{formik.errors.payment_type}</div>
