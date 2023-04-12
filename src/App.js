@@ -18,8 +18,8 @@ function App() {
       
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/paid' element={<HomePaid />} />
-        <Route path='/topay' element={<HomeTopay />} />
+        {/* <Route path='/paid' element={<HomePaid />} />
+        <Route path='/topay' element={<HomeTopay />} /> */}
         
           <Route path='/setting/items' element={<ItemTable />} />
           <Route path='/setting/color' element={<ColorTable />} />

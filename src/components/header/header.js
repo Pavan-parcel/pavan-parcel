@@ -2,6 +2,7 @@ import React from 'react';
 import logo from '../../images/logo.png'
 import './header.sass'
 import { Link } from 'react-router-dom';
+import { UTILS } from '../../utils/contants';
 
 const Header = () => {
 
@@ -25,12 +26,12 @@ const Header = () => {
                                         </Link>
                                     </li>
                                     <li className="zn__main-menu-list">
-                                        <Link to='/topay' className='btn btn-primary'>
+                                        <Link to='' onClick={() => UTILS.payment_type = 'To Pay'} className='btn btn-primary'>
                                         To Pay 
                                         </Link>
                                     </li>
                                     <li className="zn__main-menu-list">
-                                        <Link to='/paid'  className='btn btn-primary'>
+                                        <Link to='' onClick={() => UTILS.payment_type = 'Paid'}  className='btn btn-primary'>
                                         Paid 
                                         </Link>
                                     </li>

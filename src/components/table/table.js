@@ -8,7 +8,23 @@ import "react-datepicker/dist/react-datepicker.css";
 
 function MyVerticallyCenteredModal(props) {
   const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState();
+  const [endDate, setEndDate] = useState(new Date());
+  const [branches, setBranches] = useState([]);
+
+  useEffect(() => {
+    getBranches();
+  }, [])
+
+  const getBranches = async () => {
+    const { data, error } = await supabase.from("branches").select("*");
+    if (!error) {
+    //   console.log("data: ", data);
+      setBranches(data);
+    } else {
+      console.log("error: ", error);
+    }
+  };
+
   return (
     <Modal
       {...props}
@@ -31,19 +47,11 @@ function MyVerticallyCenteredModal(props) {
                 />
               <div className="">to</div>
               <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
                 maxDate={new Date()}
               />
             </div>
-            {/* <select name="" id="" className='col-10'>
-                            <option value=""> 03/27/2023 - 03/27/203 </option>
-                            <option value=""> Tomorrow </option>
-                            <option value=""> Last Week </option>
-                            <option value=""> Last Month </option>
-                            <option value=""> This Month </option>
-                            <option value=""> Custom </option>
-                        </select> */}
           </div>
           <div className="line"></div>
           <select name="" id="" className="w-100 general_delivery my-4">
@@ -52,13 +60,21 @@ function MyVerticallyCenteredModal(props) {
           </select>
           <div className="send-to-rec d-flex justify-content-between align-items-center">
             <select name="" id="" className="w-100 general_delivery">
-              <option value="">Hirabag</option>
-              <option value="">Bharuch</option>
+              <option value="">From branch</option>
+              {
+                  branches && branches.map((branch) => (
+                    <option value={branch?.branch_name}>{branch?.branch_name}</option>
+                ))
+              }
             </select>
             <p className="px-3">To</p>
             <select name="" id="" className="w-100 general_delivery">
-              <option value="">Amdavad</option>
-              <option value="">Bapunagar</option>
+            <option value="">To branch</option>
+              {
+                  branches && branches.map((branch) => (
+                    <option value={branch?.branch_name}>{branch?.branch_name}</option>
+                ))
+              }
             </select>
           </div>
 
