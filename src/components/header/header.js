@@ -25,18 +25,8 @@ const Header = () => {
                                         </Link>
                                     </li>
                                     <li className="zn__main-menu-list">
-                                        <Link>
-                                        Parcel Management
-                                        </Link>
-                                    </li>
-                                    <li className="zn__main-menu-list">
-                                        <Link>
-                                        Expenses
-                                        </Link>
-                                    </li>
-                                    <li className="zn__main-menu-list">
-                                        <Link>
-                                        Maintenance Management
+                                        <Link to='/setting'>
+                                        Setting 
                                         </Link>
                                     </li>
                                 </ul>
@@ -44,17 +34,16 @@ const Header = () => {
                             </div>
                             <div className="zn__header-btn">
                                 <form className='header_form'>
-
                                     <input type="number" placeholder='Enter LR Number' className='header_input' />
                                     <input type="submit" className='btn' value="Find Details"/>
                                 </form> 
+                                
                             </div>
                             
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="zn__header-line"></div>
         </header>
     )
 }

@@ -22,9 +22,12 @@
             color: $white
 .pt__table_print
     margin-top: 15px
+    .col-4,.col-8
+        padding: 0 !important
     .pt__table-data
         width: 100%
         margin-top: 30px
+        padding: 0
         table
             width: 100%
             // text-align: center
@@ -33,7 +36,8 @@
                 border: 1px solid $dark-blur
             th
                 text-align: left
-                padding: 10px
+                padding: 5px
+                font-size: 14px
                 border: 1px solid $dark-blur
                 background-color: $black
                 color: $white
@@ -41,10 +45,12 @@
         display: flex
         align-items: center
         border-radius: 10px
-        overflow: hidden
+        .btn
+            border-radius: 0 5px 5px 0
     .header_input
-        padding: 15px
-        height: 50px
+        font-size: 14px
+        padding: 5px
+        height: 37px
         &::placeholder
             font-family: 'Inter', sans-serif
     .table-other
@@ -56,9 +62,11 @@
         display: flex
         justify-content: end
     .time_btn
-        padding: 15px 30px
+        padding: 8px 14px
+        font-size: 14px
         border-radius: 5px
-        font-weight: 600
+        font-weight: 500
+        height: 37px
     .pt__lr_num
         background-color: #FFAD33
     .pt__lr_time
