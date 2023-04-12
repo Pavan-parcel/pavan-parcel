@@ -20,23 +20,18 @@ const Header = () => {
                             <nav className="zn__header-menu">
                                 <ul>
                                     <li className="zn__main-menu-list">
-                                        <Link>
-                                        Dashboard
+                                        <Link to='/setting/items'>
+                                        Setting 
                                         </Link>
                                     </li>
                                     <li className="zn__main-menu-list">
-                                        <Link>
-                                        Parcel Management
+                                        <Link to='/topay' className='btn btn-primary'>
+                                        To Pay 
                                         </Link>
                                     </li>
                                     <li className="zn__main-menu-list">
-                                        <Link>
-                                        Expenses
-                                        </Link>
-                                    </li>
-                                    <li className="zn__main-menu-list">
-                                        <Link>
-                                        Maintenance Management
+                                        <Link to='/paid'  className='btn btn-primary'>
+                                        Paid 
                                         </Link>
                                     </li>
                                 </ul>
@@ -44,17 +39,16 @@ const Header = () => {
                             </div>
                             <div className="zn__header-btn">
                                 <form className='header_form'>
-
                                     <input type="number" placeholder='Enter LR Number' className='header_input' />
                                     <input type="submit" className='btn' value="Find Details"/>
                                 </form> 
+                                
                             </div>
                             
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="zn__header-line"></div>
         </header>
     )
 }

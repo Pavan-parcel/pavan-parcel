@@ -94,18 +94,14 @@ const Table = () => {
     }
   }
 
-  return (
-    <section className="pt__table_print">
-      <div className="container">
-        <div className="row justify-between">
-          <div className="table-other gap-30 col-8">
-            <Button
-              variant="primary"
-              className="pt__lr_item time_btn"
-              onClick={() => setModalShow(true)}
-            >
-              General
-            </Button>
+    return (
+        <section className='pt__table_print mb-5'>
+            <div className="container">
+                <div className="row justify-between">
+                    <div className="table-other gap-30 col-8">
+                        <Button variant="primary" className='pt__lr_item time_btn' onClick={() => setModalShow(true)}>
+                        General
+                        </Button>
 
             <MyVerticallyCenteredModal
               show={modalShow}
