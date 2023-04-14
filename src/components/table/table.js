@@ -70,6 +70,7 @@ function MyVerticallyCenteredModal(props) {
             <p className="px-3">To</p>
             <select name="" id="" className="w-100 general_delivery">
             <option value="">To branch</option>
+            <option value="all">All</option>
               {
                   branches && branches.map((branch) => (
                     <option value={branch?.branch_name}>{branch?.branch_name}</option>
