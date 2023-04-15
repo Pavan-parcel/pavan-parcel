@@ -1,41 +1,128 @@
-import React from 'react'
-import './login.sass'
-import login from '../../images/truck.svg'
+import React, { useEffect, useState } from "react";
+import "./login.sass";
+import login from "../../images/truck.svg";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import supabase from "../../supabase/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import { CONSTANTS } from "../../utils/contants";
 
 const Login = () => {
-    return (
-        <section className='pt__login'>
-            <div className="container">
-                <div className="row">
-                    <div className="col-8">
-                        <div className="pt__login_img">
-                            <img src={login} alt="" />
-                        </div>
-                    </div>
-                    <div className="col-4">
-                        <div className="pt__login_form">
-                            <form action="">
-                                <h2>Pavan Parcel Service</h2>
-                                <p>The right transportation solution for you</p>
+  const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState("");
 
-                                <div className="pt__login_input">
-                                    <label>Username</label>
-                                    <input type="text" name="" id="" className='form-control' />
-                                </div>
-                                <div className="pt__login_input">
-                                    <label>Password</label>
-                                    <input type="text" name="" id="" className='form-control' />
-                                </div>
-                                <div className="pt__login_btn">
-                                    <input type="submit" name="" id="" value='Submit' className='submit_btn' />
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  async function getUsers() {
+    const { data, error } = await supabase.from("branches").select("*");
+    if (data) {
+      setUsers(data);
+    } else {
+      throw new Error(error);
+    }
+  }
+
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  let formik = useFormik({
+    initialValues: {
+      branch: "",
+      password: "",
+    },
+    validationSchema: Yup.object().shape({
+      branch: Yup.string().required("Branch name is required"),
+      password: Yup.string().required("Password is required"),
+    }),
+    onSubmit: async (values) => {
+      console.log("values: ", values);
+      const validate = users.filter(
+        (branch) =>
+          branch?.branch_name.toLowerCase() === values.branch &&
+          branch?.password === values.password
+      );
+      if (validate.length === 1) {
+        setError("");
+        const branch = capitalizeFirstLetter(values.branch)
+        localStorage.setItem(CONSTANTS.BRANCH, branch);
+        navigate("/");
+      } else {
+        setError("Invalid Branch name or Password");
+      }
+    },
+  });
+
+  return (
+    <section className="pt__login">
+      <div className="container">
+        <div className="row">
+          <div className="col-8">
+            <div className="pt__login_img">
+              <img src={login} alt="" />
             </div>
-        </section>
-    )
-}
+          </div>
+          <div className="col-4">
+            <div className="pt__login_form">
+              <form action="" onSubmit={formik.handleSubmit}>
+                <h2>Pavan Parcel Service</h2>
+                <p>The right transportation solution for you</p>
 
-export default Login
+                {error && <div className="text-danger fs-5">{error}</div>}
+
+                <div className="pt__login_input">
+                  <label>Branch Name</label>
+                  <input
+                    type="text"
+                    name="branch"
+                    id=""
+                    placeholder="Branch name"
+                    className="form-control text-light"
+                    value={formik.values.branch}
+                    onChange={formik.handleChange}
+                  />
+                  {formik.touched.branch && formik.errors.branch && (
+                    <div className="text-danger text-start mt-2 fs-5">
+                      {formik.errors.branch}
+                    </div>
+                  )}
+                </div>
+                <div className="pt__login_input">
+                  <label>Password</label>
+                  <input
+                    type="text"
+                    name="password"
+                    id=""
+                    placeholder="Password"
+                    className="form-control text-light"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                  />
+                  {formik.touched.password && formik.errors.password && (
+                    <div className="text-danger text-start mt-2 fs-5">
+                      {formik.errors.password}
+                    </div>
+                  )}
+                </div>
+                <div className="pt__login_btn">
+                  <input
+                    type="submit"
+                    name=""
+                    id=""
+                    value="Submit"
+                    className="submit_btn"
+                  />
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Login;

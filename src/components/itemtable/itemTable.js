@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import supabase from "../../supabase/supabaseClient";
+import {MdDelete} from 'react-icons/md'
 
 const ItemTable = () => {
   const [items, setItems] = useState([]);
@@ -21,6 +22,17 @@ const ItemTable = () => {
       setItems(data);
     }
   };
+
+  const deleteItem = async (id) => {
+    const {data, error} = await supabase.from('items').delete().eq("id", id)
+    if(data){
+      getItems()
+    } else {
+      getItems()
+      // console.log("error: ", error)
+      // throw new Error(error)
+    }
+  }
 
   return (
     <>
@@ -61,7 +73,7 @@ const ItemTable = () => {
                             .from("items")
                             .insert({ item_name: itemName });
                             if(!error){
-                                window.location.reload();
+                                getItems();
                             }
                         }}
                       >
@@ -73,14 +85,18 @@ const ItemTable = () => {
                 <div className="additem_table">
                   <table cellPadding={0} cellSpacing={0}>
                     <tr>
-                      <th>No.</th>
-                      <th>Item</th>
+                      <th className="col-1">No.</th>
+                      <th className="col-10">Item</th>
+                      <th className="col-1">Actions</th>
                     </tr>
                     {items &&
-                      items.map((item) => (
+                      items.map((item, index) => (
                         <tr>
-                          <td>{item?.id}</td>
+                          <td>{index + 1}</td>
                           <td>{item?.item_name}</td>
+                          <td className="text-center">
+                            <MdDelete size={25} onClick={() => deleteItem(item?.id)} />
+                          </td>
                         </tr>
                       ))}
                   </table>

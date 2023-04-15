@@ -9,10 +9,18 @@ import { useState } from 'react'
 const Time = () => {
 
   const [LR, setLR] = useState(0);
+  const [date, setDate] = useState(moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a'))
 
   useEffect(() => {
     getFormCount();
   }, [])
+
+  useEffect(() => {
+    var timer = setInterval(()=>setDate(moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a')), 1000 )
+    return function cleanup() {
+        clearInterval(timer)
+    }
+});
 
   async function getFormCount(){
     const {data, error} = await supabase.from('forms').select("*");
@@ -28,7 +36,7 @@ const Time = () => {
                  <div className='col-12'>
                     <div className='pt__time_inner'>
                         <div className='pt__lr_num time_btn'>LR Number :  {LR}</div>
-                        <div className='pt__lr_time time_btn'>{moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a')}</div>
+                        <div className='pt__lr_time time_btn'>{date}</div>
                         <a className='pt__lr_item time_btn' href='#'> 
                         Add More Items 
                         </a>
