@@ -20,8 +20,8 @@ export const Document = forwardRef((props, ref) => (
           <th>LR NUM...</th>
           <th>LR Type</th>
           <th>Dest</th>
-          <th>c/nor</th>
-          <th>c/nee</th>
+          <th>Sender</th>
+          <th>Reciever</th>
           <th>Art</th>
           <th>Art Type</th>
           <th>Total</th>
@@ -40,6 +40,17 @@ export const Document = forwardRef((props, ref) => (
               <td>{parcel?.total_amount}</td>
             </tr>
           ))}
+          <tr>
+          <th>-</th>
+          <th>-</th>
+          <th>-</th>
+          <th>-</th>
+          <th>-</th>
+          <th>-</th>
+          <th>12</th>
+          <th>-</th>
+          <th>300</th>
+        </tr>
       </table>
     </div>
   </div>

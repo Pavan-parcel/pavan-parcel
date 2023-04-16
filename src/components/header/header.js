@@ -22,25 +22,7 @@ const Header = () => {
                 <nav className="zn__header-menu">
                   <ul>
                     <li className="zn__main-menu-list">
-                      <Link to="/setting/items">Setting</Link>
-                    </li>
-                    <li className="zn__main-menu-list">
-                      <Link
-                        to=""
-                        onClick={() => (UTILS.payment_type = "To Pay")}
-                        className="btn btn-primary"
-                      >
-                        To Pay
-                      </Link>
-                    </li>
-                    <li className="zn__main-menu-list">
-                      <Link
-                        to=""
-                        onClick={() => (UTILS.payment_type = "Paid")}
-                        className="btn btn-primary"
-                      >
-                        Paid
-                      </Link>
+                      <Link to="/setting/items" className="btn btn-primary">Setting</Link>
                     </li>
                   </ul>
                 </nav>

@@ -9,6 +9,7 @@ import { CONSTANTS } from "../../utils/contants";
 import { Document } from "../../general/document";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 function MyVerticallyCenteredModal(props) {
   const [startDate, setStartDate] = useState(new Date());
@@ -206,12 +207,6 @@ const Table = () => {
               onHide={() => setModalShow(false)}
             />
 
-            <a className="pt__lr_item time_btn" href="#">
-              Bulk Slip Print
-            </a>
-            <a className="pt__lr_item time_btn" href="#">
-              Parcel Status
-            </a>
           </div>
           <div className="search_lr col-4">
             <form className="header_form">
@@ -242,7 +237,7 @@ const Table = () => {
               {data.map((item, index) => (
                 <tr>
                   <td>{new Date(item?.created_at).toLocaleDateString()}</td>
-                  <td>{item?.id}</td>
+                  <td> <Link className="btn-success btn"> {item?.id} </Link></td>
                   <td>{item?.sender_name}</td>
                   <td>{item?.receiver_name}</td>
                   <td>{item?.item_detail}</td>

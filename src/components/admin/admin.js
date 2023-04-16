@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./admin.sass";
 import supabase from "../../supabase/supabaseClient.js";
 import * as Yup from "yup";
+import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { CONSTANTS } from "../../utils/contants";
 
@@ -39,7 +40,7 @@ const Admin = () => {
       total_amount: "",
       place_to_send: "",
       remarks: "",
-    //   driver: "",
+      //   driver: "",
     },
     validationSchema: validate,
     onSubmit: async (values) => {
@@ -50,16 +51,16 @@ const Admin = () => {
       if (!error) {
         // console.log("data: ", data);
         const form = await supabase.from('forms').select("*");
-        if(form.data){
-            let count = form.data[0]?.form_no;
-            console.log("count: ", count)
-            const formUpdate = await supabase.from('forms').update({form_no: count + 1}).eq('id', 1)
-            if(formUpdate.data){
-                window.location.reload(false);
-            } else {
-                window.location.reload(false);
-                console.log("eror: ", formUpdate.error)
-            }
+        if (form.data) {
+          let count = form.data[0]?.form_no;
+          console.log("count: ", count)
+          const formUpdate = await supabase.from('forms').update({ form_no: count + 1 }).eq('id', 1)
+          if (formUpdate.data) {
+            window.location.reload(false);
+          } else {
+            window.location.reload(false);
+            console.log("eror: ", formUpdate.error)
+          }
         }
       } else {
         console.log("error: ", error);
@@ -76,8 +77,8 @@ const Admin = () => {
   const getBranches = async () => {
     const { data, error } = await supabase.from("branches").select("*");
     if (!error) {
-    //   console.log("data: ", data);
-    let datas = data.filter(item => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH))
+      //   console.log("data: ", data);
+      let datas = data.filter(item => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH))
       setBranches(datas);
     } else {
       console.log("error: ", error);
@@ -87,7 +88,7 @@ const Admin = () => {
   const getItems = async () => {
     const { data, error } = await supabase.from("items").select("*");
     if (!error) {
-    //   console.log("data: ", data);
+      //   console.log("data: ", data);
       setItems(data);
     } else {
       console.log("error: ", error);
@@ -101,33 +102,63 @@ const Admin = () => {
           <div className="row">
             <div className="col-7">
               <div className="container">
-                <div className="row justify-between">
-                  <div className="m-15">
-                    <div className="col-12">
-                      <div className="form_control_wrapper">
-                        <label>Place to send</label>
-                        <select
-                          name="place_to_send"
-                          id="cars"
-                          value={formik.values.place_to_send}
-                          onChange={formik.handleChange}
-                        >
-                          <option value="">Select Place to Send...</option>
-                          {branches &&
-                            branches.map((branch) => (
-                              <option value={branch?.branch_name}>
-                                {branch?.branch_name}
-                              </option>
-                            ))}
-                        </select>
-                        {formik.touched.place_to_send && formik.errors.place_to_send && (
-                          <div className="text-danger">
-                            {formik.errors.place_to_send}
-                          </div>
-                        )}
-                      </div>
+                <div className="row m-15 justify-between">
+                  <div className="col-8">
+                    <div className="form_control_wrapper">
+                      <label>Place to send</label>
+                      <select
+                        name="place_to_send"
+                        id="cars"
+                        value={formik.values.place_to_send}
+                        onChange={formik.handleChange}
+                      >
+                        <option value="">Select Place to Send...</option>
+                        {branches &&
+                          branches.map((branch) => (
+                            <option value={branch?.branch_name}>
+                              {branch?.branch_name}
+                            </option>
+                          ))}
+                      </select>
+                      {formik.touched.place_to_send && formik.errors.place_to_send && (
+                        <div className="text-danger">
+                          {formik.errors.place_to_send}
+                        </div>
+                      )}
                     </div>
                   </div>
+                    <div className="col-4">
+                      <ul className="d-flex gap-30 justify-content-end">
+
+                        <li className="zn__main-menu-list">
+                          <Link
+                            to=""
+                            // onClick={() => (UTILS.payment_type = "To Pay")}
+                            className="btn btn-primary"
+                          >
+                            To Pay
+                          </Link>
+                        </li>
+                        <li className="zn__main-menu-list">
+                          <Link
+                            to=""
+                            // onClick={() => (UTILS.payment_type = "Paid")}
+                            className="btn btn-primary"
+                          >
+                            Paid
+                          </Link>
+                        </li>
+                        <li className="zn__main-menu-list">
+                          <Link
+                            to=""
+                            // onClick={() => (UTILS.payment_type = "Paid")}
+                            className="btn btn-primary"
+                          >
+                            Manual
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
                 </div>
                 <div className="row justify-between">
                   <div className="col-30">
@@ -260,8 +291,8 @@ const Admin = () => {
                         name="rate"
                         value={formik.values.rate}
                         onChange={(e) => {
-                            formik.handleChange(e);
-                            formik.setFieldValue("total_amount", formik.values.quantity * e.target.value)
+                          formik.handleChange(e);
+                          formik.setFieldValue("total_amount", formik.values.quantity * e.target.value)
                         }}
                       />
                       {formik.touched.rate && formik.errors.rate && (
@@ -306,7 +337,7 @@ const Admin = () => {
                   </div>
                 </div>
 
-                <div className="row justify-between mt-30">
+                <div className="row justify-between align-items-end mt-30">
                   <div className="col-4">
                     <div className="form_control_wrapper">
                       <label>Remarks</label>
@@ -320,9 +351,7 @@ const Admin = () => {
                                 } */}
                     </div>
                   </div>
-                </div>
-                <div className="row justify-between mt-30">
-                  <div className="col-12">
+                  <div className="col-4 text-end">
                     <button
                       type="submit"
                       className="pt__lr_num time_btn btn btn-submit"
