@@ -10,6 +10,7 @@ import HomePaid from './components/home/homePaid';
 import HomeTopay from './components/home/homeTopay';
 import { useEffect, useState } from 'react';
 import { CONSTANTS } from './utils/contants';
+import General from './components/general/general';
 
 
 function App() {
@@ -44,7 +45,8 @@ function App() {
         <Route path='/' element={<Home />} />
         {/* <Route path='/paid' element={<HomePaid />} />
         <Route path='/topay' element={<HomeTopay />} /> */}
-        
+
+          <Route path='/general' element={<General />} />
           <Route path='/setting/items' element={<ItemTable />} />
           <Route path='/setting/color' element={<ColorTable />} />
           <Route path='/setting/sendplace' element={<SendPlacetable />} />

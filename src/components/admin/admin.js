@@ -16,7 +16,7 @@ const Admin = () => {
     receiver_name: Yup.string().required("Please enter Receiver name"),
     receiver_number: Yup.string().required("Please enter Receiver number"),
     item_detail: Yup.string().required("Please select item detail"),
-    color: Yup.string().required("Please select item color"),
+    // color: Yup.string().required("Please select item color"),
     quantity: Yup.string().required("Please enter qunatity"),
     rate: Yup.string().required("Please enter rate"),
     total_amount: Yup.string().required("Please enter total amount"),
@@ -133,7 +133,7 @@ const Admin = () => {
                         <li className="zn__main-menu-list">
                           <Link
                             to=""
-                            // onClick={() => (UTILS.payment_type = "To Pay")}
+                            onClick={() => formik.setFieldValue("payment_type", 'To Pay')}
                             className="btn btn-primary"
                           >
                             To Pay
@@ -142,7 +142,7 @@ const Admin = () => {
                         <li className="zn__main-menu-list">
                           <Link
                             to=""
-                            // onClick={() => (UTILS.payment_type = "Paid")}
+                            onClick={() => formik.setFieldValue("payment_type", 'Paid')}
                             className="btn btn-primary"
                           >
                             Paid
@@ -151,7 +151,6 @@ const Admin = () => {
                         <li className="zn__main-menu-list">
                           <Link
                             to=""
-                            // onClick={() => (UTILS.payment_type = "Paid")}
                             className="btn btn-primary"
                           >
                             Manual
@@ -262,9 +261,9 @@ const Admin = () => {
                         <option value="Blue">Blue</option>
                         <option value="Cyan">Cyan</option>
                       </select>
-                      {formik.touched.color && formik.errors.color && (
+                      {/* {formik.touched.color && formik.errors.color && (
                         <div className="text-danger">{formik.errors.color}</div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>

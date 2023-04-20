@@ -9,7 +9,7 @@ import { CONSTANTS } from "../../utils/contants";
 import { Document } from "../../general/document";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function MyVerticallyCenteredModal(props) {
   const [startDate, setStartDate] = useState(new Date());
@@ -19,6 +19,7 @@ function MyVerticallyCenteredModal(props) {
   const [sentBranch, setSentBranch] = useState("");
 
   const generalRef = useRef();
+  const navigate = useNavigate();
 
   const handlePrint = useReactToPrint({
     content: () => generalRef.current,
@@ -30,7 +31,8 @@ function MyVerticallyCenteredModal(props) {
 
   useEffect(() => {
     if (data.length > 0) {
-      handlePrint();
+      // handlePrint();
+      navigate('/general', { state: { data: data, dates: {startDate: startDate, endDate: endDate} } });
     }
   }, [data]);
 
@@ -95,9 +97,6 @@ function MyVerticallyCenteredModal(props) {
         <Modal.Title id="contained-modal-title-vcenter">General</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="d-none">
-          <Document ref={generalRef} data={data} />
-        </div>
         <form action="" className="form_control_wrapper">
           <div className="days_count d-flex gap-3 align-center">
             <h6>Date : </h6>
@@ -169,6 +168,9 @@ function MyVerticallyCenteredModal(props) {
 const Table = () => {
   const [modalShow, setModalShow] = React.useState(false);
   const [data, setData] = useState([]);
+  const [date, setDate] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     getData();
@@ -186,6 +188,18 @@ const Table = () => {
       setData(filteredData);
     } else {
       throw new Error(error);
+    }
+  }
+
+  const onDateFind = async (e) => {
+    e.preventDefault();
+    const {data, error} = await supabase.from('parcels').select("*").gte("created_at", moment(date).format("YYYY-MM-DD"));
+    if(!error){
+      const parcels = data.filter(parcel => parcel.branch === localStorage.getItem(CONSTANTS.BRANCH));
+      navigate('/general', { state: { data: parcels, dates: {startDate: date, endDate: date} } });
+    }
+    else {
+      throw new Error(error)
     }
   }
 
@@ -210,12 +224,20 @@ const Table = () => {
           </div>
           <div className="search_lr col-4">
             <form className="header_form">
+              {/* <DatePicker
+                selected={date}
+                onChange={(date) => setDate(date)}
+                maxDate={new Date()}
+              /> */}
               <input
                 type="date"
-                placeholder="Enter LR Number"
+                placeholder="Select date"
                 className="header_input"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                max={new Date().toISOString().split("T")[0]}
               />
-              <input type="submit" className="btn" value="Find Details" />
+              <input type="submit" className="btn" value="Find Details" onClick={onDateFind} />
             </form>
           </div>
         </div>
@@ -243,7 +265,7 @@ const Table = () => {
                   <td>{item?.item_detail}</td>
                   <td>{item?.quantity}</td>
                   <td>{item?.total_amount}</td>
-                  <td>{item?.payment_type}</td>
+                  <td className={item?.payment_type === "Paid" ? 'text-success' : 'text-danger'}>{item?.payment_type}</td>
                   <td>{item?.place_to_send}</td>
                   <td>Print & Action</td>
                 </tr>
