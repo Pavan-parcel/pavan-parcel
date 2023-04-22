@@ -70,7 +70,7 @@ function MyVerticallyCenteredModal(props) {
       const { data, error } = await supabase
         .from("parcels")
         .select("*")
-        .gte("created_at", moment(startDate).format("YYYY-MM-DD"));
+        .eq("created_at", moment(startDate).format("YYYY-MM-DD"));
       if (data) {
         let datas = data.filter(
           (parcel) => parcel.place_to_send === sentBranch
