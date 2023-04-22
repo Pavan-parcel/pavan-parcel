@@ -38,6 +38,7 @@ export const Document = forwardRef((props, ref) => {
             <th>Dest</th>
             <th>Sender</th>
             <th>Reciever</th>
+            <th>Reciever No.</th>
             <th>Art</th>
             <th>Art Type</th>
             <th>Total</th>
@@ -46,11 +47,12 @@ export const Document = forwardRef((props, ref) => {
             props.data.map((parcel, index) => (
               <tr>
                 <td>{index + 1}</td>
-                <td>{parcel?.id}</td>
+                <td> {parcel?.id}</td>
                 <td>{parcel?.payment_type}</td>
                 <td>{parcel?.place_to_send}</td>
                 <td>{parcel?.sender_name}</td>
                 <td>{parcel?.receiver_name}</td>
+                <td>{parcel?.receiver_number}</td>
                 <td>{parcel?.quantity}</td>
                 <td>{parcel?.item_detail}</td>
                 <td>{parcel?.total_amount}</td>
@@ -63,9 +65,10 @@ export const Document = forwardRef((props, ref) => {
             <th>-</th>
             <th>-</th>
             <th>-</th>
+            <th>-</th>
             <th>{quantity}</th>
             <th>-</th>
-            <th>{total_amount}</th>
+            <th>Paid : 2400 <br/> To Pay : 500 </th>
           </tr>
         </table>
       </div>

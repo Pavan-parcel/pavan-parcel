@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../../images/logo.png";
+import logo from "../../images/pavan_logo.jpeg";
 import "./header.sass";
 import { Link, useNavigate } from "react-router-dom";
 import { CONSTANTS, UTILS } from "../../utils/contants";

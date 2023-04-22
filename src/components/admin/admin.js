@@ -12,9 +12,9 @@ const Admin = () => {
 
   const validate = Yup.object().shape({
     sender_name: Yup.string().required("Please enter Sender name"),
-    sender_number: Yup.string().required("Please enter Sender number"),
+    sender_number: Yup.string().required("Please enter Sender number").max(10, 'Too Long!').min(10, 'minimum!'),
     receiver_name: Yup.string().required("Please enter Receiver name"),
-    receiver_number: Yup.string().required("Please enter Receiver number"),
+    receiver_number: Yup.string().required("Please enter Receiver number").max(10, 'Too Long!').min(10, 'minimum'),
     item_detail: Yup.string().required("Please select item detail"),
     // color: Yup.string().required("Please select item color"),
     quantity: Yup.string().required("Please enter qunatity"),
@@ -102,6 +102,15 @@ const Admin = () => {
     }
   };
 
+  function handleEnter(event) {
+    if (event.keyCode === 13) {
+      const form = event.target.form;
+      const index = Array.prototype.indexOf.call(form, event.target);
+      form.elements[index + 1].focus();
+      event.preventDefault();
+    }
+  }
+
   return (
     <section className="pt__admin">
       <form onSubmit={formik.handleSubmit}>
@@ -109,34 +118,9 @@ const Admin = () => {
           <div className="row">
             <div className="col-7">
               <div className="container">
-                <div className="row m-15 justify-between">
-                  <div className="col-8">
-                    <div className="form_control_wrapper">
-                      <label>Place to send</label>
-                      <select
-                        name="place_to_send"
-                        id="cars"
-                        value={formik.values.place_to_send}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Place to Send...</option>
-                        {branches &&
-                          branches.map((branch) => (
-                            <option value={branch?.branch_name}>
-                              {branch?.branch_name}
-                            </option>
-                          ))}
-                      </select>
-                      {formik.touched.place_to_send &&
-                        formik.errors.place_to_send && (
-                          <div className="text-danger">
-                            {formik.errors.place_to_send}
-                          </div>
-                        )}
-                    </div>
-                  </div>
+                <div className="row justify-between">
                   <div className="col-4">
-                    <ul className="d-flex gap-30 justify-content-end">
+                    <ul className="d-flex gap-30">
                       <li className="zn__main-menu-list">
                         <Link
                           to=""
@@ -167,11 +151,41 @@ const Admin = () => {
                     </ul>
                   </div>
                 </div>
+                <div className="row m-15 justify-between">
+                  <div className="col-8">
+                    <div className="form_control_wrapper">
+                      <label>Place to send</label>
+                      <select
+                        onKeyDown={handleEnter}
+                        name="place_to_send"
+                        id="cars"
+                        value={formik.values.place_to_send}
+                        onChange={formik.handleChange}
+                      >
+                        <option value="">Select Place to Send...</option>
+                        {branches &&
+                          branches.map((branch) => (
+                            <option value={branch?.branch_name}>
+                              {branch?.branch_name}
+                            </option>
+                          ))}
+                      </select>
+                      {formik.touched.place_to_send &&
+                        formik.errors.place_to_send && (
+                          <div className="text-danger">
+                            {formik.errors.place_to_send}
+                          </div>
+                        )}
+                    </div>
+                  </div>
+
+                </div>
                 <div className="row justify-between">
                   <div className="col-30">
                     <div className="form_control_wrapper">
                       <label>Sender Name</label>
                       <input
+                        onKeyDown={handleEnter}
                         name="sender_name"
                         value={formik.values.sender_name}
                         onChange={formik.handleChange}
@@ -188,6 +202,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Sender Number</label>
                       <input
+                        onKeyDown={handleEnter}
                         name="sender_number"
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
@@ -204,6 +219,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Receiver Name</label>
                       <input
+                        onKeyDown={handleEnter}
                         name="receiver_name"
                         value={formik.values.receiver_name}
                         onChange={formik.handleChange}
@@ -220,6 +236,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Receiver Number</label>
                       <input
+                        onKeyDown={handleEnter}
                         name="receiver_number"
                         value={formik.values.receiver_number}
                         onChange={formik.handleChange}
@@ -238,6 +255,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Item Details</label>
                       <select
+                        onKeyDown={handleEnter}
                         name="item_detail"
                         id="cars"
                         value={formik.values.item_detail}
@@ -263,6 +281,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Colors</label>
                       <select
+                        onKeyDown={handleEnter}
                         name="color"
                         id="color"
                         value={formik.values.color}
@@ -285,6 +304,8 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Quantity Number</label>
                       <input
+                        onKeyDown={handleEnter}
+                        type="number"
                         name="quantity"
                         value={formik.values.quantity}
                         onChange={formik.handleChange}
@@ -300,7 +321,9 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Rate</label>
                       <input
+                        onKeyDown={handleEnter}
                         name="rate"
+                        type="number"
                         value={formik.values.rate}
                         onChange={(e) => {
                           formik.handleChange(e);
@@ -361,6 +384,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Remarks</label>
                       <input
+                        onKeyDown={handleEnter}
                         name="remarks"
                         value={formik.values.remarks}
                         onChange={formik.handleChange}
