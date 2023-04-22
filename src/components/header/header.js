@@ -34,7 +34,9 @@ const Header = () => {
                     placeholder="Enter LR Number"
                     className="header_input"
                   />
-                  <input type="submit" className="btn" value="Find Details" />
+                  <Link to='/lr' className="btn btn-primary">
+                    Find Details
+                  </Link>
                 </form>
 
                 <button

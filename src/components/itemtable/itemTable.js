@@ -68,11 +68,13 @@ const ItemTable = () => {
                       />
                       <button
                         className="btn btn-primary"
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.preventDefault();
                           const { data, error } = await supabase
                             .from("items")
                             .insert({ item_name: itemName });
                             if(!error){
+                              setItemName("")
                                 getItems();
                             }
                         }}
@@ -94,7 +96,7 @@ const ItemTable = () => {
                         <tr>
                           <td>{index + 1}</td>
                           <td>{item?.item_name}</td>
-                          <td className="text-center">
+                          <td className="text-center" role="button">
                             <MdDelete size={25} onClick={() => deleteItem(item?.id)} />
                           </td>
                         </tr>

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import supabase from "../../supabase/supabaseClient";
+import { MdDelete } from "react-icons/md";
 
 const ColorTable = () => {
   const [colors, setColors] = useState([]);
@@ -19,6 +20,17 @@ const ColorTable = () => {
       .order("id", { ascending: true });
     if (!error) {
       setColors(data);
+    }
+  }
+
+  const deleteItem = async (id) => {
+    const {data, error} = await supabase.from('colors').delete().eq("id", id)
+    if(data){
+      getColors()
+    } else {
+      getColors()
+      // console.log("error: ", error)
+      // throw new Error(error)
     }
   }
 
@@ -56,12 +68,14 @@ const ColorTable = () => {
                       />
                       <button
                         className="btn btn-primary"
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.preventDefault();
                           const { data, error } = await supabase
                             .from("colors")
                             .insert({ color: color });
                             if(!error){
-                                window.location.reload();
+                              setColor("")
+                              getColors();
                             }
                         }}
                       >
@@ -73,14 +87,21 @@ const ColorTable = () => {
                 <div className="additem_table">
                   <table cellPadding={0} cellSpacing={0}>
                     <tr>
-                      <th>No.</th>
-                      <th>Color</th>
+                      <th className="col-1">No.</th>
+                      <th className="col-10">Color</th>
+                      <th className="col-1">Actions</th>
                     </tr>
                     {colors &&
                       colors.map((color) => (
                         <tr>
                           <td>{color?.id}</td>
                           <td>{color?.color}</td>
+                          <td className="text-center" role="button">
+                            <MdDelete
+                              size={25}
+                              onClick={() => deleteItem(color?.id)}
+                            />
+                          </td>
                         </tr>
                       ))}
                   </table>

@@ -203,6 +203,19 @@ const Table = () => {
     }
   }
 
+  const getTotal = () => {
+    var quantity = 0;
+    var total_amount = 0;
+  
+    for (let i = 0; i < data?.length; i++) {
+      quantity += Number(data[i].quantity);
+      total_amount += Number(data[i].total_amount);
+    }
+    return {quantity: quantity, total_amount: total_amount};
+  }
+
+  const {quantity, total_amount} = getTotal();
+
   return (
     <section className="pt__table_print mb-5">
       <div className="container">
@@ -270,6 +283,18 @@ const Table = () => {
                   <td>Print & Action</td>
                 </tr>
               ))}
+              <tr>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td className="fw-bolder">{quantity}</td>
+                <td className="fw-bolder">{total_amount}</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
             </table>
           </div>
         </div>

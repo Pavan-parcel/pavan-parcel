@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import supabase from "../../supabase/supabaseClient";
+import { MdDelete } from "react-icons/md";
 
 const SendPlacetable = () => {
   const [branches, setBranches] = useState([]);
@@ -19,6 +20,17 @@ const SendPlacetable = () => {
       .order("id", { ascending: true });
     if (!error) {
       setBranches(data);
+    }
+  }
+
+  const deleteItem = async (id) => {
+    const {data, error} = await supabase.from('branches').delete().eq("id", id)
+    if(data){
+      getBranches()
+    } else {
+      getBranches()
+      // console.log("error: ", error)
+      // throw new Error(error)
     }
   }
 
@@ -54,27 +66,44 @@ const SendPlacetable = () => {
                         value={branch}
                         onChange={(e) => setBranch(e.target.value)}
                       />
-                      <button className="btn btn-primary" onClick={async() => {
-                        const {data, error} = await supabase.from('branches').insert({branch_name: branch});
-                        if(!error){
-                            window.location.reload();
-                        }
-                      }}>Add</button>
+                      <button
+                        className="btn btn-primary"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          const { data, error } = await supabase
+                            .from("branches")
+                            .insert({ branch_name: branch });
+                          if (!error) {
+                            setBranch("");
+                            getBranches();
+                          }
+                        }}
+                      >
+                        Add
+                      </button>
                     </form>
                   </div>
                 </div>
                 <div className="additem_table">
                   <table cellPadding={0} cellSpacing={0}>
                     <tr>
-                      <th>No.</th>
-                      <th>Item</th>
+                      <th className="col-1">No.</th>
+                      <th className="col-10">Branch</th>
+                      <th className="col-1">Actions</th>
                     </tr>
-                    {branches && branches.map((branch) => (
-                    <tr>
-                      <td>{branch?.id}</td>
-                      <td>{branch?.branch_name}</td>
-                    </tr>
-                    ))}
+                    {branches &&
+                      branches.map((branch) => (
+                        <tr>
+                          <td>{branch?.id}</td>
+                          <td>{branch?.branch_name}</td>
+                          <td className="text-center" role="button">
+                            <MdDelete
+                              size={25}
+                              onClick={() => deleteItem(branch?.id)}
+                            />
+                          </td>
+                        </tr>
+                      ))}
                   </table>
                 </div>
               </div>
