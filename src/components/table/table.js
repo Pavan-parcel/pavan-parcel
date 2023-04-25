@@ -272,7 +272,7 @@ const Table = () => {
               {data.map((item, index) => (
                 <tr>
                   <td>{new Date(item?.created_at).toLocaleDateString()}</td>
-                  <td> <Link className="btn-success btn"> {item?.id} </Link></td>
+                  <td> <Link className="btn-success btn"> {item?.receipt_no} </Link></td>
                   <td>{item?.sender_name}</td>
                   <td>{item?.receiver_name}</td>
                   <td>{item?.item_detail}</td>

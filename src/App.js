@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { CONSTANTS } from "./utils/contants";
 import General from "./components/general/general";
 import LrEdit from "./components/LrEdit/LrEdit";
+import Manual from "./components/manual/manual";
 
 function App() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/lr" element={<LrEdit />} />
         <Route path="/general" element={<General />} />
+        <Route path="/manual" element={<Manual />} />
         <Route path="/setting/items" element={<ItemTable />} />
         <Route path="/setting/color" element={<ColorTable />} />
         <Route path="/setting/sendplace" element={<SendPlacetable />} />

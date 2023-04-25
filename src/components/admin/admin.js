@@ -49,9 +49,15 @@ const Admin = () => {
         ...values,
         total_amount: Number(values.total_amount) + 10,
         branch: localStorage.getItem(CONSTANTS.BRANCH),
-      });
+      }).select('*');
       if (!error) {
         // console.log("data: ", data);
+        // const updateReceipt = await supabase.from('parcels').update({receipt_no:data[0].id}).eq('id', data[0].id)
+        //   if(!updateReceipt.error){
+        //     console.log("suc");
+        //   }else{
+        //     console.log("error222", updateReceipt.error);
+        //   }
         const form = await supabase.from("forms").select("*");
         if (form.data) {
           let count = form.data[0]?.form_no;
@@ -144,7 +150,7 @@ const Admin = () => {
                         </Link>
                       </li>
                       <li className="zn__main-menu-list">
-                        <Link to="" className="btn btn-primary">
+                        <Link to="/manual" className="btn btn-primary">
                           Manual
                         </Link>
                       </li>
