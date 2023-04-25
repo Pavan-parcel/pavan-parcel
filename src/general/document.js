@@ -7,15 +7,23 @@ export const Document = forwardRef((props, ref) => {
   const getTotal = () => {
     var quantity = 0;
     var total_amount = 0;
+    var paid = 0;
+    var to_pay = 0;
   
     for (let i = 0; i < props?.data?.length; i++) {
       quantity += Number(props?.data[i].quantity);
       total_amount += Number(props?.data[i].total_amount);
+      if(props?.data[i]?.payment_type === 'Paid'){
+        paid += Number(props?.data[i].total_amount)
+      }
+      if(props?.data[i]?.payment_type === 'To Pay'){
+        to_pay += Number(props?.data[i].total_amount)
+      }
     }
-    return {quantity: quantity, total_amount: total_amount};
+    return {quantity: quantity, total_amount: total_amount, paid: paid, to_pay: to_pay};
   }
 
-  const {quantity, total_amount} = getTotal();
+  const {quantity, total_amount, paid, to_pay} = getTotal();
 
   return (
     <div ref={ref} className="booking_report">
@@ -68,7 +76,7 @@ export const Document = forwardRef((props, ref) => {
             <th>-</th>
             <th>{quantity}</th>
             <th>-</th>
-            <th>Paid : 2400 <br/> To Pay : 500 </th>
+            <th>Paid : {paid} <br/> To Pay : {to_pay} </th>
           </tr>
         </table>
       </div>

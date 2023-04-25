@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./admin.sass";
 import supabase from "../../supabase/supabaseClient.js";
 import * as Yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import { CONSTANTS } from "../../utils/contants";
 
@@ -12,9 +12,9 @@ const Admin = () => {
 
   const validate = Yup.object().shape({
     sender_name: Yup.string().required("Please enter Sender name"),
-    sender_number: Yup.string().required("Please enter Sender number").max(10, 'Too Long!').min(10, 'minimum!'),
+    sender_number: Yup.string().required("Please enter Sender number").max(10, 'Maximum 10 numbers only!').min(10, 'Minimum 10 numbers!'),
     receiver_name: Yup.string().required("Please enter Receiver name"),
-    receiver_number: Yup.string().required("Please enter Receiver number").max(10, 'Too Long!').min(10, 'minimum'),
+    receiver_number: Yup.string().required("Please enter Receiver number").max(10, 'Maximum 10 numbers only!').min(10, 'Minimum 10 numbers!'),
     item_detail: Yup.string().required("Please select item detail"),
     // color: Yup.string().required("Please select item color"),
     quantity: Yup.string().required("Please enter qunatity"),
@@ -45,6 +45,7 @@ const Admin = () => {
     validationSchema: validate,
     onSubmit: async (values) => {
       // console.log("values: ", values)
+      const form = await supabase.from("forms").select("*");
       const { data, error } = await supabase.from("parcels").insert({
         ...values,
         total_amount: Number(values.total_amount) + 10,
@@ -191,6 +192,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Sender Name</label>
                       <input
+                        type="text"
                         onKeyDown={handleEnter}
                         name="sender_name"
                         value={formik.values.sender_name}
@@ -208,6 +210,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Sender Number</label>
                       <input
+                        type="number"
                         onKeyDown={handleEnter}
                         name="sender_number"
                         value={formik.values.sender_number}
@@ -225,6 +228,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Receiver Name</label>
                       <input
+                        type="text"
                         onKeyDown={handleEnter}
                         name="receiver_name"
                         value={formik.values.receiver_name}
@@ -242,6 +246,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Receiver Number</label>
                       <input
+                        type="number"
                         onKeyDown={handleEnter}
                         name="receiver_number"
                         value={formik.values.receiver_number}
