@@ -176,6 +176,16 @@ const Table = () => {
     getData();
   }, []);
 
+  const onFindDetails = async(lr) => {
+    const {data, error} = await supabase.from("parcels").select("*").eq("receipt_no", lr);
+    if(!error){
+      console.log("data: ", data);
+      navigate("/lr", {state: {data: data}})
+    } else {
+      console.log("error: ", error);
+    }
+  }
+
   async function getData() {
     const { data, error } = await supabase.from("parcels").select("*");
     if (!error) {
@@ -272,7 +282,7 @@ const Table = () => {
               {data.map((item, index) => (
                 <tr>
                   <td>{new Date(item?.created_at).toLocaleDateString()}</td>
-                  <td> <Link className="btn-success btn"> {item?.receipt_no} </Link></td>
+                  <td> <Link className="btn-success btn" onClick={() => onFindDetails(item?.receipt_no)}> {item?.receipt_no} </Link></td>
                   <td>{item?.sender_name}</td>
                   <td>{item?.receiver_name}</td>
                   <td>{item?.item_detail}</td>

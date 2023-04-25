@@ -3,27 +3,72 @@ import "./style.css";
 import moment from "moment";
 
 export const Document = forwardRef((props, ref) => {
-
   const getTotal = () => {
     var quantity = 0;
     var total_amount = 0;
     var paid = 0;
+    var paid_online = 0;
+    var paid_manual = 0;
     var to_pay = 0;
-  
+    var to_pay_online = 0;
+    var to_pay_manual = 0;
+
     for (let i = 0; i < props?.data?.length; i++) {
       quantity += Number(props?.data[i].quantity);
       total_amount += Number(props?.data[i].total_amount);
-      if(props?.data[i]?.payment_type === 'Paid'){
-        paid += Number(props?.data[i].total_amount)
+      if (props?.data[i]?.payment_type === "Paid" && props?.data[i]?.returned === false) {
+        paid += Number(props?.data[i].total_amount);
       }
-      if(props?.data[i]?.payment_type === 'To Pay'){
-        to_pay += Number(props?.data[i].total_amount)
+      if (
+        props?.data[i]?.payment_type === "Paid" &&
+        props?.data[i]?.add_type === "online" && props?.data[i]?.returned === false
+      ) {
+        paid_online += Number(props?.data[i].total_amount);
+      }
+      if (
+        props?.data[i]?.payment_type === "Paid" &&
+        props?.data[i]?.add_type === "manual" && props?.data[i]?.returned === false
+      ) {
+        paid_manual += Number(props?.data[i].total_amount);
+      }
+      if (props?.data[i]?.payment_type === "To Pay" && props?.data[i]?.returned === false) {
+        to_pay += Number(props?.data[i].total_amount);
+      }
+      if (
+        props?.data[i]?.payment_type === "To Pay" &&
+        props?.data[i]?.add_type === "online" && props?.data[i]?.returned === false
+      ) {
+        to_pay_online += Number(props?.data[i].total_amount);
+      }
+      if (
+        props?.data[i]?.payment_type === "To Pay" &&
+        props?.data[i]?.add_type === "manual" && props?.data[i]?.returned === false
+      ) {
+        to_pay_manual += Number(props?.data[i].total_amount);
       }
     }
-    return {quantity: quantity, total_amount: total_amount, paid: paid, to_pay: to_pay};
-  }
+    return {
+      quantity: quantity,
+      total_amount: total_amount,
+      paid: paid,
+      to_pay: to_pay,
+      paid_online: paid_online,
+      paid_manual: paid_manual,
+      to_pay_online: to_pay_online,
+      to_pay_manual: to_pay_manual,
+    };
+  };
 
-  const {quantity, total_amount, paid, to_pay} = getTotal();
+  const {
+    quantity,
+    total_amount,
+    paid,
+    to_pay,
+    paid_online,
+    paid_manual,
+    to_pay_online,
+    to_pay_manual,
+  } = getTotal();
 
   return (
     <div ref={ref} className="booking_report">
@@ -35,7 +80,12 @@ export const Document = forwardRef((props, ref) => {
         </p>
         <h5>Booking Register Report</h5>
       </div>
-      <p>Date: {moment(props?.dates?.startDate).format('DD-MM-YYYY') + " - " + moment(props?.dates?.endDate).format('DD-MM-YYYY')}</p>
+      <p>
+        Date:{" "}
+        {moment(props?.dates?.startDate).format("DD-MM-YYYY") +
+          " - " +
+          moment(props?.dates?.endDate).format("DD-MM-YYYY")}
+      </p>
 
       <div className="booking_report_table">
         <table cellPadding={0} cellSpacing={0}>
@@ -76,7 +126,38 @@ export const Document = forwardRef((props, ref) => {
             <th>-</th>
             <th>{quantity}</th>
             <th>-</th>
-            <th>Paid : {paid} <br/> To Pay : {to_pay} </th>
+            <th>
+              Paid : {paid} <br /> To Pay : {to_pay}{" "}
+            </th>
+          </tr>
+        </table>
+      </div>
+
+      <div className="general_bottom_table mt-3">
+        <table>
+          <tr>
+            <th>Type</th>
+            <th>Paid</th>
+            <th>To Pay</th>
+            <th>Total Amount</th>
+          </tr>
+          <tr>
+            <th>Online</th>
+            <th>{paid_online}</th>
+            <th>{to_pay_online}</th>
+            <th>{paid_online + to_pay_online}</th>
+          </tr>
+          <tr>
+            <th>Manual</th>
+            <th>{paid_manual}</th>
+            <th>{to_pay_manual}</th>
+            <th>{paid_manual + to_pay_manual}</th>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <th>{paid_online + paid_manual}</th>
+            <th>{to_pay_online + to_pay_manual}</th>
+            <th>{paid_online + paid_manual + to_pay_online + to_pay_manual}</th>
           </tr>
         </table>
       </div>

@@ -1,20 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./admin.sass";
 import supabase from "../../supabase/supabaseClient.js";
 import * as Yup from "yup";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import { CONSTANTS } from "../../utils/contants";
+import Builty from "../../builty/builty";
+import { useReactToPrint } from "react-to-print";
 
 const Admin = () => {
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [data, setData] = useState([]);
+
+  const builtyRef = useRef();
 
   const validate = Yup.object().shape({
     sender_name: Yup.string().required("Please enter Sender name"),
-    sender_number: Yup.string().required("Please enter Sender number").max(10, 'Maximum 10 numbers only!').min(10, 'Minimum 10 numbers!'),
+    sender_number: Yup.string()
+      .required("Please enter Sender number")
+      .max(10, "Maximum 10 numbers only!")
+      .min(10, "Minimum 10 numbers!"),
     receiver_name: Yup.string().required("Please enter Receiver name"),
-    receiver_number: Yup.string().required("Please enter Receiver number").max(10, 'Maximum 10 numbers only!').min(10, 'Minimum 10 numbers!'),
+    receiver_number: Yup.string()
+      .required("Please enter Receiver number")
+      .max(10, "Maximum 10 numbers only!")
+      .min(10, "Minimum 10 numbers!"),
     item_detail: Yup.string().required("Please select item detail"),
     // color: Yup.string().required("Please select item color"),
     quantity: Yup.string().required("Please enter qunatity"),
@@ -39,28 +51,31 @@ const Admin = () => {
       payment_type: "",
       total_amount: "",
       place_to_send: "",
-      remarks: "",
-      //   driver: "",
+      remarks: ""
     },
     validationSchema: validate,
     onSubmit: async (values) => {
       // console.log("values: ", values)
       const form = await supabase.from("forms").select("*");
-      const { data, error } = await supabase.from("parcels").insert({
-        ...values,
-        total_amount: Number(values.total_amount) + 10,
-        branch: localStorage.getItem(CONSTANTS.BRANCH),
-      }).select('*');
+      const { data, error } = await supabase
+        .from("parcels")
+        .insert({
+          ...values,
+          total_amount: Number(values.total_amount) + 10,
+          branch: localStorage.getItem(CONSTANTS.BRANCH),
+        })
+        .select("*");
       if (!error) {
         // console.log("data: ", data);
-        // const updateReceipt = await supabase.from('parcels').update({receipt_no:data[0].id}).eq('id', data[0].id)
-        //   if(!updateReceipt.error){
-        //     console.log("suc");
-        //   }else{
-        //     console.log("error222", updateReceipt.error);
-        //   }
+        
         const form = await supabase.from("forms").select("*");
         if (form.data) {
+          const updateReceipt = await supabase.from('parcels').update({receipt_no:data[0].id}).eq('id', data[0].id)
+          if(!updateReceipt.error){
+            console.log("success");
+          }else{
+            console.log("error222", updateReceipt.error);
+          }
           let count = form.data[0]?.form_no;
           console.log("count: ", count);
           const formUpdate = await supabase
@@ -68,12 +83,37 @@ const Admin = () => {
             .update({ form_no: count + 1 })
             .eq("id", 1);
           if (formUpdate.data) {
-            window.location.reload(false);
+            formik.setFieldValue("sender_name", "");
+            formik.setFieldValue("sender_number", "");
+            formik.setFieldValue("receiver_name", "");
+            formik.setFieldValue("receiver_number", "");
+            formik.setFieldValue("item_detail", "");
+            formik.setFieldValue("color", "");
+            formik.setFieldValue("quantity", "");
+            formik.setFieldValue("rate", "");
+            formik.setFieldValue("payment_type", "");
+            formik.setFieldValue("total_amount", "");
+            formik.setFieldValue("place_to_send", "");
+            formik.setFieldValue("remarks", "");
+            // window.location.reload(false);
           } else {
-            window.location.reload(false);
+            formik.setFieldValue("sender_name", "");
+            formik.setFieldValue("sender_number", "");
+            formik.setFieldValue("receiver_name", "");
+            formik.setFieldValue("receiver_number", "");
+            formik.setFieldValue("item_detail", "");
+            formik.setFieldValue("color", "");
+            formik.setFieldValue("quantity", "");
+            formik.setFieldValue("rate", "");
+            formik.setFieldValue("payment_type", "");
+            formik.setFieldValue("total_amount", "");
+            formik.setFieldValue("place_to_send", "");
+            formik.setFieldValue("remarks", "");
+            // window.location.reload(false);
             console.log("eror: ", formUpdate.error);
           }
         }
+        setData(data);
       } else {
         console.log("error: ", error);
         throw new Error(error);
@@ -84,7 +124,19 @@ const Admin = () => {
   useEffect(() => {
     getBranches();
     getItems();
+    getColors();
   }, []);
+
+  const handlePrint = useReactToPrint({
+    content: () => builtyRef.current,
+  });
+
+  useEffect(() => {
+    if(data.length > 0){
+      handlePrint();
+      // setData([])
+    }
+  }, [data])
 
   const getBranches = async () => {
     const { data, error } = await supabase.from("branches").select("*");
@@ -109,6 +161,16 @@ const Admin = () => {
     }
   };
 
+  async function getColors() {
+    const { data, error } = await supabase
+      .from("colors")
+      .select("*")
+      .order("id", { ascending: true });
+    if (!error) {
+      setColors(data);
+    }
+  }
+
   function handleEnter(event) {
     if (event.keyCode === 13) {
       const form = event.target.form;
@@ -120,6 +182,9 @@ const Admin = () => {
 
   return (
     <section className="pt__admin">
+      <div className="d-none">
+        <Builty ref={builtyRef} data={data} />
+      </div>
       <form onSubmit={formik.handleSubmit}>
         <div className="container">
           <div className="row">
@@ -185,7 +250,6 @@ const Admin = () => {
                         )}
                     </div>
                   </div>
-
                 </div>
                 <div className="row justify-between">
                   <div className="col-30">
@@ -299,10 +363,12 @@ const Admin = () => {
                         onChange={formik.handleChange}
                       >
                         <option value="">Select Color...</option>
-                        <option value="Red">Red</option>
-                        <option value="Green">Green</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Cyan">Cyan</option>
+                        {colors &&
+                          colors.map((item) => (
+                            <option value={item?.color}>
+                              {item?.color}
+                            </option>
+                          ))}
                       </select>
                       {/* {formik.touched.color && formik.errors.color && (
                         <div className="text-danger">{formik.errors.color}</div>
@@ -409,7 +475,7 @@ const Admin = () => {
                   </div>
                   <div className="col-4 text-end">
                     <button
-                    onKeyDown={handleEnter}
+                      onKeyDown={handleEnter}
                       type="submit"
                       className="pt__lr_num time_btn btn btn-submit"
                     >

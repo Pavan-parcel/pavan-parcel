@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { async } from 'q'
 import supabase from '../../supabase/supabaseClient'
 import { useState } from 'react'
+import { CONSTANTS } from '../../utils/contants'
 
 const Time = () => {
 
@@ -37,7 +38,7 @@ const Time = () => {
                     <div className='pt__time_inner'>
                         <div className='pt__lr_num time_btn'>LR Number :  {LR}</div>
                         <div className='pt__lr_time time_btn' href='#'> 
-                        HIRABAG HO
+                        {localStorage.getItem(CONSTANTS.BRANCH)}
                         </div>
                         <div className='pt__lr_num time_btn'>{date}</div>
                     </div>

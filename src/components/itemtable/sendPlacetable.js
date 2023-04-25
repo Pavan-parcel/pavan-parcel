@@ -92,9 +92,9 @@ const SendPlacetable = () => {
                       <th className="col-1">Actions</th>
                     </tr>
                     {branches &&
-                      branches.map((branch) => (
+                      branches.map((branch, index) => (
                         <tr>
-                          <td>{branch?.id}</td>
+                          <td>{index + 1}</td>
                           <td>{branch?.branch_name}</td>
                           <td className="text-center" role="button">
                             <MdDelete

@@ -17,7 +17,7 @@ const General = () => {
   return (
     <>
       <Document ref={generalRef} data={data} dates={dates} />
-      <BottomDoc />
+      {/* <BottomDoc /> */}
       <div className="d-flex align-items-center justify-content-center my-4">
         <button className="btn btn-primary" onClick={handlePrint}>
             Print

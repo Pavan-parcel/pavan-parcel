@@ -92,9 +92,9 @@ const ColorTable = () => {
                       <th className="col-1">Actions</th>
                     </tr>
                     {colors &&
-                      colors.map((color) => (
+                      colors.map((color, index) => (
                         <tr>
-                          <td>{color?.id}</td>
+                          <td>{index + 1}</td>
                           <td>{color?.color}</td>
                           <td className="text-center" role="button">
                             <MdDelete

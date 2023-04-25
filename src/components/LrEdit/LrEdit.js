@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./LrEdit.sass";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -9,6 +9,8 @@ import { CONSTANTS } from "../../utils/contants";
 const LrEdit = () => {
   const { state } = useLocation();
   const { data } = state;
+
+  const navigate = useNavigate();
 
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
@@ -27,7 +29,7 @@ const LrEdit = () => {
     formik.setFieldValue("quantity", data[0]?.quantity);
     formik.setFieldValue(
       "rate",
-      Number(data[0]?.total_amount) / Number(data[0]?.quantity) - 10
+      (Number(data[0]?.total_amount) - 10) / Number(data[0]?.quantity)
     );
     formik.setFieldValue("total_amount", data[0]?.total_amount);
     formik.setFieldValue("payment_type", data[0]?.payment_type);
@@ -119,6 +121,16 @@ const LrEdit = () => {
     }
     },
   });
+
+  const onCancel = async() => {
+    const {data, error} = await supabase.from("parcels").update({returned: true}).eq("id", state?.data[0]?.id);
+    if(!error){
+      console.log("success return")
+      navigate("/")
+    } else {
+      console.log("return error: ", error);
+    }
+  }
 
   return (
     <div className="pt_admin_lr">
@@ -362,7 +374,8 @@ const LrEdit = () => {
                   </div>
                   <div className="col-4 text-end">
                     <button
-                      type="submit"
+                      onClick={onCancel}
+                      // type="submit"
                       className="me-3 time_btn btn btn-submit btn-danger"
                     >
                       Cancel
