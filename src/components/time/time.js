@@ -36,10 +36,10 @@ const Time = () => {
                  <div className='col-12'>
                     <div className='pt__time_inner'>
                         <div className='pt__lr_num time_btn'>LR Number :  {LR}</div>
-                        <div className='pt__lr_time time_btn'>{date}</div>
-                        <a className='pt__lr_item time_btn' href='#'> 
-                        Add More Items 
-                        </a>
+                        <div className='pt__lr_time time_btn' href='#'> 
+                        HIRABAG HO
+                        </div>
+                        <div className='pt__lr_num time_btn'>{date}</div>
                     </div>
                  </div>
             </div>

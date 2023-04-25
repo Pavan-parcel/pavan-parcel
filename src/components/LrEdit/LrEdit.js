@@ -363,9 +363,15 @@ const LrEdit = () => {
                   <div className="col-4 text-end">
                     <button
                       type="submit"
+                      className="me-3 time_btn btn btn-submit btn-danger"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
                       className="pt__lr_num time_btn btn btn-submit"
                     >
-                      Update
+                      Update & Print 
                     </button>
                   </div>
                 </div>

@@ -353,6 +353,7 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Total Amount</label>
                       <input
+                        onKeyDown={handleEnter}
                         disabled
                         name="total_amount"
                         value={formik.values.total_amount}
@@ -371,6 +372,7 @@ const Admin = () => {
                       <label>Payment Type</label>
                       <select
                         disabled
+                        onKeyDown={handleEnter}
                         name="payment_type"
                         id="payment_type"
                         value={formik.values.payment_type}
@@ -407,6 +409,7 @@ const Admin = () => {
                   </div>
                   <div className="col-4 text-end">
                     <button
+                    onKeyDown={handleEnter}
                       type="submit"
                       className="pt__lr_num time_btn btn btn-submit"
                     >
