@@ -51,7 +51,7 @@ const Admin = () => {
       payment_type: "",
       total_amount: "",
       place_to_send: "",
-      remarks: ""
+      remarks: "",
     },
     validationSchema: validate,
     onSubmit: async (values) => {
@@ -67,13 +67,26 @@ const Admin = () => {
         .select("*");
       if (!error) {
         // console.log("data: ", data);
-        
+
         const form = await supabase.from("forms").select("*");
         if (form.data) {
-          const updateReceipt = await supabase.from('parcels').update({receipt_no:data[0].id}).eq('id', data[0].id)
-          if(!updateReceipt.error){
+          let branch = "";
+          if (localStorage.getItem(CONSTANTS.BRANCH).includes("(HO)")) {
+            branch = "HO/";
+          } else if (localStorage.getItem(CONSTANTS.BRANCH).includes("SA")) {
+            branch = "SA/";
+          } else if (localStorage.getItem(CONSTANTS.BRANCH).includes("KA")) {
+            branch = "KA/";
+          }
+          const updateReceipt = await supabase
+            .from("parcels")
+            .update({
+              receipt_no: branch + data[0].id,
+            })
+            .eq("id", data[0].id);
+          if (!updateReceipt.error) {
             console.log("success");
-          }else{
+          } else {
             console.log("error222", updateReceipt.error);
           }
           let count = form.data[0]?.form_no;
@@ -83,33 +96,8 @@ const Admin = () => {
             .update({ form_no: count + 1 })
             .eq("id", 1);
           if (formUpdate.data) {
-            formik.setFieldValue("sender_name", "");
-            formik.setFieldValue("sender_number", "");
-            formik.setFieldValue("receiver_name", "");
-            formik.setFieldValue("receiver_number", "");
-            formik.setFieldValue("item_detail", "");
-            formik.setFieldValue("color", "");
-            formik.setFieldValue("quantity", "");
-            formik.setFieldValue("rate", "");
-            formik.setFieldValue("payment_type", "");
-            formik.setFieldValue("total_amount", "");
-            formik.setFieldValue("place_to_send", "");
-            formik.setFieldValue("remarks", "");
-            // window.location.reload(false);
+            
           } else {
-            formik.setFieldValue("sender_name", "");
-            formik.setFieldValue("sender_number", "");
-            formik.setFieldValue("receiver_name", "");
-            formik.setFieldValue("receiver_number", "");
-            formik.setFieldValue("item_detail", "");
-            formik.setFieldValue("color", "");
-            formik.setFieldValue("quantity", "");
-            formik.setFieldValue("rate", "");
-            formik.setFieldValue("payment_type", "");
-            formik.setFieldValue("total_amount", "");
-            formik.setFieldValue("place_to_send", "");
-            formik.setFieldValue("remarks", "");
-            // window.location.reload(false);
             console.log("eror: ", formUpdate.error);
           }
         }
@@ -132,20 +120,25 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    if(data.length > 0){
+    if (data.length > 0) {
       handlePrint();
+
+      // Delay the page reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
       // setData([])
     }
-  }, [data])
+  }, [data]);
 
   const getBranches = async () => {
-    const { data, error } = await supabase.from("branches").select("*");
+    const { data, error } = await supabase.from("place_to_send").select("*");
     if (!error) {
       //   console.log("data: ", data);
-      let datas = data.filter(
-        (item) => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH)
-      );
-      setBranches(datas);
+      // let datas = data.filter(
+      //   (item) => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH)
+      // );
+      setBranches(data);
     } else {
       console.log("error: ", error);
     }
@@ -237,8 +230,8 @@ const Admin = () => {
                         <option value="">Select Place to Send...</option>
                         {branches &&
                           branches.map((branch) => (
-                            <option value={branch?.branch_name}>
-                              {branch?.branch_name}
+                            <option value={branch?.place_to_send}>
+                              {branch?.place_to_send}
                             </option>
                           ))}
                       </select>
@@ -365,9 +358,7 @@ const Admin = () => {
                         <option value="">Select Color...</option>
                         {colors &&
                           colors.map((item) => (
-                            <option value={item?.color}>
-                              {item?.color}
-                            </option>
+                            <option value={item?.color}>{item?.color}</option>
                           ))}
                       </select>
                       {/* {formik.touched.color && formik.errors.color && (

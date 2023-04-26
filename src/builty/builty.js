@@ -3,13 +3,21 @@ import { CONSTANTS } from '../utils/contants'
 import moment from 'moment'
 
 const Builty = forwardRef((props, ref) => {
-    console.log("props data: ", props?.data)
+    // console.log("props data: ", props?.data)
+    let branch = "";
+    if(localStorage.getItem(CONSTANTS.BRANCH).includes("(HO)")){
+        branch = "HO/"
+    } else if(localStorage.getItem(CONSTANTS.BRANCH).includes("(SA)")){
+        branch = "SA/"
+    } else if(localStorage.getItem(CONSTANTS.BRANCH).includes("(KA)")){
+        branch = "KA/"
+    }
     return (
         <div ref={ref} className='builty_table'>
                 <table cellPadding={0} cellSpacing={0}>
                     <tr>
                         <td>
-                            LR No. : {props?.data[0]?.id} <br />
+                            LR No. : {branch+props?.data[0]?.id} <br />
                             {localStorage.getItem(CONSTANTS.BRANCH)} - {props?.data[0]?.place_to_send} <br />
                             Sender : {props?.data[0]?.sender_name} <br />
                             Sender No. : {props?.data[0]?.sender_number} <br />
@@ -25,7 +33,7 @@ const Builty = forwardRef((props, ref) => {
                             <p><b>{props?.data[0]?.payment_type}</b></p>
                         </td>
                         <td>
-                            LR No. : {props?.data[0]?.id} <br />
+                            LR No. : {branch+props?.data[0]?.id} <br />
                             {localStorage.getItem(CONSTANTS.BRANCH)} - {props?.data[0]?.place_to_send} <br />
                             Sender : {props?.data[0]?.sender_name} <br />
                             Sender No. : {props?.data[0]?.sender_number} <br />

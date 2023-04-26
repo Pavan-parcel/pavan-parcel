@@ -25,9 +25,9 @@ const Login = () => {
     }
   }
 
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
+  // function capitalizeFirstLetter(string) {
+  //   return string.charAt(0).toUpperCase() + string.slice(1);
+  // }
 
   let formik = useFormik({
     initialValues: {
@@ -42,13 +42,13 @@ const Login = () => {
       console.log("values: ", values);
       const validate = users.filter(
         (branch) =>
-          branch?.branch_name.toLowerCase() === values.branch &&
+          branch?.username.toLowerCase() === values.branch &&
           branch?.password === values.password
       );
       if (validate.length === 1) {
         setError("");
-        const branch = capitalizeFirstLetter(values.branch)
-        localStorage.setItem(CONSTANTS.BRANCH, branch);
+        // const branch = capitalizeFirstLetter(values.branch)
+        localStorage.setItem(CONSTANTS.BRANCH, validate[0]?.branch_name);
         navigate("/");
       } else {
         setError("Invalid Branch name or Password");

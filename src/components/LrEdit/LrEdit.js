@@ -1,20 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./LrEdit.sass";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import supabase from "../../supabase/supabaseClient";
 import { CONSTANTS } from "../../utils/contants";
+import { useReactToPrint } from "react-to-print";
+import Builty from "../../builty/builty";
 
 const LrEdit = () => {
   const { state } = useLocation();
   const { data } = state;
+
+  const [updateData, setUpdateData] = useState([]);
 
   const navigate = useNavigate();
 
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
   const [colors, setColors] = useState([]);
+
+  const builtyRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    content: () => builtyRef.current,
+  });
 
   useEffect(() => {
     getBranches();
@@ -29,22 +39,33 @@ const LrEdit = () => {
     formik.setFieldValue("quantity", data[0]?.quantity);
     formik.setFieldValue(
       "rate",
-      (Number(data[0]?.total_amount) - 10) / Number(data[0]?.quantity)
+      data[0]?.rate
     );
-    formik.setFieldValue("total_amount", data[0]?.total_amount);
+    formik.setFieldValue("total_amount", Number(data[0]?.total_amount)-10);
     formik.setFieldValue("payment_type", data[0]?.payment_type);
     formik.setFieldValue("place_to_send", data[0]?.place_to_send);
     formik.setFieldValue("remarks", data[0]?.remarks);
   }, []);
 
+  useEffect(() => {
+    if(updateData.length > 0){
+      handlePrint();
+
+      // Delay the page reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }, [updateData]);
+
   const getBranches = async () => {
-    const { data, error } = await supabase.from("branches").select("*");
+    const { data, error } = await supabase.from("place_to_send").select("*");
     if (!error) {
       //   console.log("data: ", data);
-      let datas = data.filter(
-        (item) => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH)
-      );
-      setBranches(datas);
+      // let datas = data.filter(
+      //   (item) => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH)
+      // );
+      setBranches(data);
     } else {
       console.log("error: ", error);
     }
@@ -110,30 +131,41 @@ const LrEdit = () => {
     },
     validationSchema: validate,
     onSubmit: async (values) => {
-    //   console.log("values: ", values);
-    const {data, error} = await supabase.from("parcels").update({
-        ...values
-    }).eq("receipt_no", state?.data[0]?.receipt_no)
-    if(!error){
-        window.location.reload();
-    } else {
-        console.log("update error: ", error)
-    }
+      //   console.log("values: ", values);
+      const { data, error } = await supabase
+        .from("parcels")
+        .update({
+          ...values,
+          total_amount: Number(formik.values.total_amount) + 10
+        })
+        .eq("receipt_no", state?.data[0]?.receipt_no).select("*");
+      if (!error) {
+        setUpdateData(data)
+        // window.location.reload();
+      } else {
+        console.log("update error: ", error);
+      }
     },
   });
 
-  const onCancel = async() => {
-    const {data, error} = await supabase.from("parcels").update({returned: true}).eq("id", state?.data[0]?.id);
-    if(!error){
-      console.log("success return")
-      navigate("/")
+  const onCancel = async () => {
+    const { data, error } = await supabase
+      .from("parcels")
+      .update({ returned: true })
+      .eq("id", state?.data[0]?.id);
+    if (!error) {
+      console.log("success return");
+      navigate("/");
     } else {
       console.log("return error: ", error);
     }
-  }
+  };
 
   return (
     <div className="pt_admin_lr">
+      <div className="d-none">
+        <Builty ref={builtyRef} data={updateData} />
+      </div>
       <form onSubmit={formik.handleSubmit}>
         <div className="container">
           <div className="row">
@@ -152,8 +184,8 @@ const LrEdit = () => {
                         <option value="">Select Place to Send...</option>
                         {branches &&
                           branches.map((branch) => (
-                            <option value={branch?.branch_name}>
-                              {branch?.branch_name}
+                            <option value={branch?.place_to_send}>
+                              {branch?.place_to_send}
                             </option>
                           ))}
                       </select>
@@ -313,7 +345,13 @@ const LrEdit = () => {
                         name="rate"
                         type="number"
                         value={formik.values.rate}
-                        onChange={formik.handleChange}
+                        onChange={(e) => {
+                          formik.handleChange(e);
+                          formik.setFieldValue(
+                            "total_amount",
+                            formik.values.quantity * e.target.value
+                          );
+                        }}
                       />
                       {formik.touched.rate && formik.errors.rate && (
                         <div className="text-danger">{formik.errors.rate}</div>
@@ -384,7 +422,7 @@ const LrEdit = () => {
                       type="submit"
                       className="pt__lr_num time_btn btn btn-submit"
                     >
-                      Update & Print 
+                      Update & Print
                     </button>
                   </div>
                 </div>

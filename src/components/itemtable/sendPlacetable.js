@@ -15,7 +15,7 @@ const SendPlacetable = () => {
 
   async function getBranches() {
     const { data, error } = await supabase
-      .from("branches")
+      .from("place_to_send")
       .select("*")
       .order("id", { ascending: true });
     if (!error) {
@@ -24,7 +24,7 @@ const SendPlacetable = () => {
   }
 
   const deleteItem = async (id) => {
-    const {data, error} = await supabase.from('branches').delete().eq("id", id)
+    const {data, error} = await supabase.from('place_to_send').delete().eq("id", id)
     if(data){
       getBranches()
     } else {
@@ -71,8 +71,8 @@ const SendPlacetable = () => {
                         onClick={async (e) => {
                           e.preventDefault();
                           const { data, error } = await supabase
-                            .from("branches")
-                            .insert({ branch_name: branch });
+                            .from("place_to_send")
+                            .insert({ place_to_send: branch });
                           if (!error) {
                             setBranch("");
                             getBranches();
@@ -95,7 +95,7 @@ const SendPlacetable = () => {
                       branches.map((branch, index) => (
                         <tr>
                           <td>{index + 1}</td>
-                          <td>{branch?.branch_name}</td>
+                          <td>{branch?.place_to_send}</td>
                           <td className="text-center" role="button">
                             <MdDelete
                               size={25}

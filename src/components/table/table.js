@@ -37,7 +37,7 @@ function MyVerticallyCenteredModal(props) {
   }, [data]);
 
   const getBranches = async () => {
-    const { data, error } = await supabase.from("branches").select("*");
+    const { data, error } = await supabase.from("place_to_send").select("*");
     if (!error) {
       //   console.log("data: ", data);
       setBranches(data);
@@ -141,15 +141,9 @@ function MyVerticallyCenteredModal(props) {
               <option value="">To branch</option>
               <option value="all">All</option>
               {branches &&
-                branches
-                  .filter(
-                    (branch) =>
-                      branch.branch_name !==
-                      localStorage.getItem(CONSTANTS.BRANCH)
-                  )
-                  .map((branch) => (
-                    <option value={branch?.branch_name}>
-                      {branch?.branch_name}
+                branches.map((branch) => (
+                    <option value={branch?.place_to_send}>
+                      {branch?.place_to_send}
                     </option>
                   ))}
             </select>
@@ -218,8 +212,10 @@ const Table = () => {
     var total_amount = 0;
   
     for (let i = 0; i < data?.length; i++) {
-      quantity += Number(data[i].quantity);
-      total_amount += Number(data[i].total_amount);
+      if(data[i].returned === false){
+        quantity += Number(data[i].quantity);
+        total_amount += Number(data[i].total_amount);
+      }
     }
     return {quantity: quantity, total_amount: total_amount};
   }
@@ -280,7 +276,7 @@ const Table = () => {
                 <th>Print & Action</th>
               </tr>
               {data.map((item, index) => (
-                <tr>
+                <tr className={item?.returned ? "bg-danger" : "bg-light"}>
                   <td>{new Date(item?.created_at).toLocaleDateString()}</td>
                   <td> <Link className="btn-success btn" onClick={() => onFindDetails(item?.receipt_no)}> {item?.receipt_no} </Link></td>
                   <td>{item?.sender_name}</td>

@@ -3,23 +3,32 @@ import logo from "../../images/pavan_logo.jpeg";
 import "./header.sass";
 import { Link, useNavigate } from "react-router-dom";
 import { CONSTANTS, UTILS } from "../../utils/contants";
-import {FiLogOut} from 'react-icons/fi'
+import { FiLogOut } from "react-icons/fi";
 import supabase from "../../supabase/supabaseClient";
 
 const Header = () => {
-    const navigate = useNavigate();
-    const [lr, setLr] = useState(null);
+  const navigate = useNavigate();
+  const [lr, setLr] = useState(null);
 
-    const onFindDetails = async() => {
-      const {data, error} = await supabase.from("parcels").select("*").eq("receipt_no", lr);
-      if(!error){
-        console.log("data: ", data);
-        navigate("/lr", {state: {data: data}})
-      } else {
-        console.log("error: ", error);
-      }
+  const onFindDetails = async () => {
+    const { data, error } = await supabase
+      .from("parcels")
+      .select("*")
+      .eq("receipt_no", lr);
+    if (!error) {
+      console.log("data: ", data);
+      navigate("/lr", { state: { data: data } });
+    } else {
+      console.log("error: ", error);
     }
+  };
 
+  function handleEnter(event) {
+    if (event.keyCode === 13) {
+      onFindDetails();
+      event.preventDefault();
+    }
+  }
 
   return (
     <header>
@@ -36,7 +45,9 @@ const Header = () => {
                 <nav className="zn__header-menu">
                   <ul>
                     <li className="zn__main-menu-list">
-                      <Link to="/setting/items" className="btn btn-primary">Setting</Link>
+                      <Link to="/setting/items" className="btn btn-primary">
+                        Setting
+                      </Link>
                     </li>
                   </ul>
                 </nav>
@@ -44,22 +55,30 @@ const Header = () => {
               <div className="zn__header-btn">
                 <form className="header_form">
                   <input
-                    type="number"
+                    onKeyDown={handleEnter}
+                    // type="number"
                     placeholder="Enter LR Number"
                     className="header_input"
                     value={lr}
                     onChange={(e) => {
-                      setLr(e.target.value)
+                      setLr(e.target.value);
                     }}
                   />
-                  <Link to='' className="btn btn-primary" onClick={onFindDetails}>
+                  <Link
+                    to=""
+                    className="btn btn-primary"
+                    onClick={onFindDetails}
+                  >
                     Find Details
                   </Link>
                 </form>
 
                 <button
                   className="btn btn-primary ms-5"
-                  onClick={() => {localStorage.removeItem(CONSTANTS.BRANCH); navigate('/login')}}
+                  onClick={() => {
+                    localStorage.removeItem(CONSTANTS.BRANCH);
+                    navigate("/login");
+                  }}
                 >
                   Logout
                   <FiLogOut className="ms-2" size={25} />

@@ -5,7 +5,6 @@ import moment from "moment";
 export const Document = forwardRef((props, ref) => {
   const getTotal = () => {
     var quantity = 0;
-    var total_amount = 0;
     var paid = 0;
     var paid_online = 0;
     var paid_manual = 0;
@@ -14,8 +13,9 @@ export const Document = forwardRef((props, ref) => {
     var to_pay_manual = 0;
 
     for (let i = 0; i < props?.data?.length; i++) {
-      quantity += Number(props?.data[i].quantity);
-      total_amount += Number(props?.data[i].total_amount);
+      if(props?.data[i]?.returned === false){
+        quantity += Number(props?.data[i].quantity);
+      }
       if (props?.data[i]?.payment_type === "Paid" && props?.data[i]?.returned === false) {
         paid += Number(props?.data[i].total_amount);
       }
@@ -49,7 +49,6 @@ export const Document = forwardRef((props, ref) => {
     }
     return {
       quantity: quantity,
-      total_amount: total_amount,
       paid: paid,
       to_pay: to_pay,
       paid_online: paid_online,
@@ -61,7 +60,6 @@ export const Document = forwardRef((props, ref) => {
 
   const {
     quantity,
-    total_amount,
     paid,
     to_pay,
     paid_online,
@@ -103,7 +101,7 @@ export const Document = forwardRef((props, ref) => {
           </tr>
           {props.data &&
             props.data.map((parcel, index) => (
-              <tr>
+              <tr className={parcel?.returned ? "bg-danger" : "bg-light"}>
                 <td>{index + 1}</td>
                 <td> {parcel?.id}</td>
                 <td>{parcel?.payment_type}</td>
