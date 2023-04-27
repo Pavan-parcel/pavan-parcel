@@ -14,10 +14,10 @@ const Builty = forwardRef((props, ref) => {
     }
     return (
         <div ref={ref} className='builty_table'>
-                <table cellPadding={0} cellSpacing={0}>
+                <table cellPadding={0} cellSpacing={0} className='m-3'>
                     <tr>
                         <td>
-                            LR No. : {branch+props?.data[0]?.id} <br />
+                            LR No. :   <b> {branch+props?.data[0]?.id} </b> <br />
                             {localStorage.getItem(CONSTANTS.BRANCH)} - {props?.data[0]?.place_to_send} <br />
                             Sender : {props?.data[0]?.sender_name} <br />
                             Sender No. : {props?.data[0]?.sender_number} <br />
@@ -33,7 +33,7 @@ const Builty = forwardRef((props, ref) => {
                             <p><b>{props?.data[0]?.payment_type}</b></p>
                         </td>
                         <td>
-                            LR No. : {branch+props?.data[0]?.id} <br />
+                            LR No. :<b> {branch+props?.data[0]?.id} </b><br />
                             {localStorage.getItem(CONSTANTS.BRANCH)} - {props?.data[0]?.place_to_send} <br />
                             Sender : {props?.data[0]?.sender_name} <br />
                             Sender No. : {props?.data[0]?.sender_number} <br />
