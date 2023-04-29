@@ -74,64 +74,55 @@ function MyVerticallyCenteredModal(props) {
         .lte("created_at", moment(endDate).add(1, "day").format("YYYY-MM-DD"))
         .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
         .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
-      if (data) {
-        if (data.length === 0) {
+
+      if (!error) {
+        const finalFiltered = data.filter((shipment) => {
+          return selectedPlaceToSend.some(
+            (place) => place.place_to_send === shipment.place_to_send
+          );
+        });
+        // console.log("final data: ", finalFiltered)
+        if (finalFiltered.length === 0) {
           alert("No data found!");
           return;
         }
-        let datas = data.filter(
-          (parcel) => parcel.place_to_send === sentBranch
-        );
-        if (sentBranch && sentBranch === "all") {
-          setData(data);
-        } else if (sentBranch && sentBranch !== "all") {
-          if (datas.length === 0) {
-            alert("No data found!");
-            return;
-          }
-          setData(datas);
-        } else if (sentBranch === "") {
-          alert("Please select 'To place'");
-        }
-        console.log("data1: ", data);
+        navigate("/general", {
+          state: {
+            data: finalFiltered,
+            dates: { startDate: startDate, endDate: endDate },
+          },
+        });
       } else {
-        throw new Error(error);
+        console.log("error: ", error);
       }
     } else {
       const { data, error } = await supabase
         .from("parcels")
         .select("*")
         .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
-      if (data) {
-        let allData = data.filter(
+
+        let particularDateData = data.filter(
           (parcel) =>
             new Date(parcel.created_at).toLocaleDateString() ===
             new Date(startDate).toLocaleDateString()
         );
-        let datas = data.filter(
-          (parcel) =>
-            parcel.place_to_send === sentBranch &&
-            new Date(parcel.created_at).toLocaleDateString() ===
-              new Date(startDate).toLocaleDateString()
-        );
-        if (sentBranch && sentBranch === "all") {
-          if (allData.length === 0) {
-            alert("No data found!");
-            return;
-          }
-          setData(allData);
-        } else if (sentBranch && sentBranch !== "all" && sentBranch !== "") {
-          if (datas.length === 0) {
-            alert("No data found!");
-            return;
-          }
-          setData(datas);
-        } else if (sentBranch === "") {
-          alert("Please select 'To place'");
+
+        const finalFiltered = particularDateData.filter((shipment) => {
+          return selectedPlaceToSend.some(
+            (place) => place.place_to_send === shipment.place_to_send
+          );
+        });
+        // console.log("final data: ", finalFiltered)
+        if (finalFiltered.length === 0) {
+          alert("No data found!");
+          return;
         }
-      } else {
-        throw new Error(error);
-      }
+        navigate("/general", {
+          state: {
+            data: finalFiltered,
+            dates: { startDate: startDate, endDate: endDate },
+          },
+        });
     }
   };
 
