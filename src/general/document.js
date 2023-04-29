@@ -103,7 +103,7 @@ export const Document = forwardRef((props, ref) => {
             props.data.map((parcel, index) => (
               <tr className={parcel?.returned ? "bg-danger" : "bg-light"}>
                 <td>{index + 1}</td>
-                <td> {parcel?.id}</td>
+                <td> {parcel?.receipt_no}</td>
                 <td>{parcel?.payment_type}</td>
                 <td>{parcel?.place_to_send}</td>
                 <td>{parcel?.sender_name}</td>
