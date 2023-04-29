@@ -10,11 +10,13 @@ import { Document } from "../../general/document";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
+import Select from 'react-select';
 
 function MyVerticallyCenteredModal(props) {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [branches, setBranches] = useState([]);
+  const [placeToSend, setPlaceToSend] = useState([]);
   const [data, setData] = useState([]);
   const [sentBranch, setSentBranch] = useState("");
 
@@ -27,20 +29,36 @@ function MyVerticallyCenteredModal(props) {
 
   useEffect(() => {
     getBranches();
+    getPlaceToSend();
   }, []);
 
   useEffect(() => {
     if (data.length > 0) {
       // handlePrint();
-      navigate('/general', { state: { data: data, dates: {startDate: startDate, endDate: endDate} } });
+      navigate("/general", {
+        state: {
+          data: data,
+          dates: { startDate: startDate, endDate: endDate },
+        },
+      });
     }
   }, [data]);
 
   const getBranches = async () => {
-    const { data, error } = await supabase.from("place_to_send").select("*");
+    const { data, error } = await supabase.from("branches").select("*");
     if (!error) {
       //   console.log("data: ", data);
       setBranches(data);
+    } else {
+      console.log("error: ", error);
+    }
+  };
+
+  const getPlaceToSend = async () => {
+    const { data, error } = await supabase.from("place_to_send").select("*");
+    if (!error) {
+      //   console.log("data: ", data);
+      setPlaceToSend(data);
     } else {
       console.log("error: ", error);
     }
@@ -52,15 +70,26 @@ function MyVerticallyCenteredModal(props) {
         .from("parcels")
         .select("*")
         .lte("created_at", moment(endDate).add(1, "day").format("YYYY-MM-DD"))
-        .gte("created_at", moment(startDate).format("YYYY-MM-DD"));
+        .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+        .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
       if (data) {
+        if (data.length === 0) {
+          alert("No data found!");
+          return;
+        }
         let datas = data.filter(
           (parcel) => parcel.place_to_send === sentBranch
         );
-        if(sentBranch && sentBranch === "all"){
+        if (sentBranch && sentBranch === "all") {
           setData(data);
-        } else if(sentBranch && sentBranch !== "all"){
-          setData(datas)
+        } else if (sentBranch && sentBranch !== "all") {
+          if (datas.length === 0) {
+            alert("No data found!");
+            return;
+          }
+          setData(datas);
+        } else if(sentBranch === ""){
+          alert("Please select 'To place'")
         }
         console.log("data1: ", data);
       } else {
@@ -70,21 +99,38 @@ function MyVerticallyCenteredModal(props) {
       const { data, error } = await supabase
         .from("parcels")
         .select("*")
-        .eq("created_at", moment(startDate).format("YYYY-MM-DD"));
+        .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
       if (data) {
-        let datas = data.filter(
-          (parcel) => parcel.place_to_send === sentBranch
+        let allData = data.filter(
+          (parcel) => new Date(parcel.created_at).toLocaleDateString() === new Date(startDate).toLocaleDateString()
         );
-        if(sentBranch && sentBranch === "all"){
-          setData(data);
-        } else if(sentBranch && sentBranch !== "all"){
-          setData(datas)
+        let datas = data.filter(
+          (parcel) => parcel.place_to_send === sentBranch && new Date(parcel.created_at).toLocaleDateString() === new Date(startDate).toLocaleDateString()
+        );
+        if (sentBranch && sentBranch === "all") {
+          if (allData.length === 0) {
+            alert("No data found!");
+            return;
+          }
+          setData(allData);
+        } else if (sentBranch && sentBranch !== "all" && sentBranch !== "") {
+          if (datas.length === 0) {
+            alert("No data found!");
+            return;
+          }
+          setData(datas);
+        } else if (sentBranch === ""){
+          alert("Please select 'To place'")
         }
       } else {
         throw new Error(error);
       }
     }
   };
+
+  const getMainBranchData = async () => {
+    console.log("hirabagh general")
+  }
 
   return (
     <Modal
@@ -120,37 +166,51 @@ function MyVerticallyCenteredModal(props) {
             <option value="">General (Out)</option>
           </select> */}
           <div className="send-to-rec d-flex justify-content-between align-items-center">
-            <select name="" id="" disabled className="w-100 general_delivery">
-              <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
-                {localStorage.getItem(CONSTANTS.BRANCH)}
-              </option>
-              {/* {
-                  branches && branches.map((branch) => (
-                    <option value={branch?.branch_name}>{branch?.branch_name}</option>
-                ))
-              } */}
-            </select>
+            {localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? (
+              // <select name="" id="" multiple={true} className="w-100 general_delivery">
+              //   <option value="">From branch</option>
+              //   {branches &&
+              //     branches.map((branch) => (
+              //       <option value={branch?.branch_name}>
+              //         {branch?.branch_name}
+              //       </option>
+              //     ))}
+              // </select>
+              <Select
+                options={branches}
+                getOptionLabel={option => `${option.branch_name}`}
+                getOptionValue={option => `${option.branch_name}`}
+                isMulti
+                isSearchable={false}
+              />
+            ) : (
+              <select name="" id="" disabled className="w-100 general_delivery">
+                <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
+                  {localStorage.getItem(CONSTANTS.BRANCH)}
+                </option>
+              </select>
+            )}
             <p className="px-3">To</p>
             <select
               className="w-100 general_delivery"
               value={sentBranch}
               onChange={(e) => {
-                setSentBranch(e.target.value)
+                setSentBranch(e.target.value);
               }}
             >
-              <option value="">To branch</option>
+              <option value="">To place</option>
               <option value="all">All</option>
-              {branches &&
-                branches.map((branch) => (
-                    <option value={branch?.place_to_send}>
-                      {branch?.place_to_send}
-                    </option>
-                  ))}
+              {placeToSend &&
+                placeToSend.map((branch) => (
+                  <option value={branch?.place_to_send}>
+                    {branch?.place_to_send}
+                  </option>
+                ))}
             </select>
           </div>
 
           <Modal.Footer>
-            <Button onClick={getGeneralData}>Create General</Button>
+            <Button onClick={ () => localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? getMainBranchData() : getGeneralData()}>Create General</Button>
             <Button onClick={props.onHide}>Close</Button>
           </Modal.Footer>
         </form>
@@ -170,26 +230,38 @@ const Table = () => {
     getData();
   }, []);
 
-  const onFindDetails = async(lr) => {
-    const {data, error} = await supabase.from("parcels").select("*").eq("receipt_no", lr);
-    if(!error){
+  const onFindDetails = async (lr) => {
+    const { data, error } = await supabase
+      .from("parcels")
+      .select("*")
+      .eq("receipt_no", lr);
+    if (!error) {
       console.log("data: ", data);
-      navigate("/lr", {state: {data: data}})
+      navigate("/lr", { state: { data: data } });
     } else {
       console.log("error: ", error);
     }
-  }
+  };
 
   async function getData() {
     const { data, error } = await supabase.from("parcels").select("*");
     if (!error) {
-      const filteredData = data.filter(
-        (item) =>
-          new Date(item?.created_at).toLocaleDateString() ===
-            new Date().toLocaleDateString() &&
-          item.branch === localStorage.getItem(CONSTANTS.BRANCH)
-      );
-      setData(filteredData);
+      if (localStorage.getItem(CONSTANTS.BRANCH) === "Hirabagh (HO)") {
+        const filteredData = data.filter(
+          (item) =>
+            new Date(item?.created_at).toLocaleDateString() ===
+            new Date().toLocaleDateString()
+        );
+        setData(filteredData);
+      } else {
+        const filteredData = data.filter(
+          (item) =>
+            new Date(item?.created_at).toLocaleDateString() ===
+              new Date().toLocaleDateString() &&
+            item.branch === localStorage.getItem(CONSTANTS.BRANCH)
+        );
+        setData(filteredData);
+      }
     } else {
       throw new Error(error);
     }
@@ -197,30 +269,36 @@ const Table = () => {
 
   const onDateFind = async (e) => {
     e.preventDefault();
-    const {data, error} = await supabase.from('parcels').select("*").gte("created_at", moment(date).format("YYYY-MM-DD"));
-    if(!error){
-      const parcels = data.filter(parcel => parcel.branch === localStorage.getItem(CONSTANTS.BRANCH));
-      navigate('/general', { state: { data: parcels, dates: {startDate: date, endDate: date} } });
+    const { data, error } = await supabase
+      .from("parcels")
+      .select("*")
+      .gte("created_at", moment(date).format("YYYY-MM-DD"));
+    if (!error) {
+      const parcels = data.filter(
+        (parcel) => parcel.branch === localStorage.getItem(CONSTANTS.BRANCH)
+      );
+      navigate("/general", {
+        state: { data: parcels, dates: { startDate: date, endDate: date } },
+      });
+    } else {
+      throw new Error(error);
     }
-    else {
-      throw new Error(error)
-    }
-  }
+  };
 
   const getTotal = () => {
     var quantity = 0;
     var total_amount = 0;
-  
+
     for (let i = 0; i < data?.length; i++) {
-      if(data[i].returned === false){
+      if (data[i].returned === false) {
         quantity += Number(data[i].quantity);
         total_amount += Number(data[i].total_amount);
       }
     }
-    return {quantity: quantity, total_amount: total_amount};
-  }
+    return { quantity: quantity, total_amount: total_amount };
+  };
 
-  const {quantity, total_amount} = getTotal();
+  const { quantity, total_amount } = getTotal();
 
   return (
     <section className="pt__table_print mb-5">
@@ -239,7 +317,6 @@ const Table = () => {
               show={modalShow}
               onHide={() => setModalShow(false)}
             />
-
           </div>
           <div className="search_lr col-4">
             <form className="header_form">
@@ -256,7 +333,12 @@ const Table = () => {
                 onChange={(e) => setDate(e.target.value)}
                 max={new Date().toISOString().split("T")[0]}
               />
-              <input type="submit" className="btn" value="Find Details" onClick={onDateFind} />
+              <input
+                type="submit"
+                className="btn"
+                value="Find Details"
+                onClick={onDateFind}
+              />
             </form>
           </div>
         </div>
@@ -278,13 +360,30 @@ const Table = () => {
               {data.map((item, index) => (
                 <tr className={item?.returned ? "bg-danger" : "bg-light"}>
                   <td>{new Date(item?.created_at).toLocaleDateString()}</td>
-                  <td> <Link className="btn-success btn" onClick={() => onFindDetails(item?.receipt_no)}> {item?.receipt_no} </Link></td>
+                  <td>
+                    {" "}
+                    <Link
+                      className="btn-success btn"
+                      onClick={() => onFindDetails(item?.receipt_no)}
+                    >
+                      {" "}
+                      {item?.receipt_no}{" "}
+                    </Link>
+                  </td>
                   <td>{item?.sender_name}</td>
                   <td>{item?.receiver_name}</td>
                   <td>{item?.item_detail}</td>
                   <td>{item?.quantity}</td>
                   <td>{item?.total_amount}</td>
-                  <td className={item?.payment_type === "Paid" ? 'text-success' : 'text-danger'}>{item?.payment_type}</td>
+                  <td
+                    className={
+                      item?.payment_type === "Paid"
+                        ? "text-success"
+                        : "text-danger"
+                    }
+                  >
+                    {item?.payment_type}
+                  </td>
                   <td>{item?.place_to_send}</td>
                   <td>Print & Action</td>
                 </tr>

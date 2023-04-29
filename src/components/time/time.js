@@ -24,7 +24,7 @@ const Time = () => {
 });
 
   async function getFormCount(){
-    const {data, error} = await supabase.from('forms').select("*");
+    const {data, error} = await supabase.from('forms').select("*").eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
     if(!error){
       setLR(data[0]?.form_no)
     }

@@ -6,6 +6,9 @@ import supabase from "../../supabase/supabaseClient";
 import { useNavigate } from "react-router-dom";
 
 const Manual = () => {
+  var tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
   const [colors, setColors] = useState([]);
@@ -100,11 +103,19 @@ const Manual = () => {
         if (isExist.length > 0) {
           alert("LR no. already exist!");
         } else {
+          let branch = "";
+          if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")) {
+            branch = "HO/";
+          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("SA")) {
+            branch = "SA/";
+          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("KA")) {
+            branch = "KA/";
+          }
           const addManual = await supabase.from("parcels").insert({
             ...values,
             id: Number(values.id),
             add_type: "manual",
-            receipt_no: Number(values.id),
+            receipt_no: branch + Number(values.id),
             created_at: date,
             branch: localStorage.getItem(CONSTANTS.BRANCH),
           });
@@ -378,14 +389,15 @@ const Manual = () => {
                         name="created_at"
                         type="date"
                         value={date}
-                        onChange={(e) => {setDate(e.target.value); e.target.value ? setError("") : setError("Please select date")}}
-                        max={new Date().toISOString().split("T")[0]}
+                        onChange={(e) => {
+                          setDate(e.target.value);
+                          e.target.value
+                            ? setError("")
+                            : setError("Please select date");
+                        }}
+                        max={tomorrow.toISOString().split("T")[0]}
                       />
-                      {error && (
-                        <div className="text-danger">
-                          {error}
-                        </div>
-                      )}
+                      {error && <div className="text-danger">{error}</div>}
                     </div>
                   </div>
                   <div className="col-4 text-end align-self-center">

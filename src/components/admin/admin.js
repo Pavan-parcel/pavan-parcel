@@ -56,55 +56,48 @@ const Admin = () => {
     validationSchema: validate,
     onSubmit: async (values) => {
       // console.log("values: ", values)
-      const form = await supabase.from("forms").select("*");
-      const { data, error } = await supabase
-        .from("parcels")
-        .insert({
-          ...values,
-          total_amount: Number(values.total_amount) + 10,
-          branch: localStorage.getItem(CONSTANTS.BRANCH),
-        })
-        .select("*");
-      if (!error) {
-        // console.log("data: ", data);
+      const form = await supabase
+        .from("forms")
+        .select("*")
+        .eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
+      if (form.data) {
 
-        const form = await supabase.from("forms").select("*");
-        if (form.data) {
-          let branch = "";
-          if (localStorage.getItem(CONSTANTS.BRANCH).includes("(HO)")) {
+        let branch = "";
+          if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")) {
             branch = "HO/";
-          } else if (localStorage.getItem(CONSTANTS.BRANCH).includes("SA")) {
+          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("SA")) {
             branch = "SA/";
-          } else if (localStorage.getItem(CONSTANTS.BRANCH).includes("KA")) {
+          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("KA")) {
             branch = "KA/";
           }
-          const updateReceipt = await supabase
-            .from("parcels")
-            .update({
-              receipt_no: branch + data[0].id,
-            })
-            .eq("id", data[0].id);
-          if (!updateReceipt.error) {
-            console.log("success");
-          } else {
-            console.log("error222", updateReceipt.error);
-          }
+
+        const { data, error } = await supabase
+          .from("parcels")
+          .insert({
+            ...values,
+            id: form.data[0]?.form_no,
+            receipt_no: branch + form.data[0]?.form_no,
+            total_amount: Number(values.total_amount) + 10,
+            branch: localStorage.getItem(CONSTANTS.BRANCH),
+          })
+          .select("*");
+        if (!error) {
+          // console.log("data: ", data);
           let count = form.data[0]?.form_no;
           console.log("count: ", count);
           const formUpdate = await supabase
             .from("forms")
             .update({ form_no: count + 1 })
-            .eq("id", 1);
+            .eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
           if (formUpdate.data) {
-            
           } else {
             console.log("eror: ", formUpdate.error);
           }
+          setData(data);
+        } else {
+          console.log("error: ", error);
+          throw new Error(error);
         }
-        setData(data);
-      } else {
-        console.log("error: ", error);
-        throw new Error(error);
       }
     },
   });

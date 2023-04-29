@@ -93,7 +93,7 @@ const Login = () => {
                 <div className="pt__login_input">
                   <label>Password</label>
                   <input
-                    type="text"
+                    type="password"
                     name="password"
                     id=""
                     placeholder="Password"

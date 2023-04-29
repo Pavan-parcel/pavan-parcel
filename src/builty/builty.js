@@ -5,11 +5,11 @@ import moment from 'moment'
 const Builty = forwardRef((props, ref) => {
     // console.log("props data: ", props?.data)
     let branch = "";
-    if(localStorage.getItem(CONSTANTS.BRANCH).includes("(HO)")){
+    if(localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")){
         branch = "HO/"
-    } else if(localStorage.getItem(CONSTANTS.BRANCH).includes("(SA)")){
+    } else if(localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")){
         branch = "SA/"
-    } else if(localStorage.getItem(CONSTANTS.BRANCH).includes("(KA)")){
+    } else if(localStorage.getItem(CONSTANTS.BRANCH)?.includes("(KA)")){
         branch = "KA/"
     }
     return (
