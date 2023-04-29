@@ -10,7 +10,7 @@ import { Document } from "../../general/document";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
-import Select from 'react-select';
+import Select from "react-select";
 
 function MyVerticallyCenteredModal(props) {
   const [startDate, setStartDate] = useState(new Date());
@@ -19,6 +19,8 @@ function MyVerticallyCenteredModal(props) {
   const [placeToSend, setPlaceToSend] = useState([]);
   const [data, setData] = useState([]);
   const [sentBranch, setSentBranch] = useState("");
+  const [selectedBranches, setSelectedBranches] = useState([]);
+  const [selectedPlaceToSend, setSelectedPlaceToSend] = useState([]);
 
   const generalRef = useRef();
   const navigate = useNavigate();
@@ -88,8 +90,8 @@ function MyVerticallyCenteredModal(props) {
             return;
           }
           setData(datas);
-        } else if(sentBranch === ""){
-          alert("Please select 'To place'")
+        } else if (sentBranch === "") {
+          alert("Please select 'To place'");
         }
         console.log("data1: ", data);
       } else {
@@ -102,10 +104,15 @@ function MyVerticallyCenteredModal(props) {
         .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
       if (data) {
         let allData = data.filter(
-          (parcel) => new Date(parcel.created_at).toLocaleDateString() === new Date(startDate).toLocaleDateString()
+          (parcel) =>
+            new Date(parcel.created_at).toLocaleDateString() ===
+            new Date(startDate).toLocaleDateString()
         );
         let datas = data.filter(
-          (parcel) => parcel.place_to_send === sentBranch && new Date(parcel.created_at).toLocaleDateString() === new Date(startDate).toLocaleDateString()
+          (parcel) =>
+            parcel.place_to_send === sentBranch &&
+            new Date(parcel.created_at).toLocaleDateString() ===
+              new Date(startDate).toLocaleDateString()
         );
         if (sentBranch && sentBranch === "all") {
           if (allData.length === 0) {
@@ -119,8 +126,8 @@ function MyVerticallyCenteredModal(props) {
             return;
           }
           setData(datas);
-        } else if (sentBranch === ""){
-          alert("Please select 'To place'")
+        } else if (sentBranch === "") {
+          alert("Please select 'To place'");
         }
       } else {
         throw new Error(error);
@@ -129,8 +136,71 @@ function MyVerticallyCenteredModal(props) {
   };
 
   const getMainBranchData = async () => {
-    console.log("hirabagh general")
-  }
+    console.log("hirabagh general");
+    if (startDate.getDate() !== endDate.getDate()) {
+      const { data, error } = await supabase
+        .from("parcels")
+        .select("*")
+        .lte("created_at", moment(endDate).add(1, "day").format("YYYY-MM-DD"))
+        .gte("created_at", moment(startDate).format("YYYY-MM-DD"));
+      if (!error) {
+        const filteredShipments = data.filter((shipment) => {
+          return selectedBranches.some(
+            (branch) => branch.branch_name === shipment.branch
+          );
+        });
+        // console.log("actual data: ", filteredShipments)
+        const finalFiltered = filteredShipments.filter((shipment) => {
+          return selectedPlaceToSend.some(
+            (place) => place.place_to_send === shipment.place_to_send
+          );
+        });
+        // console.log("final data: ", finalFiltered)
+        if (finalFiltered.length === 0) {
+          alert("No data found!");
+          return;
+        }
+        navigate("/general", {
+          state: {
+            data: finalFiltered,
+            dates: { startDate: startDate, endDate: endDate },
+          },
+        });
+      } else {
+        console.log("error: ", error);
+      }
+    } else {
+      const { data, error } = await supabase.from("parcels").select("*");
+      let particularDateData = data.filter(
+        (parcel) =>
+          new Date(parcel.created_at).toLocaleDateString() ===
+          new Date(startDate).toLocaleDateString()
+      );
+
+      const filteredShipments = particularDateData.filter((shipment) => {
+        return selectedBranches.some(
+          (branch) => branch.branch_name === shipment.branch
+        );
+      });
+      // console.log("actual data: ", filteredShipments)
+      const finalFiltered = filteredShipments.filter((shipment) => {
+        return selectedPlaceToSend.some(
+          (place) => place.place_to_send === shipment.place_to_send
+        );
+      });
+      // console.log("final data: ", finalFiltered)
+      if (finalFiltered.length === 0) {
+        alert("No data found!");
+        return;
+      }
+      navigate("/general", {
+        state: {
+          data: finalFiltered,
+          dates: { startDate: startDate, endDate: endDate },
+        },
+      });
+    }
+  };
 
   return (
     <Modal
@@ -178,10 +248,12 @@ function MyVerticallyCenteredModal(props) {
               // </select>
               <Select
                 options={branches}
-                getOptionLabel={option => `${option.branch_name}`}
-                getOptionValue={option => `${option.branch_name}`}
+                getOptionLabel={(option) => `${option.branch_name}`}
+                getOptionValue={(option) => `${option.branch_name}`}
                 isMulti
                 isSearchable={false}
+                value={selectedBranches}
+                onChange={(value) => setSelectedBranches(value)}
               />
             ) : (
               <select name="" id="" disabled className="w-100 general_delivery">
@@ -191,7 +263,7 @@ function MyVerticallyCenteredModal(props) {
               </select>
             )}
             <p className="px-3">To</p>
-            <select
+            {/* <select
               className="w-100 general_delivery"
               value={sentBranch}
               onChange={(e) => {
@@ -206,11 +278,28 @@ function MyVerticallyCenteredModal(props) {
                     {branch?.place_to_send}
                   </option>
                 ))}
-            </select>
+            </select> */}
+            <Select
+              options={placeToSend}
+              getOptionLabel={(option) => `${option.place_to_send}`}
+              getOptionValue={(option) => `${option.place_to_send}`}
+              isSearchable={false}
+              isMulti
+              value={selectedPlaceToSend}
+              onChange={(value) => setSelectedPlaceToSend(value)}
+            />
           </div>
 
           <Modal.Footer>
-            <Button onClick={ () => localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? getMainBranchData() : getGeneralData()}>Create General</Button>
+            <Button
+              onClick={() =>
+                localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
+                  ? getMainBranchData()
+                  : getGeneralData()
+              }
+            >
+              Create General
+            </Button>
             <Button onClick={props.onHide}>Close</Button>
           </Modal.Footer>
         </form>
