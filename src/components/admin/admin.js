@@ -160,8 +160,17 @@ const Admin = () => {
   function handleEnter(event) {
     if (event.keyCode === 13) {
       const form = event.target.form;
-      const index = Array.prototype.indexOf.call(form, event.target);
-      form.elements[index + 1].focus();
+      const elements = form.elements;
+      const index = Array.prototype.indexOf.call(elements, event.target);
+      let nextIndex = index + 1;
+      while (nextIndex < elements.length && elements[nextIndex].disabled) {
+        nextIndex++;
+      }
+      if (nextIndex < elements.length - 1) {
+        elements[nextIndex].focus();
+      } else {
+        formik.handleSubmit(event);
+      }
       event.preventDefault();
     }
   }
