@@ -230,7 +230,8 @@ const LrEdit = () => {
                       <label>Sender Number</label>
                       <input
                         name="sender_number"
-                        type="number"
+                        type="text"
+                        maxLength={10}
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
                       />
@@ -264,7 +265,8 @@ const LrEdit = () => {
                       <label>Receiver Number</label>
                       <input
                         name="receiver_number"
-                        type="number"
+                        type="text"
+                        maxLength={10}
                         value={formik.values.receiver_number}
                         onChange={formik.handleChange}
                       />
@@ -303,7 +305,7 @@ const LrEdit = () => {
                         )}
                     </div>
                   </div>
-                  <div className="col-30">
+                  {/* <div className="col-30">
                     <div className="form_control_wrapper">
                       <label>Colors</label>
                       <select
@@ -319,7 +321,7 @@ const LrEdit = () => {
                           ))}
                       </select>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="row justify-between mt-30">
                   <div className="col-25">
@@ -352,6 +354,7 @@ const LrEdit = () => {
                             formik.values.quantity * e.target.value
                           );
                         }}
+                        disabled
                       />
                       {formik.touched.rate && formik.errors.rate && (
                         <div className="text-danger">{formik.errors.rate}</div>

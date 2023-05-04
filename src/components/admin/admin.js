@@ -269,11 +269,13 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Sender Number</label>
                       <input
-                        type="number"
+                        type="text"
                         onKeyDown={handleEnter}
                         name="sender_number"
+                        maxLength={10}
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
+                        pattern="/\d/"
                       />
                       {formik.touched.sender_number &&
                         formik.errors.sender_number && (
@@ -305,11 +307,12 @@ const Admin = () => {
                     <div className="form_control_wrapper">
                       <label>Receiver Number</label>
                       <input
-                        type="number"
+                        type="text"
                         onKeyDown={handleEnter}
                         name="receiver_number"
                         value={formik.values.receiver_number}
                         onChange={formik.handleChange}
+                        maxLength={10}
                       />
                       {formik.touched.receiver_number &&
                         formik.errors.receiver_number && (
@@ -347,7 +350,7 @@ const Admin = () => {
                         )}
                     </div>
                   </div>
-                  <div className="col-30">
+                  {/* <div className="col-30">
                     <div className="form_control_wrapper">
                       <label>Colors</label>
                       <select
@@ -363,11 +366,9 @@ const Admin = () => {
                             <option value={item?.color}>{item?.color}</option>
                           ))}
                       </select>
-                      {/* {formik.touched.color && formik.errors.color && (
-                        <div className="text-danger">{formik.errors.color}</div>
-                      )} */}
+                      
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="row justify-between mt-30">
                   <div className="col-25">
