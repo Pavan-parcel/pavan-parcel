@@ -275,7 +275,6 @@ const Admin = () => {
                         maxLength={10}
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
-                        pattern="/\d/"
                       />
                       {formik.touched.sender_number &&
                         formik.errors.sender_number && (
