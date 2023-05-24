@@ -7,6 +7,7 @@ import supabase from "../../supabase/supabaseClient";
 import { CONSTANTS } from "../../utils/contants";
 import { useReactToPrint } from "react-to-print";
 import Builty from "../../builty/builty";
+import moment from "moment";
 
 const LrEdit = () => {
   const { state } = useLocation();
@@ -180,6 +181,7 @@ const LrEdit = () => {
                         id="cars"
                         value={formik.values.place_to_send}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       >
                         <option value="">Select Place to Send...</option>
                         {branches &&
@@ -216,6 +218,7 @@ const LrEdit = () => {
                         type="text"
                         value={formik.values.sender_name}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       />
                       {formik.touched.sender_name &&
                         formik.errors.sender_name && (
@@ -234,6 +237,7 @@ const LrEdit = () => {
                         maxLength={10}
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       />
                       {formik.touched.sender_number &&
                         formik.errors.sender_number && (
@@ -251,6 +255,7 @@ const LrEdit = () => {
                         type="text"
                         value={formik.values.receiver_name}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       />
                       {formik.touched.receiver_name &&
                         formik.errors.receiver_name && (
@@ -269,6 +274,7 @@ const LrEdit = () => {
                         maxLength={10}
                         value={formik.values.receiver_number}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       />
                       {formik.touched.receiver_number &&
                         formik.errors.receiver_number && (
@@ -288,6 +294,7 @@ const LrEdit = () => {
                         id="cars"
                         value={formik.values.item_detail}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       >
                         <option value="">Select Item detail...</option>
                         {items &&
@@ -332,6 +339,7 @@ const LrEdit = () => {
                         type="number"
                         value={formik.values.quantity}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       />
                       {formik.touched.quantity && formik.errors.quantity && (
                         <div className="text-danger">
@@ -387,6 +395,7 @@ const LrEdit = () => {
                         id="payment_type"
                         value={formik.values.payment_type}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       >
                         <option value="">Select Payment Type...</option>
                         <option value="To Pay">To Pay</option>
@@ -410,6 +419,7 @@ const LrEdit = () => {
                         name="remarks"
                         value={formik.values.remarks}
                         onChange={formik.handleChange}
+                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       />
                     </div>
                   </div>
@@ -418,12 +428,14 @@ const LrEdit = () => {
                       onClick={onCancel}
                       // type="submit"
                       className="me-3 time_btn btn btn-submit btn-danger"
+                      disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       className="pt__lr_num time_btn btn btn-submit"
+                      disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                     >
                       Update & Print
                     </button>

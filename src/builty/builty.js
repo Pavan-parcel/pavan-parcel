@@ -25,7 +25,7 @@ const Builty = forwardRef((props, ref) => {
               : props?.data[0]?.branch.includes("(KA)")
               ? "(7405194000)"
               : props?.data[0]?.branch.includes("(SA)")
-              ? "(7569545800)"
+              ? "(7567545800)"
               : ""}
           </th>
           <th rowspan="2" class="text-start">
