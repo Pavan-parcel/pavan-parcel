@@ -7,12 +7,14 @@ import { useFormik } from "formik";
 import { CONSTANTS } from "../../utils/contants";
 import Builty from "../../builty/builty";
 import { useReactToPrint } from "react-to-print";
+import Loader from "../loader/loader";
 
 const Admin = () => {
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
   const [colors, setColors] = useState([]);
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const builtyRef = useRef();
 
@@ -55,21 +57,21 @@ const Admin = () => {
     },
     validationSchema: validate,
     onSubmit: async (values) => {
+      setLoading(true);
       // console.log("values: ", values)
       const form = await supabase
         .from("forms")
         .select("*")
         .eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
       if (form.data) {
-
         let branch = "";
-          if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")) {
-            branch = "HO/";
-          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("SA")) {
-            branch = "SA/";
-          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("KA")) {
-            branch = "KA/";
-          }
+        if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")) {
+          branch = "HO/";
+        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("SA")) {
+          branch = "SA/";
+        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("KA")) {
+          branch = "KA/";
+        }
 
         const { data, error } = await supabase
           .from("parcels")
@@ -118,6 +120,7 @@ const Admin = () => {
 
       // Delay the page reload
       setTimeout(() => {
+        // setLoading(false);
         window.location.reload();
       }, 1000);
       // setData([])
@@ -169,7 +172,7 @@ const Admin = () => {
       if (nextIndex < elements.length - 1) {
         elements[nextIndex].focus();
       } else {
-        formik.handleSubmit(event);
+        !loading && formik.handleSubmit(event);
       }
       event.preventDefault();
     }
@@ -470,10 +473,13 @@ const Admin = () => {
                     <button
                       onKeyDown={handleEnter}
                       type="submit"
-                      className="pt__lr_num time_btn btn btn-submit"
+                      disabled={loading}
+                      className="pt__lr_num print_button time_btn btn btn-submit"
                     >
-                      Print and Save
+                      {loading ? "Please wait" : "Print and Save"}
+                      {loading && <Loader />}
                     </button>
+                    
                   </div>
                 </div>
               </div>

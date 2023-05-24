@@ -3,12 +3,12 @@ import './loader.css'
 
 const Loader = () => {
   return (
-    <section className='pv__loader'>
+    // <section className='pv__loader'>
         <div>
-        <span class="loader"></span>
+        <span className="loader"></span>
 
         </div>
-    </section> 
+    // </section> 
   )
 }
 

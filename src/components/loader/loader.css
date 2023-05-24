@@ -6,14 +6,14 @@
     animation: rotate 1s linear infinite
   }
   .loader::before {
-    width: 48px;
-    height: 48px;
+    width: 18px;
+    height: 18px;
     content: "";
     box-sizing: border-box;
     position: absolute;
     inset: 0px;
     border-radius: 50%;
-    border: 5px solid #000;
+    border: 2px solid #000;
     animation: prixClipFix 2s linear infinite ;
   }
 
