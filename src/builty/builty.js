@@ -82,7 +82,7 @@ const Builty = forwardRef((props, ref) => {
         </tr>
         <tr>
           <th colspan="2" class="text-start">
-            Remark
+            Remark : {props?.data[0]?.remarks}
           </th>
         </tr>
         <tr>
