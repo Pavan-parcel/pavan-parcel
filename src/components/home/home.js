@@ -7,7 +7,7 @@ import Loader from '../loader/loader'
 const Home = () => {
   return (
     <>
-    <Loader />
+    {/* <Loader /> */}
     <Time />
     <Admin />
     <Table />
