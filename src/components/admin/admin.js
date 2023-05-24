@@ -469,7 +469,7 @@ const Admin = () => {
                                 } */}
                     </div>
                   </div>
-                  <div className="col-4 text-end">
+                  <div className="col-4 d-flex justify-content-end align-items-center text-end">
                     <button
                       onKeyDown={handleEnter}
                       type="submit"
