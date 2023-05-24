@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import "./style.css";
 import moment from "moment";
 
-export const Document = forwardRef((props, ref) => {
+export const DocumentPrint = forwardRef((props, ref) => {
   const getTotal = () => {
     var quantity = 0;
     var paid = 0;
