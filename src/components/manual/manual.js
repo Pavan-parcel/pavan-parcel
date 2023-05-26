@@ -117,6 +117,7 @@ const Manual = () => {
             add_type: "manual",
             receipt_no: branch + Number(values.id),
             created_at: date,
+            total_amount: Number(values?.total_amount) + 10,
             branch: localStorage.getItem(CONSTANTS.BRANCH),
           });
           if (!addManual.error) {
@@ -423,7 +424,7 @@ const Manual = () => {
                   </tr>
                   <tr>
                     <td>Freight</td>
-                    <td>{0}</td>
+                    <td>{formik.values.total_amount || 0}</td>
                   </tr>
                   <tr>
                     <td>LR Charge</td>
@@ -431,11 +432,11 @@ const Manual = () => {
                   </tr>
                   <tr>
                     <td>Total</td>
-                    <td>{10}</td>
+                    <td>{Number(formik.values.total_amount) + 10}</td>
                   </tr>
                   <tr>
                     <td>Grand Total</td>
-                    <td>{10}</td>
+                    <td>{Number(formik.values.total_amount) + 10}</td>
                   </tr>
                 </table>
               </div>
