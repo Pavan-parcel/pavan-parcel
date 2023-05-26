@@ -38,18 +38,15 @@ const LrEdit = () => {
     formik.setFieldValue("item_detail", data[0]?.item_detail);
     formik.setFieldValue("color", data[0]?.color);
     formik.setFieldValue("quantity", data[0]?.quantity);
-    formik.setFieldValue(
-      "rate",
-      data[0]?.rate
-    );
-    formik.setFieldValue("total_amount", Number(data[0]?.total_amount)-10);
+    formik.setFieldValue("rate", data[0]?.rate);
+    formik.setFieldValue("total_amount", Number(data[0]?.total_amount) - 10);
     formik.setFieldValue("payment_type", data[0]?.payment_type);
     formik.setFieldValue("place_to_send", data[0]?.place_to_send);
     formik.setFieldValue("remarks", data[0]?.remarks);
   }, []);
 
   useEffect(() => {
-    if(updateData.length > 0){
+    if (updateData.length > 0) {
       handlePrint();
 
       // Delay the page reload
@@ -137,11 +134,12 @@ const LrEdit = () => {
         .from("parcels")
         .update({
           ...values,
-          total_amount: Number(formik.values.total_amount) + 10
+          total_amount: Number(formik.values.total_amount) + 10,
         })
-        .eq("receipt_no", state?.data[0]?.receipt_no).select("*");
+        .eq("receipt_no", state?.data[0]?.receipt_no)
+        .select("*");
       if (!error) {
-        setUpdateData(data)
+        setUpdateData(data);
         // window.location.reload();
       } else {
         console.log("update error: ", error);
@@ -165,7 +163,7 @@ const LrEdit = () => {
   return (
     <div className="pt_admin_lr">
       <div className="d-none">
-        <Builty ref={builtyRef} data={updateData} />
+        <Builty ref={builtyRef} data={moment(data[0]?.created_at).get("date") !== moment().get("date") ? data : updateData} />
       </div>
       <form onSubmit={formik.handleSubmit}>
         <div className="container">
@@ -181,7 +179,10 @@ const LrEdit = () => {
                         id="cars"
                         value={formik.values.place_to_send}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       >
                         <option value="">Select Place to Send...</option>
                         {branches &&
@@ -218,7 +219,10 @@ const LrEdit = () => {
                         type="text"
                         value={formik.values.sender_name}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       />
                       {formik.touched.sender_name &&
                         formik.errors.sender_name && (
@@ -237,7 +241,10 @@ const LrEdit = () => {
                         maxLength={10}
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       />
                       {formik.touched.sender_number &&
                         formik.errors.sender_number && (
@@ -255,7 +262,10 @@ const LrEdit = () => {
                         type="text"
                         value={formik.values.receiver_name}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       />
                       {formik.touched.receiver_name &&
                         formik.errors.receiver_name && (
@@ -274,7 +284,10 @@ const LrEdit = () => {
                         maxLength={10}
                         value={formik.values.receiver_number}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       />
                       {formik.touched.receiver_number &&
                         formik.errors.receiver_number && (
@@ -294,7 +307,10 @@ const LrEdit = () => {
                         id="cars"
                         value={formik.values.item_detail}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       >
                         <option value="">Select Item detail...</option>
                         {items &&
@@ -339,7 +355,10 @@ const LrEdit = () => {
                         type="number"
                         value={formik.values.quantity}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       />
                       {formik.touched.quantity && formik.errors.quantity && (
                         <div className="text-danger">
@@ -395,7 +414,10 @@ const LrEdit = () => {
                         id="payment_type"
                         value={formik.values.payment_type}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       >
                         <option value="">Select Payment Type...</option>
                         <option value="To Pay">To Pay</option>
@@ -419,7 +441,10 @@ const LrEdit = () => {
                         name="remarks"
                         value={formik.values.remarks}
                         onChange={formik.handleChange}
-                        disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
                       />
                     </div>
                   </div>
@@ -428,17 +453,35 @@ const LrEdit = () => {
                       onClick={onCancel}
                       // type="submit"
                       className="me-3 time_btn btn btn-submit btn-danger"
-                      disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                      disabled={
+                        moment(data[0]?.created_at).get("date") !==
+                        moment().get("date")
+                      }
                     >
                       Cancel
                     </button>
-                    <button
-                      type="submit"
-                      className="pt__lr_num time_btn btn btn-submit"
-                      disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
-                    >
-                      Update & Print
-                    </button>
+                    {moment(data[0]?.created_at).get("date") !==
+                    moment().get("date") ? (
+                      <button
+                        // type="submit"
+                        onClick={handlePrint}
+                        className="pt__lr_num time_btn btn btn-submit"
+                        // disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                      >
+                        Print
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        className="pt__lr_num time_btn btn btn-submit"
+                        disabled={
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
+                        }
+                      >
+                        Update & Print
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
