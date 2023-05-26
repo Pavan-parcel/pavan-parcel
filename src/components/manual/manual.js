@@ -202,7 +202,8 @@ const Manual = () => {
                       <label>Sender Number</label>
                       <input
                         name="sender_number"
-                        type="number"
+                        type="text"
+                        maxLength={10}
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
                       />
@@ -236,7 +237,8 @@ const Manual = () => {
                       <label>Receiver Number</label>
                       <input
                         name="receiver_number"
-                        type="number"
+                        type="text"
+                        maxLength={10}
                         value={formik.values.receiver_number}
                         onChange={formik.handleChange}
                       />
