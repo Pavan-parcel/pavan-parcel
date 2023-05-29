@@ -35,7 +35,7 @@ const Time = () => {
         <div className='container'>
             <div className='row'>
                  <div className='col-12'>
-                    <div className='pt__time_inner'>
+                    <div className='pt__time_inner tie_cs'>
                         <div className='pt__lr_num time_btn'>LR Number :  {LR}</div>
                         <div className='pt__lr_time time_btn' href='#'> 
                         {localStorage.getItem(CONSTANTS.BRANCH)}
