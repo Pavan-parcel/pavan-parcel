@@ -101,28 +101,28 @@ function MyVerticallyCenteredModal(props) {
         .select("*")
         .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
 
-        let particularDateData = data.filter(
-          (parcel) =>
-            new Date(parcel.created_at).toLocaleDateString() ===
-            new Date(startDate).toLocaleDateString()
-        );
+      let particularDateData = data.filter(
+        (parcel) =>
+          new Date(parcel.created_at).toLocaleDateString() ===
+          new Date(startDate).toLocaleDateString()
+      );
 
-        const finalFiltered = particularDateData.filter((shipment) => {
-          return selectedPlaceToSend.some(
-            (place) => place.place_to_send === shipment.place_to_send
-          );
-        });
-        // console.log("final data: ", finalFiltered)
-        if (finalFiltered.length === 0) {
-          alert("No data found!");
-          return;
-        }
-        navigate("/general", {
-          state: {
-            data: finalFiltered,
-            dates: { startDate: startDate, endDate: endDate },
-          },
-        });
+      const finalFiltered = particularDateData.filter((shipment) => {
+        return selectedPlaceToSend.some(
+          (place) => place.place_to_send === shipment.place_to_send
+        );
+      });
+      // console.log("final data: ", finalFiltered)
+      if (finalFiltered.length === 0) {
+        alert("No data found!");
+        return;
+      }
+      navigate("/general", {
+        state: {
+          data: finalFiltered,
+          dates: { startDate: startDate, endDate: endDate },
+        },
+      });
     }
   };
 
@@ -246,6 +246,16 @@ function MyVerticallyCenteredModal(props) {
                 value={selectedBranches}
                 onChange={(value) => setSelectedBranches(value)}
               />
+            ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)") ? (
+              <Select
+                options={branches}
+                getOptionLabel={(option) => `${option.branch_name}`}
+                getOptionValue={(option) => `${option.branch_name}`}
+                isMulti
+                isSearchable={false}
+                value={selectedBranches}
+                onChange={(value) => setSelectedBranches(value)}
+              />
             ) : (
               <select name="" id="" disabled className="w-100 general_delivery">
                 <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
@@ -285,8 +295,14 @@ function MyVerticallyCenteredModal(props) {
             <Button
               onClick={() =>
                 localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
-                  ? getMainBranchData()
-                  : getGeneralData()
+                  ? 
+                  getMainBranchData()
+                  :
+                  localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
+                  ?
+                  getMainBranchData()
+                  : 
+                  getGeneralData()
               }
             >
               Create General
@@ -326,7 +342,7 @@ const Table = () => {
   async function getData() {
     const { data, error } = await supabase.from("parcels").select("*");
     if (!error) {
-      if (localStorage.getItem(CONSTANTS.BRANCH) === "Hirabagh (HO)" || localStorage.getItem(CONSTANTS.BRANCH) === "Sahara Darvaja (SA)") {
+      if (localStorage.getItem(CONSTANTS.BRANCH) === "Hirabagh (HO)") {
         const filteredData = data.filter(
           (item) =>
             new Date(item?.created_at).toLocaleDateString() ===
