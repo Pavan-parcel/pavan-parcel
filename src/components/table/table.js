@@ -326,7 +326,7 @@ const Table = () => {
   async function getData() {
     const { data, error } = await supabase.from("parcels").select("*");
     if (!error) {
-      if (localStorage.getItem(CONSTANTS.BRANCH) === "Hirabagh (HO)") {
+      if (localStorage.getItem(CONSTANTS.BRANCH) === "Hirabagh (HO)" || localStorage.getItem(CONSTANTS.BRANCH) === "Sahara Darvaja (SA)") {
         const filteredData = data.filter(
           (item) =>
             new Date(item?.created_at).toLocaleDateString() ===
