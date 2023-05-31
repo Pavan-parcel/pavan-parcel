@@ -21,7 +21,7 @@ function MyVerticallyCenteredModal(props) {
   const [sentBranch, setSentBranch] = useState("");
   const [selectedBranches, setSelectedBranches] = useState([]);
   const [selectedPlaceToSend, setSelectedPlaceToSend] = useState([]);
-
+  console.log("selectedPlaceToSend",selectedPlaceToSend);
   const generalRef = useRef();
   const navigate = useNavigate();
 
@@ -280,6 +280,7 @@ function MyVerticallyCenteredModal(props) {
                   </option>
                 ))}
             </select> */}
+            {console.log("placeToSend",placeToSend)}
             <Select
               options={placeToSend}
               getOptionLabel={(option) => `${option.place_to_send}`}
@@ -289,6 +290,7 @@ function MyVerticallyCenteredModal(props) {
               value={selectedPlaceToSend}
               onChange={(value) => setSelectedPlaceToSend(value)}
             />
+            <Button onClick={()=> setSelectedPlaceToSend(placeToSend)}>select All</Button>
           </div>
 
           <Modal.Footer>
