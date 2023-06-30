@@ -71,7 +71,7 @@ function MyVerticallyCenteredModal(props) {
       const { data, error } = await supabase
         .from("parcels")
         .select("*")
-        .lte("created_at", moment(endDate).add(1, "day").format("YYYY-MM-DD"))
+        .lte("created_at", moment(endDate).format("YYYY-MM-DD"))
         .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
         .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
 
@@ -132,7 +132,7 @@ function MyVerticallyCenteredModal(props) {
       const { data, error } = await supabase
         .from("parcels")
         .select("*")
-        .lte("created_at", moment(endDate).add(1, "day").format("YYYY-MM-DD"))
+        .lte("created_at", moment(endDate).format("YYYY-MM-DD"))
         .gte("created_at", moment(startDate).format("YYYY-MM-DD"));
       if (!error) {
         const filteredShipments = data.filter((shipment) => {

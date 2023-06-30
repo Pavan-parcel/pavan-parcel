@@ -13,36 +13,46 @@ export const Document = forwardRef((props, ref) => {
     var to_pay_manual = 0;
 
     for (let i = 0; i < props?.data?.length; i++) {
-      if(props?.data[i]?.returned === false){
+      if (props?.data[i]?.returned === false) {
         quantity += Number(props?.data[i].quantity);
       }
-      if (props?.data[i]?.payment_type === "Paid" && props?.data[i]?.returned === false) {
+      if (
+        props?.data[i]?.payment_type === "Paid" &&
+        props?.data[i]?.returned === false
+      ) {
         paid += Number(props?.data[i].total_amount);
       }
       if (
         props?.data[i]?.payment_type === "Paid" &&
-        props?.data[i]?.add_type === "online" && props?.data[i]?.returned === false
+        props?.data[i]?.add_type === "online" &&
+        props?.data[i]?.returned === false
       ) {
         paid_online += Number(props?.data[i].total_amount);
       }
       if (
         props?.data[i]?.payment_type === "Paid" &&
-        props?.data[i]?.add_type === "manual" && props?.data[i]?.returned === false
+        props?.data[i]?.add_type === "manual" &&
+        props?.data[i]?.returned === false
       ) {
         paid_manual += Number(props?.data[i].total_amount);
       }
-      if (props?.data[i]?.payment_type === "To Pay" && props?.data[i]?.returned === false) {
+      if (
+        props?.data[i]?.payment_type === "To Pay" &&
+        props?.data[i]?.returned === false
+      ) {
         to_pay += Number(props?.data[i].total_amount);
       }
       if (
         props?.data[i]?.payment_type === "To Pay" &&
-        props?.data[i]?.add_type === "online" && props?.data[i]?.returned === false
+        props?.data[i]?.add_type === "online" &&
+        props?.data[i]?.returned === false
       ) {
         to_pay_online += Number(props?.data[i].total_amount);
       }
       if (
         props?.data[i]?.payment_type === "To Pay" &&
-        props?.data[i]?.add_type === "manual" && props?.data[i]?.returned === false
+        props?.data[i]?.add_type === "manual" &&
+        props?.data[i]?.returned === false
       ) {
         to_pay_manual += Number(props?.data[i].total_amount);
       }
@@ -67,6 +77,24 @@ export const Document = forwardRef((props, ref) => {
     to_pay_online,
     to_pay_manual,
   } = getTotal();
+
+  const sortedData = props?.data?.sort((a, b) => {
+    const patternA = a.receipt_no.split("/");
+    const patternB = b.receipt_no.split("/");
+
+    const keyA = patternA[0];
+    const keyB = patternB[0];
+    const valueA = parseInt(patternA[1]);
+    const valueB = parseInt(patternB[1]);
+
+    if (keyA < keyB) {
+      return -1;
+    } else if (keyA > keyB) {
+      return 1;
+    } else {
+      return valueA - valueB;
+    }
+  });
 
   return (
     <div ref={ref} className="booking_report">
@@ -99,8 +127,8 @@ export const Document = forwardRef((props, ref) => {
             <th>Art Type</th>
             <th>Total</th>
           </tr>
-          {props.data &&
-            props.data.map((parcel, index) => (
+          {sortedData &&
+            sortedData.map((parcel, index) => (
               <tr className={parcel?.returned ? "bg-danger" : "bg-light"}>
                 <td>{index + 1}</td>
                 <td> {parcel?.receipt_no}</td>
