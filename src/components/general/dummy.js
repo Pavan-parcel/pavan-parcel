@@ -68,6 +68,24 @@ export const DocumentPrint = forwardRef((props, ref) => {
     to_pay_manual,
   } = getTotal();
 
+  const sortedData = props?.data?.sort((a, b) => {
+    const patternA = a.receipt_no.split("/");
+    const patternB = b.receipt_no.split("/");
+
+    const keyA = patternA[0];
+    const keyB = patternB[0];
+    const valueA = parseInt(patternA[1]);
+    const valueB = parseInt(patternB[1]);
+
+    if (keyA < keyB) {
+      return -1;
+    } else if (keyA > keyB) {
+      return 1;
+    } else {
+      return valueA - valueB;
+    }
+  });
+
   return (
     <div ref={ref} className="booking_report">
       <div className="booking_report_title">
@@ -99,8 +117,8 @@ export const DocumentPrint = forwardRef((props, ref) => {
             <th>Art Type</th>
             <th>Total</th>
           </tr>
-          {props.data &&
-            props.data.map((parcel, index) => (
+          {sortedData &&
+            sortedData.map((parcel, index) => (
               <tr className={parcel?.returned ? "bg-danger" : "bg-light"}>
                 <td>{index + 1}</td>
                 <td> {parcel?.receipt_no}</td>
