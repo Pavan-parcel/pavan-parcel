@@ -12,315 +12,11 @@ import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
 import Select from "react-select";
 
-function MyVerticallyCenteredModal(props) {
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [branches, setBranches] = useState([]);
-  const [placeToSend, setPlaceToSend] = useState([]);
-  const [data, setData] = useState([]);
-  const [sentBranch, setSentBranch] = useState("");
-  const [selectedBranches, setSelectedBranches] = useState([]);
-  const [selectedPlaceToSend, setSelectedPlaceToSend] = useState([]);
-  console.log("selectedPlaceToSend",selectedPlaceToSend);
-  const generalRef = useRef();
-  const navigate = useNavigate();
-
-  const handlePrint = useReactToPrint({
-    content: () => generalRef.current,
-  });
-
-  useEffect(() => {
-    getBranches();
-    getPlaceToSend();
-  }, []);
-
-  useEffect(() => {
-    if (data.length > 0) {
-      // handlePrint();
-      navigate("/general", {
-        state: {
-          data: data,
-          dates: { startDate: startDate, endDate: endDate },
-        },
-      });
-    }
-  }, [data]);
-
-  const getBranches = async () => {
-    const { data, error } = await supabase.from("branches").select("*");
-    if (!error) {
-      //   console.log("data: ", data);
-      setBranches(data);
-    } else {
-      console.log("error: ", error);
-    }
-  };
-
-  const getPlaceToSend = async () => {
-    const { data, error } = await supabase.from("place_to_send").select("*");
-    if (!error) {
-      //   console.log("data: ", data);
-      setPlaceToSend(data);
-    } else {
-      console.log("error: ", error);
-    }
-  };
-
-  const getGeneralData = async () => {
-    if (startDate.getDate() !== endDate.getDate()) {
-      const { data, error } = await supabase
-        .from("parcels")
-        .select("*")
-        .lt("created_at", moment(endDate).add(1, 'day').format("YYYY-MM-DD"))
-        .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
-        .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
-
-      if (!error) {
-        const finalFiltered = data.filter((shipment) => {
-          return selectedPlaceToSend.some(
-            (place) => place.place_to_send === shipment.place_to_send
-          );
-        });
-        // console.log("final data: ", finalFiltered)
-        if (finalFiltered.length === 0) {
-          alert("No data found!");
-          return;
-        }
-        navigate("/general", {
-          state: {
-            data: finalFiltered,
-            dates: { startDate: startDate, endDate: endDate },
-          },
-        });
-      } else {
-        console.log("error: ", error);
-      }
-    } else {
-      const { data, error } = await supabase
-        .from("parcels")
-        .select("*")
-        .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
-
-      let particularDateData = data.filter(
-        (parcel) =>
-          new Date(parcel.created_at).toLocaleDateString() ===
-          new Date(startDate).toLocaleDateString()
-      );
-
-      const finalFiltered = particularDateData.filter((shipment) => {
-        return selectedPlaceToSend.some(
-          (place) => place.place_to_send === shipment.place_to_send
-        );
-      });
-      // console.log("final data: ", finalFiltered)
-      if (finalFiltered.length === 0) {
-        alert("No data found!");
-        return;
-      }
-      navigate("/general", {
-        state: {
-          data: finalFiltered,
-          dates: { startDate: startDate, endDate: endDate },
-        },
-      });
-    }
-  };
-
-  const getMainBranchData = async () => {
-    console.log("hirabagh general");
-    if (startDate.getDate() !== endDate.getDate()) {
-      const { data, error } = await supabase
-        .from("parcels")
-        .select("*")
-        .lt("created_at", moment(endDate).add(1, 'day').format("YYYY-MM-DD"))
-        .gte("created_at", moment(startDate).format("YYYY-MM-DD"));
-      if (!error) {
-        const filteredShipments = data.filter((shipment) => {
-          return selectedBranches.some(
-            (branch) => branch.branch_name === shipment.branch
-          );
-        });
-        // console.log("actual data: ", filteredShipments)
-        const finalFiltered = filteredShipments.filter((shipment) => {
-          return selectedPlaceToSend.some(
-            (place) => place.place_to_send === shipment.place_to_send
-          );
-        });
-        // console.log("final data: ", finalFiltered)
-        if (finalFiltered.length === 0) {
-          alert("No data found!");
-          return;
-        }
-        navigate("/general", {
-          state: {
-            data: finalFiltered,
-            dates: { startDate: startDate, endDate: endDate },
-          },
-        });
-      } else {
-        console.log("error: ", error);
-      }
-    } else {
-      const { data, error } = await supabase.from("parcels").select("*");
-      let particularDateData = data.filter(
-        (parcel) =>
-          new Date(parcel.created_at).toLocaleDateString() ===
-          new Date(startDate).toLocaleDateString()
-      );
-
-      const filteredShipments = particularDateData.filter((shipment) => {
-        return selectedBranches.some(
-          (branch) => branch.branch_name === shipment.branch
-        );
-      });
-      // console.log("actual data: ", filteredShipments)
-      const finalFiltered = filteredShipments.filter((shipment) => {
-        return selectedPlaceToSend.some(
-          (place) => place.place_to_send === shipment.place_to_send
-        );
-      });
-      // console.log("final data: ", finalFiltered)
-      if (finalFiltered.length === 0) {
-        alert("No data found!");
-        return;
-      }
-      navigate("/general", {
-        state: {
-          data: finalFiltered,
-          dates: { startDate: startDate, endDate: endDate },
-        },
-      });
-    }
-  };
-
-  return (
-    <Modal
-      {...props}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">General</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <form action="" className="form_control_wrapper">
-          <div className="days_count d-flex gap-3 align-center">
-            <h6>Date : </h6>
-            <div className="text-dark d-flex align-items-center gap-3">
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                maxDate={new Date()}
-              />
-              <div className="">to</div>
-              <DatePicker
-                selected={endDate}
-                onChange={(date) => setEndDate(date)}
-                maxDate={new Date()}
-              />
-            </div>
-          </div>
-          <div className="line mt-5"></div>
-          {/* <select name="" id="" className="w-100 general_delivery my-4">
-            <option value="">Delivery General (In)</option>
-            <option value="">General (Out)</option>
-          </select> */}
-          <div className="send-to-rec d-flex justify-content-between align-items-center">
-            {localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? (
-              // <select name="" id="" multiple={true} className="w-100 general_delivery">
-              //   <option value="">From branch</option>
-              //   {branches &&
-              //     branches.map((branch) => (
-              //       <option value={branch?.branch_name}>
-              //         {branch?.branch_name}
-              //       </option>
-              //     ))}
-              // </select>
-              <Select
-                options={branches}
-                getOptionLabel={(option) => `${option.branch_name}`}
-                getOptionValue={(option) => `${option.branch_name}`}
-                isMulti
-                isSearchable={false}
-                value={selectedBranches}
-                onChange={(value) => setSelectedBranches(value)}
-              />
-            ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)") ? (
-              <Select
-                options={branches}
-                getOptionLabel={(option) => `${option.branch_name}`}
-                getOptionValue={(option) => `${option.branch_name}`}
-                isMulti
-                isSearchable={false}
-                value={selectedBranches}
-                onChange={(value) => setSelectedBranches(value)}
-              />
-            ) : (
-              <select name="" id="" disabled className="w-100 general_delivery">
-                <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
-                  {localStorage.getItem(CONSTANTS.BRANCH)}
-                </option>
-              </select>
-            )}
-            <p className="px-3">To</p>
-            {/* <select
-              className="w-100 general_delivery"
-              value={sentBranch}
-              onChange={(e) => {
-                setSentBranch(e.target.value);
-              }}
-            >
-              <option value="">To place</option>
-              <option value="all">All</option>
-              {placeToSend &&
-                placeToSend.map((branch) => (
-                  <option value={branch?.place_to_send}>
-                    {branch?.place_to_send}
-                  </option>
-                ))}
-            </select> */}
-            {console.log("placeToSend",placeToSend)}
-            <Select
-              options={placeToSend}
-              getOptionLabel={(option) => `${option.place_to_send}`}
-              getOptionValue={(option) => `${option.place_to_send}`}
-              isSearchable={false}
-              isMulti
-              value={selectedPlaceToSend}
-              onChange={(value) => setSelectedPlaceToSend(value)}
-            />
-            <Button onClick={()=> setSelectedPlaceToSend(placeToSend)}>select All</Button>
-          </div>
-
-          <Modal.Footer>
-            <Button
-              onClick={() =>
-                localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
-                  ? 
-                  getMainBranchData()
-                  :
-                  localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
-                  ?
-                  getMainBranchData()
-                  : 
-                  getGeneralData()
-              }
-            >
-              Create General
-            </Button>
-            <Button onClick={props.onHide}>Close</Button>
-          </Modal.Footer>
-        </form>
-      </Modal.Body>
-    </Modal>
-  );
-}
-
 const Table = () => {
-  const [modalShow, setModalShow] = React.useState(false);
+  const [modalShow, setModalShow] = useState(false);
   const [data, setData] = useState([]);
   const [date, setDate] = useState(null);
+  const [type, setType] = useState("general");
 
   const navigate = useNavigate();
 
@@ -398,6 +94,442 @@ const Table = () => {
 
   const { quantity, total_amount } = getTotal();
 
+  // modal component
+  function MyVerticallyCenteredModal(props) {
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [branches, setBranches] = useState([]);
+    const [placeToSend, setPlaceToSend] = useState([]);
+    const [data, setData] = useState([]);
+    const [sentBranch, setSentBranch] = useState("");
+    const [selectedBranches, setSelectedBranches] = useState([]);
+    const [selectedPlaceToSend, setSelectedPlaceToSend] = useState([]);
+    console.log("selectedPlaceToSend", selectedPlaceToSend);
+    const generalRef = useRef();
+    const navigate = useNavigate();
+
+    const handlePrint = useReactToPrint({
+      content: () => generalRef.current,
+    });
+
+    useEffect(() => {
+      getBranches();
+      getPlaceToSend();
+    }, []);
+
+    useEffect(() => {
+      if (data.length > 0) {
+        // handlePrint();
+        navigate("/general", {
+          state: {
+            data: data,
+            dates: { startDate: startDate, endDate: endDate },
+            type: type,
+          },
+        });
+      }
+    }, [data]);
+
+    const getBranches = async () => {
+      const { data, error } = await supabase.from("branches").select("*");
+      if (!error) {
+        //   console.log("data: ", data);
+        setBranches(data);
+      } else {
+        console.log("error: ", error);
+      }
+    };
+
+    const getPlaceToSend = async () => {
+      const { data, error } = await supabase.from("place_to_send").select("*");
+      if (!error) {
+        //   console.log("data: ", data);
+        setPlaceToSend(data);
+      } else {
+        console.log("error: ", error);
+      }
+    };
+
+    const getGeneralData = async () => {
+      if (startDate.getDate() !== endDate.getDate()) {
+        if (type === "general") {
+          const { data, error } = await supabase
+            .from("parcels")
+            .select("*")
+            .lt(
+              "created_at",
+              moment(endDate).add(1, "day").format("YYYY-MM-DD")
+            )
+            .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+            .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
+
+          if (!error) {
+            const finalFiltered = data.filter((shipment) => {
+              return selectedPlaceToSend.some(
+                (place) => place.place_to_send === shipment.place_to_send
+              );
+            });
+            // console.log("final data: ", finalFiltered)
+            if (finalFiltered.length === 0) {
+              alert("No data found!");
+              return;
+            }
+            navigate("/general", {
+              state: {
+                data: finalFiltered,
+                dates: { startDate: startDate, endDate: endDate },
+                type: type,
+              },
+            });
+          } else {
+            console.log("error: ", error);
+          }
+        } else {
+          const { data, error } = await supabase
+            .from("parcels")
+            .select("*")
+            .lt(
+              "created_at",
+              moment(endDate).add(1, "day").format("YYYY-MM-DD")
+            )
+            .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+            .eq("branch", localStorage.getItem(CONSTANTS.BRANCH))
+            .eq("is_dispatched", false);
+
+          if (!error) {
+            const finalFiltered = data.filter((shipment) => {
+              return selectedPlaceToSend.some(
+                (place) => place.place_to_send === shipment.place_to_send
+              );
+            });
+            // console.log("final data: ", finalFiltered)
+            if (finalFiltered.length === 0) {
+              alert("No data found!");
+              return;
+            }
+            navigate("/general", {
+              state: {
+                data: finalFiltered,
+                dates: { startDate: startDate, endDate: endDate },
+                type: type,
+              },
+            });
+          } else {
+            console.log("error: ", error);
+          }
+        }
+      } else {
+        if (type === "general") {
+          const { data, error } = await supabase
+            .from("parcels")
+            .select("*")
+            .eq("branch", localStorage.getItem(CONSTANTS.BRANCH));
+
+          let particularDateData = data.filter(
+            (parcel) =>
+              new Date(parcel.created_at).toLocaleDateString() ===
+              new Date(startDate).toLocaleDateString()
+          );
+
+          const finalFiltered = particularDateData.filter((shipment) => {
+            return selectedPlaceToSend.some(
+              (place) => place.place_to_send === shipment.place_to_send
+            );
+          });
+          // console.log("final data: ", finalFiltered)
+          if (finalFiltered.length === 0) {
+            alert("No data found!");
+            return;
+          }
+          navigate("/general", {
+            state: {
+              data: finalFiltered,
+              dates: { startDate: startDate, endDate: endDate },
+              type: type,
+            },
+          });
+        } else {
+          const { data, error } = await supabase
+            .from("parcels")
+            .select("*")
+            .eq("branch", localStorage.getItem(CONSTANTS.BRANCH))
+            .eq("is_dispatched", false);
+
+          let particularDateData = data.filter(
+            (parcel) =>
+              new Date(parcel.created_at).toLocaleDateString() ===
+              new Date(startDate).toLocaleDateString()
+          );
+
+          const finalFiltered = particularDateData.filter((shipment) => {
+            return selectedPlaceToSend.some(
+              (place) => place.place_to_send === shipment.place_to_send
+            );
+          });
+          // console.log("final data: ", finalFiltered)
+          if (finalFiltered.length === 0) {
+            alert("No data found!");
+            return;
+          }
+          navigate("/general", {
+            state: {
+              data: finalFiltered,
+              dates: { startDate: startDate, endDate: endDate },
+              type: type,
+            },
+          });
+        }
+      }
+    };
+
+    const getMainBranchData = async () => {
+      console.log("hirabagh general");
+      if (startDate.getDate() !== endDate.getDate()) {
+        if (type === "general") {
+          const { data, error } = await supabase
+            .from("parcels")
+            .select("*")
+            .lt(
+              "created_at",
+              moment(endDate).add(1, "day").format("YYYY-MM-DD")
+            )
+            .gte("created_at", moment(startDate).format("YYYY-MM-DD"));
+          if (!error) {
+            const filteredShipments = data.filter((shipment) => {
+              return selectedBranches.some(
+                (branch) => branch.branch_name === shipment.branch
+              );
+            });
+            // console.log("actual data: ", filteredShipments)
+            const finalFiltered = filteredShipments.filter((shipment) => {
+              return selectedPlaceToSend.some(
+                (place) => place.place_to_send === shipment.place_to_send
+              );
+            });
+            // console.log("final data: ", finalFiltered)
+            if (finalFiltered.length === 0) {
+              alert("No data found!");
+              return;
+            }
+            navigate("/general", {
+              state: {
+                data: finalFiltered,
+                dates: { startDate: startDate, endDate: endDate },
+                type: type,
+              },
+            });
+          } else {
+            console.log("error: ", error);
+          }
+        } else {
+          const { data, error } = await supabase
+            .from("parcels")
+            .select("*")
+            .lt(
+              "created_at",
+              moment(endDate).add(1, "day").format("YYYY-MM-DD")
+            )
+            .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+            .eq("is_dispatched", false);
+          if (!error) {
+            const filteredShipments = data.filter((shipment) => {
+              return selectedBranches.some(
+                (branch) => branch.branch_name === shipment.branch
+              );
+            });
+            // console.log("actual data: ", filteredShipments)
+            const finalFiltered = filteredShipments.filter((shipment) => {
+              return selectedPlaceToSend.some(
+                (place) => place.place_to_send === shipment.place_to_send
+              );
+            });
+            // console.log("final data: ", finalFiltered)
+            if (finalFiltered.length === 0) {
+              alert("No data found!");
+              return;
+            }
+            navigate("/general", {
+              state: {
+                data: finalFiltered,
+                dates: { startDate: startDate, endDate: endDate },
+                type: type,
+              },
+            });
+          } else {
+            console.log("error: ", error);
+          }
+        }
+      } else {
+        if (type === "general") {
+          const { data, error } = await supabase.from("parcels").select("*");
+          let particularDateData = data.filter(
+            (parcel) =>
+              new Date(parcel.created_at).toLocaleDateString() ===
+              new Date(startDate).toLocaleDateString()
+          );
+
+          const filteredShipments = particularDateData.filter((shipment) => {
+            return selectedBranches.some(
+              (branch) => branch.branch_name === shipment.branch
+            );
+          });
+          // console.log("actual data: ", filteredShipments)
+          const finalFiltered = filteredShipments.filter((shipment) => {
+            return selectedPlaceToSend.some(
+              (place) => place.place_to_send === shipment.place_to_send
+            );
+          });
+          // console.log("final data: ", finalFiltered)
+          if (finalFiltered.length === 0) {
+            alert("No data found!");
+            return;
+          }
+          navigate("/general", {
+            state: {
+              data: finalFiltered,
+              dates: { startDate: startDate, endDate: endDate },
+              type: type,
+            },
+          });
+        } else {
+          const { data, error } = await supabase
+            .from("parcels")
+            .select("*")
+            .eq("is_dispatched", false);
+          let particularDateData = data.filter(
+            (parcel) =>
+              new Date(parcel.created_at).toLocaleDateString() ===
+              new Date(startDate).toLocaleDateString()
+          );
+
+          const filteredShipments = particularDateData.filter((shipment) => {
+            return selectedBranches.some(
+              (branch) => branch.branch_name === shipment.branch
+            );
+          });
+          // console.log("actual data: ", filteredShipments)
+          const finalFiltered = filteredShipments.filter((shipment) => {
+            return selectedPlaceToSend.some(
+              (place) => place.place_to_send === shipment.place_to_send
+            );
+          });
+          // console.log("final data: ", finalFiltered)
+          if (finalFiltered.length === 0) {
+            alert("No data found!");
+            return;
+          }
+          navigate("/general", {
+            state: {
+              data: finalFiltered,
+              dates: { startDate: startDate, endDate: endDate },
+              type: type,
+            },
+          });
+        }
+      }
+    };
+
+    return (
+      <Modal
+        {...props}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            {type === "general" ? "General" : "Dispatch"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form action="" className="form_control_wrapper">
+            <div className="days_count d-flex gap-3 align-center">
+              <h6>Date : </h6>
+              <div className="text-dark d-flex align-items-center gap-3">
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  maxDate={new Date()}
+                />
+                <div className="">to</div>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  maxDate={new Date()}
+                />
+              </div>
+            </div>
+            <div className="line mt-5"></div>
+
+            <div className="send-to-rec d-flex justify-content-between align-items-center">
+              {localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? (
+                <Select
+                  options={branches}
+                  getOptionLabel={(option) => `${option.branch_name}`}
+                  getOptionValue={(option) => `${option.branch_name}`}
+                  isMulti
+                  isSearchable={false}
+                  value={selectedBranches}
+                  onChange={(value) => setSelectedBranches(value)}
+                />
+              ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)") ? (
+                <Select
+                  options={branches}
+                  getOptionLabel={(option) => `${option.branch_name}`}
+                  getOptionValue={(option) => `${option.branch_name}`}
+                  isMulti
+                  isSearchable={false}
+                  value={selectedBranches}
+                  onChange={(value) => setSelectedBranches(value)}
+                />
+              ) : (
+                <select
+                  name=""
+                  id=""
+                  disabled
+                  className="w-100 general_delivery"
+                >
+                  <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
+                    {localStorage.getItem(CONSTANTS.BRANCH)}
+                  </option>
+                </select>
+              )}
+              <p className="px-3">To</p>
+
+              <Select
+                options={placeToSend}
+                getOptionLabel={(option) => `${option.place_to_send}`}
+                getOptionValue={(option) => `${option.place_to_send}`}
+                isSearchable={false}
+                isMulti
+                value={selectedPlaceToSend}
+                onChange={(value) => setSelectedPlaceToSend(value)}
+              />
+              <Button onClick={() => setSelectedPlaceToSend(placeToSend)}>
+                select All
+              </Button>
+            </div>
+
+            <Modal.Footer>
+              <Button
+                onClick={() =>
+                  localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
+                    ? getMainBranchData()
+                    : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
+                    ? getMainBranchData()
+                    : getGeneralData()
+                }
+              >
+                {type === "general" ? "Create General" : "Show Dispatch"}
+              </Button>
+              <Button onClick={props.onHide}>Close</Button>
+            </Modal.Footer>
+          </form>
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   return (
     <section className="pt__table_print mb-5">
       <div className="container">
@@ -406,9 +538,22 @@ const Table = () => {
             <Button
               variant="primary"
               className="pt__lr_item time_btn"
-              onClick={() => setModalShow(true)}
+              onClick={() => {
+                setType("general");
+                setModalShow(true);
+              }}
             >
               General
+            </Button>
+            <Button
+              variant="primary"
+              className="pt__lr_item time_btn"
+              onClick={() => {
+                setType("dispatch");
+                setModalShow(true);
+              }}
+            >
+              Dispatch
             </Button>
 
             <MyVerticallyCenteredModal

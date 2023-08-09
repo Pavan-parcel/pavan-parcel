@@ -1,6 +1,7 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 import "./style.css";
 import moment from "moment";
+import supabase from "../supabase/supabaseClient";
 
 export const Document = forwardRef((props, ref) => {
   const getTotal = () => {
@@ -78,7 +79,7 @@ export const Document = forwardRef((props, ref) => {
     to_pay_manual,
   } = getTotal();
 
-  const sortedData = props?.data?.sort((a, b) => {
+  const prevSortedData = props?.data?.sort((a, b) => {
     const patternA = a.receipt_no.split("/");
     const patternB = b.receipt_no.split("/");
 
@@ -95,6 +96,22 @@ export const Document = forwardRef((props, ref) => {
       return valueA - valueB;
     }
   });
+
+  const [sortedData, setSortedData] = useState(prevSortedData);
+
+  const onDispatch = async (e, parcel) => {
+    const { data, error } = await supabase
+      .from("parcels")
+      .update({ is_dispatched: e.target.checked })
+      .eq("ids", parcel?.ids);
+    if (!error) {
+      console.log("data: ", data);
+      const removeItem = sortedData.filter((item) => item?.ids !== parcel?.ids);
+      setSortedData(removeItem);
+    } else {
+      console.log("error: ", error);
+    }
+  };
 
   return (
     <div ref={ref} className="booking_report">
@@ -126,10 +143,14 @@ export const Document = forwardRef((props, ref) => {
             <th>Art</th>
             <th>Art Type</th>
             <th>Total</th>
+            {props?.type === "dispatch" && <th>Dispatched</th>}
           </tr>
           {sortedData &&
             sortedData.map((parcel, index) => (
-              <tr className={parcel?.returned ? "bg-danger" : "bg-light"}>
+              <tr
+                key={index}
+                className={parcel?.returned ? "bg-danger" : "bg-light"}
+              >
                 <td>{index + 1}</td>
                 <td> {parcel?.receipt_no}</td>
                 <td>{parcel?.payment_type}</td>
@@ -140,6 +161,15 @@ export const Document = forwardRef((props, ref) => {
                 <td>{parcel?.quantity}</td>
                 <td>{parcel?.item_detail}</td>
                 <td>{parcel?.total_amount}</td>
+                {props?.type === "dispatch" && (
+                  <td className="text-center">
+                    <input
+                      type="checkbox"
+                      onChange={(e) => onDispatch(e, parcel)}
+                      checked={parcel?.is_dispatched}
+                    />
+                  </td>
+                )}
               </tr>
             ))}
           <tr>
