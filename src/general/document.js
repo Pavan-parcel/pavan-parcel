@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import "./style.css";
 import moment from "moment";
 import supabase from "../supabase/supabaseClient";
@@ -98,6 +98,7 @@ export const Document = forwardRef((props, ref) => {
   });
 
   const [sortedData, setSortedData] = useState(prevSortedData);
+  const [selectedParcels, setSelectedParcels] = useState([]);
 
   const onDispatch = async (e, parcel) => {
     const { data, error } = await supabase
@@ -113,6 +114,40 @@ export const Document = forwardRef((props, ref) => {
     }
   };
 
+  useEffect(() => {
+    // if (selectedParcels.length > 0) {
+    console.log("selected parcels: ", selectedParcels);
+    // }
+  }, [selectedParcels]);
+
+  const selectAll = () => {
+    if (selectedParcels.length === sortedData.length) {
+      setSelectedParcels([]);
+    } else {
+      setSelectedParcels(sortedData);
+    }
+  };
+
+  const dispatchSelected = async () => {
+    selectedParcels.map(async (parcel) => {
+      const { data, error } = await supabase
+        .from("parcels")
+        .update({ is_dispatched: true })
+        .eq("ids", parcel.ids);
+      if (!error) {
+        console.log("data: ", data);
+      } else {
+        console.log("error: ", error);
+      }
+    });
+    const selectedParcelsIds = new Set(selectedParcels.map((item) => item.ids));
+    const afterRemoval = sortedData.filter(
+      (item) => !selectedParcelsIds.has(item.ids)
+    );
+    setSortedData(afterRemoval);
+    setSelectedParcels([]);
+  };
+
   return (
     <div ref={ref} className="booking_report">
       <div className="booking_report_title">
@@ -123,12 +158,32 @@ export const Document = forwardRef((props, ref) => {
         </p>
         <h5>Booking Register Report</h5>
       </div>
-      <p>
-        Date:{" "}
-        {moment(props?.dates?.startDate).format("DD-MM-YYYY") +
-          " - " +
-          moment(props?.dates?.endDate).format("DD-MM-YYYY")}
-      </p>
+      <div className="d-flex align-center justify-between">
+        <p>
+          Date:{" "}
+          {moment(props?.dates?.startDate).format("DD-MM-YYYY") +
+            " - " +
+            moment(props?.dates?.endDate).format("DD-MM-YYYY")}
+        </p>
+        <div>
+          <button className="btn btn-primary me-3" onClick={selectAll}>
+            {selectedParcels.length === sortedData.length
+              ? "Unselect All"
+              : "Select All"}
+          </button>
+          <button
+            className={
+              selectedParcels.length > 0
+                ? "btn btn-primary"
+                : "btn btn-secondary disabled"
+            }
+            disabled={selectedParcels.length === 0}
+            onClick={dispatchSelected}
+          >
+            Dispatch Selected
+          </button>
+        </div>
+      </div>
 
       <div className="booking_report_table">
         <table cellPadding={0} cellSpacing={0}>
@@ -165,8 +220,23 @@ export const Document = forwardRef((props, ref) => {
                   <td className="text-center">
                     <input
                       type="checkbox"
-                      onChange={(e) => onDispatch(e, parcel)}
-                      checked={parcel?.is_dispatched}
+                      onChange={(e) => {
+                        // onDispatch(e, parcel)
+                        if (e.target.checked) {
+                          console.log("checked: ", e.target.checked);
+                          setSelectedParcels((prev) => [...prev, parcel]);
+                        } else {
+                          const removeItem = selectedParcels.filter(
+                            (item) => item.ids !== parcel.ids
+                          );
+                          setSelectedParcels(removeItem);
+                        }
+                      }}
+                      checked={
+                        selectedParcels.filter(
+                          (item) => item.ids === parcel.ids
+                        ).length > 0
+                      }
                     />
                   </td>
                 )}
