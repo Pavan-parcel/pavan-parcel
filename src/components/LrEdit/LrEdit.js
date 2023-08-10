@@ -43,6 +43,7 @@ const LrEdit = () => {
     formik.setFieldValue("payment_type", data[0]?.payment_type);
     formik.setFieldValue("place_to_send", data[0]?.place_to_send);
     formik.setFieldValue("remarks", data[0]?.remarks);
+    formik.setFieldValue("is_dispatched", data[0]?.is_dispatched);
   }, []);
 
   useEffect(() => {
@@ -125,6 +126,7 @@ const LrEdit = () => {
       total_amount: "",
       place_to_send: "",
       remarks: "",
+      is_dispatched: false,
       //   driver: "",
     },
     validationSchema: validate,
@@ -163,7 +165,14 @@ const LrEdit = () => {
   return (
     <div className="pt_admin_lr">
       <div className="d-none">
-        <Builty ref={builtyRef} data={moment(data[0]?.created_at).get("date") !== moment().get("date") ? data : updateData} />
+        <Builty
+          ref={builtyRef}
+          data={
+            moment(data[0]?.created_at).get("date") !== moment().get("date")
+              ? data
+              : updateData
+          }
+        />
       </div>
       <form onSubmit={formik.handleSubmit}>
         <div className="container">
@@ -433,8 +442,8 @@ const LrEdit = () => {
                   </div>
                 </div>
 
-                <div className="row justify-between align-items-end mt-30">
-                  <div className="col-4">
+                <div className="d-flex row justify-between align-items-end mt-30">
+                  <div className="col-3">
                     <div className="form_control_wrapper">
                       <label>Remarks</label>
                       <input
@@ -448,7 +457,20 @@ const LrEdit = () => {
                       />
                     </div>
                   </div>
-                  <div className="col-4 text-end">
+                  <div className="col-3">
+                    <div className="form_control_wrapper">
+                      <label>Dispatched</label>
+                      <select
+                        name="is_dispatched"
+                        value={formik.values.is_dispatched}
+                        onChange={formik.handleChange}
+                      >
+                        <option value={true}>Yes</option>
+                        <option value={false}>No</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="col-3 text-end">
                     <button
                       onClick={onCancel}
                       // type="submit"
