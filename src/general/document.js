@@ -1,9 +1,12 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import "./style.css";
 import moment from "moment";
 import supabase from "../supabase/supabaseClient";
+import { DispatchDocPrint } from "../components/dispatchdoc/DispatchDoc";
+import { useReactToPrint } from "react-to-print";
 
 export const Document = forwardRef((props, ref) => {
+  const dispatchRef = useRef();
   const getTotal = () => {
     var quantity = 0;
     var paid = 0;
@@ -100,26 +103,6 @@ export const Document = forwardRef((props, ref) => {
   const [sortedData, setSortedData] = useState(prevSortedData);
   const [selectedParcels, setSelectedParcels] = useState([]);
 
-  const onDispatch = async (e, parcel) => {
-    const { data, error } = await supabase
-      .from("parcels")
-      .update({ is_dispatched: e.target.checked })
-      .eq("ids", parcel?.ids);
-    if (!error) {
-      console.log("data: ", data);
-      const removeItem = sortedData.filter((item) => item?.ids !== parcel?.ids);
-      setSortedData(removeItem);
-    } else {
-      console.log("error: ", error);
-    }
-  };
-
-  useEffect(() => {
-    // if (selectedParcels.length > 0) {
-    console.log("selected parcels: ", selectedParcels);
-    // }
-  }, [selectedParcels]);
-
   const selectAll = () => {
     if (selectedParcels.length === sortedData.length) {
       setSelectedParcels([]);
@@ -145,11 +128,19 @@ export const Document = forwardRef((props, ref) => {
       (item) => !selectedParcelsIds.has(item.ids)
     );
     setSortedData(afterRemoval);
+    handlePrint();
     setSelectedParcels([]);
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => dispatchRef.current,
+  });
+
   return (
     <div ref={ref} className="booking_report">
+      <div className="d-none">
+        <DispatchDocPrint ref={dispatchRef} data={selectedParcels} />
+      </div>
       <div className="booking_report_title">
         <h4>Pavan Transport Company</h4>
         <p>
@@ -158,13 +149,16 @@ export const Document = forwardRef((props, ref) => {
         </p>
         <h5>Booking Register Report</h5>
       </div>
-      <div className="d-flex align-center justify-between">
-        <p>
-          Date:{" "}
-          {moment(props?.dates?.startDate).format("DD-MM-YYYY") +
-            " - " +
-            moment(props?.dates?.endDate).format("DD-MM-YYYY")}
-        </p>
+      <div className="d-flex align-center justify-between mb-2">
+        {props.type === "general" && (
+          <p>
+            Date:{" "}
+            {moment(props?.dates?.startDate).format("DD-MM-YYYY") +
+              " - " +
+              moment(props?.dates?.endDate).format("DD-MM-YYYY")}
+          </p>
+        )}
+        <div></div>
         <div>
           <button className="btn btn-primary me-3" onClick={selectAll}>
             {selectedParcels.length === sortedData.length
