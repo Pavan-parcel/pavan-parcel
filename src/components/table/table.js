@@ -188,11 +188,11 @@ const Table = () => {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
-            .lt(
-              "created_at",
-              moment(endDate).add(1, "day").format("YYYY-MM-DD")
-            )
-            .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+            // .lt(
+            //   "created_at",
+            //   moment(endDate).add(1, "day").format("YYYY-MM-DD")
+            // )
+            // .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
             .eq("branch", localStorage.getItem(CONSTANTS.BRANCH))
             .eq("is_dispatched", false);
 
@@ -255,13 +255,13 @@ const Table = () => {
             .eq("branch", localStorage.getItem(CONSTANTS.BRANCH))
             .eq("is_dispatched", false);
 
-          let particularDateData = data.filter(
-            (parcel) =>
-              new Date(parcel.created_at).toLocaleDateString() ===
-              new Date(startDate).toLocaleDateString()
-          );
+          // let particularDateData = data.filter(
+          //   (parcel) =>
+          //     new Date(parcel.created_at).toLocaleDateString() ===
+          //     new Date(startDate).toLocaleDateString()
+          // );
 
-          const finalFiltered = particularDateData.filter((shipment) => {
+          const finalFiltered = data.filter((shipment) => {
             return selectedPlaceToSend.some(
               (place) => place.place_to_send === shipment.place_to_send
             );
@@ -325,11 +325,11 @@ const Table = () => {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
-            .lt(
-              "created_at",
-              moment(endDate).add(1, "day").format("YYYY-MM-DD")
-            )
-            .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+            // .lt(
+            //   "created_at",
+            //   moment(endDate).add(1, "day").format("YYYY-MM-DD")
+            // )
+            // .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
             .eq("is_dispatched", false);
           if (!error) {
             const filteredShipments = data.filter((shipment) => {
@@ -396,13 +396,13 @@ const Table = () => {
             .from("parcels")
             .select("*")
             .eq("is_dispatched", false);
-          let particularDateData = data.filter(
-            (parcel) =>
-              new Date(parcel.created_at).toLocaleDateString() ===
-              new Date(startDate).toLocaleDateString()
-          );
+          // let particularDateData = data.filter(
+          //   (parcel) =>
+          //     new Date(parcel.created_at).toLocaleDateString() ===
+          //     new Date(startDate).toLocaleDateString()
+          // );
 
-          const filteredShipments = particularDateData.filter((shipment) => {
+          const filteredShipments = data.filter((shipment) => {
             return selectedBranches.some(
               (branch) => branch.branch_name === shipment.branch
             );
@@ -443,23 +443,28 @@ const Table = () => {
         </Modal.Header>
         <Modal.Body>
           <form action="" className="form_control_wrapper">
-            <div className="days_count d-flex gap-3 align-center">
-              <h6>Date : </h6>
-              <div className="text-dark d-flex align-items-center gap-3">
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  maxDate={new Date()}
-                />
-                <div className="">to</div>
-                <DatePicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  maxDate={new Date()}
-                />
-              </div>
-            </div>
-            <div className="line mt-5"></div>
+            {type === "general" && (
+              <>
+                {" "}
+                <div className="days_count d-flex gap-3 align-center">
+                  <h6>Date : </h6>
+                  <div className="text-dark d-flex align-items-center gap-3">
+                    <DatePicker
+                      selected={startDate}
+                      onChange={(date) => setStartDate(date)}
+                      maxDate={new Date()}
+                    />
+                    <div className="">to</div>
+                    <DatePicker
+                      selected={endDate}
+                      onChange={(date) => setEndDate(date)}
+                      maxDate={new Date()}
+                    />
+                  </div>
+                </div>
+                <div className="line mt-5"></div>
+              </>
+            )}
 
             <div className="send-to-rec d-flex justify-content-between align-items-center">
               {localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? (
@@ -509,23 +514,23 @@ const Table = () => {
                 select All
               </Button>
             </div>
-
-            <Modal.Footer>
-              <Button
-                onClick={() =>
-                  localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
-                    ? getMainBranchData()
-                    : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
-                    ? getMainBranchData()
-                    : getGeneralData()
-                }
-              >
-                {type === "general" ? "Create General" : "Show Dispatch"}
-              </Button>
-              <Button onClick={props.onHide}>Close</Button>
-            </Modal.Footer>
           </form>
         </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            onClick={() =>
+              localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
+                ? getMainBranchData()
+                : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
+                ? getMainBranchData()
+                : getGeneralData()
+            }
+          >
+            {type === "general" ? "Create General" : "Show Dispatch"}
+          </Button>
+          <Button onClick={props.onHide}>Close</Button>
+        </Modal.Footer>
       </Modal>
     );
   }
