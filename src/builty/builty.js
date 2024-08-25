@@ -12,6 +12,18 @@ const Builty = forwardRef((props, ref) => {
     branch = "SA/";
   } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(KA)")) {
     branch = "KA/";
+  } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BHI)")) {
+    branch = "BHI/";
+  } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BO)")) {
+    branch = "BO/";
+  } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(GH)")) {
+    branch = "GH/";
+  } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(AN)")) {
+    branch = "AN/";
+  } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(PU)")) {
+    branch = "PU/";
+  } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(LI)")) {
+    branch = "LI/";
   }
   return (
     <div ref={ref} className="builty_table">

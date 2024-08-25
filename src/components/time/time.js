@@ -17,34 +17,34 @@ const Time = () => {
   }, [])
 
   useEffect(() => {
-    var timer = setInterval(()=>setDate(moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a')), 1000 )
+    var timer = setInterval(() => setDate(moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a')), 1000)
     return function cleanup() {
-        clearInterval(timer)
+      clearInterval(timer)
     }
-});
+  });
 
-  async function getFormCount(){
-    const {data, error} = await supabase.from('forms').select("*").eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
-    if(!error){
+  async function getFormCount() {
+    const { data, error } = await supabase.from('forms').select("*").eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
+    if (!error) {
       setLR(data[0]?.form_no)
     }
   }
 
   return (
     <section className='pt__time'>
-        <div className='container'>
-            <div className='row'>
-                 <div className='col-12'>
-                    <div className='pt__time_inner tie_cs'>
-                        <div className='pt__lr_num time_btn'>LR Number :  {LR}</div>
-                        <div className='pt__lr_time time_btn' href='#'> 
-                        {localStorage.getItem(CONSTANTS.BRANCH)}
-                        </div>
-                        <div className='pt__lr_num time_btn'>{date}</div>
-                    </div>
-                 </div>
+      <div className='container'>
+        <div className='row'>
+          <div className='col-12'>
+            <div className='pt__time_inner tie_cs'>
+              <div className='pt__lr_num time_btn'>LR Number :  {LR}</div>
+              <div className='pt__lr_time time_btn' href='#'>
+                {localStorage.getItem(CONSTANTS.BRANCH)}
+              </div>
+              <div className='pt__lr_num time_btn'>{date}</div>
             </div>
+          </div>
         </div>
+      </div>
     </section>
   )
 }
