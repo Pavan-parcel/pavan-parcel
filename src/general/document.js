@@ -111,26 +111,47 @@ export const Document = forwardRef((props, ref) => {
     }
   };
 
-  const dispatchSelected = async () => {
-    selectedParcels.map(async (parcel) => {
-      const { data, error } = await supabase
-        .from("parcels")
-        .update({ is_dispatched: true })
-        .eq("ids", parcel.ids);
-      if (!error) {
-        console.log("data: ", data);
-      } else {
-        console.log("error: ", error);
-      }
-    });
-    const selectedParcelsIds = new Set(selectedParcels.map((item) => item.ids));
-    const afterRemoval = sortedData.filter(
-      (item) => !selectedParcelsIds.has(item.ids)
-    );
-    setSortedData(afterRemoval);
-    handlePrint();
-    setSelectedParcels([]);
-  };
+  // const dispatchSelected = async () => {
+  //   selectedParcels.map(async (parcel) => {
+  //     const { data, error } = await supabase
+  //       .from("parcels")
+  //       .update({ is_dispatched: true })
+  //       .eq("ids", parcel.ids);
+  //     if (!error) {
+  //       console.log("data: ", data);
+  //     } else {
+  //       console.log("error: ", error);
+  //     }
+  //   });
+  //   const selectedParcelsIds = new Set(selectedParcels.map((item) => item.ids));
+  //   const afterRemoval = sortedData.filter(
+  //     (item) => !selectedParcelsIds.has(item.ids)
+  //   );
+  //   setSortedData(afterRemoval);
+  //   handlePrint();
+  //   setSelectedParcels([]);
+  // };
+
+  // const deliverSelected = async () => {
+  //   selectedParcels.map(async (parcel) => {
+  //     const { data, error } = await supabase
+  //       .from("parcels")
+  //       .update({ is_delivered: true })
+  //       .eq("ids", parcel.ids);
+  //     if (!error) {
+  //       console.log("data: ", data);
+  //     } else {
+  //       console.log("error: ", error);
+  //     }
+  //   });
+  //   const selectedParcelsIds = new Set(selectedParcels.map((item) => item.ids));
+  //   const afterRemoval = sortedData.filter(
+  //     (item) => !selectedParcelsIds.has(item.ids)
+  //   );
+  //   setSortedData(afterRemoval);
+  //   handlePrint();
+  //   setSelectedParcels([]);
+  // };
 
   const handlePrint = useReactToPrint({
     content: () => dispatchRef.current,
@@ -160,22 +181,22 @@ export const Document = forwardRef((props, ref) => {
         )}
         <div></div>
         <div>
-          <button className="btn btn-primary me-3" onClick={selectAll}>
+          {/* <button className="btn btn-primary me-3" onClick={selectAll}>
             {selectedParcels.length === sortedData.length
               ? "Unselect All"
               : "Select All"}
-          </button>
-          <button
-            className={
-              selectedParcels.length > 0
-                ? "btn btn-primary"
-                : "btn btn-secondary disabled"
-            }
-            disabled={selectedParcels.length === 0}
-            onClick={dispatchSelected}
-          >
-            Dispatch Selected
-          </button>
+          </button> */}
+          {/* <button
+              className={
+                selectedParcels.length > 0
+                  ? "btn btn-primary"
+                  : "btn btn-secondary disabled"
+              }
+              disabled={selectedParcels.length === 0}
+              onClick={dispatchSelected}
+            >
+              Dispatch Selected
+            </button> */}
         </div>
       </div>
 
@@ -192,7 +213,8 @@ export const Document = forwardRef((props, ref) => {
             <th>Art</th>
             <th>Art Type</th>
             <th>Total</th>
-            {props?.type === "dispatch" && <th>Dispatched</th>}
+            {<th>Dispatched</th>}
+            {props?.type === "deliver" && <th>Delivered</th>}
           </tr>
           {sortedData &&
             sortedData.map((parcel, index) => (
@@ -210,7 +232,31 @@ export const Document = forwardRef((props, ref) => {
                 <td>{parcel?.quantity}</td>
                 <td>{parcel?.item_detail}</td>
                 <td>{parcel?.total_amount}</td>
-                {props?.type === "dispatch" && (
+                <td className="text-center">
+                    <input
+                      type="checkbox"
+                      // onChange={(e) => {
+                      //   // onDispatch(e, parcel)
+                      //   if (e.target.checked) {
+                      //     console.log("checked: ", e.target.checked);
+                      //     setSelectedParcels((prev) => [...prev, parcel]);
+                      //   } else {
+                      //     const removeItem = selectedParcels.filter(
+                      //       (item) => item.ids !== parcel.ids
+                      //     );
+                      //     setSelectedParcels(removeItem);
+                      //   }
+                      // }}
+                      // checked={
+                      //   selectedParcels.filter(
+                      //     (item) => item.ids === parcel.ids
+                      //   ).length > 0
+                      // }
+                      disabled
+                      defaultChecked={parcel.is_dispatched}
+                    />
+                  </td>
+                {/* {props?.type === "dispatch" ? (
                   <td className="text-center">
                     <input
                       type="checkbox"
@@ -233,7 +279,54 @@ export const Document = forwardRef((props, ref) => {
                       }
                     />
                   </td>
-                )}
+                )
+                  :
+                  props?.type === "deliver" ? (
+                    <td className="text-center">
+                      <input
+                        type="checkbox"
+                        disabled
+                        // onChange={(e) => {
+                        //   // onDispatch(e, parcel)
+                        //   if (e.target.checked) {
+                        //     console.log("checked: ", e.target.checked);
+                        //     setSelectedParcels((prev) => [...prev, parcel]);
+                        //   } else {
+                        //     const removeItem = selectedParcels.filter(
+                        //       (item) => item.ids !== parcel.ids
+                        //     );
+                        //     setSelectedParcels(removeItem);
+                        //   }
+                        // }}
+                        checked={parcel?.is_dispatched}
+                      />
+                    </td>
+                  ) : null
+                }
+                {props?.type === "deliver" && (
+                  <td className="text-center">
+                    <input
+                      type="checkbox"
+                      onChange={(e) => {
+                        // onDispatch(e, parcel)
+                        if (e.target.checked) {
+                          console.log("checked: ", e.target.checked);
+                          setSelectedParcels((prev) => [...prev, parcel]);
+                        } else {
+                          const removeItem = selectedParcels.filter(
+                            (item) => item.ids !== parcel.ids
+                          );
+                          setSelectedParcels(removeItem);
+                        }
+                      }}
+                      checked={
+                        selectedParcels.filter(
+                          (item) => item.ids === parcel.ids
+                        ).length > 0
+                      }
+                    />
+                  </td>
+                )} */}
               </tr>
             ))}
           <tr>

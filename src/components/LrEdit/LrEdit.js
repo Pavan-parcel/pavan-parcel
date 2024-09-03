@@ -12,7 +12,7 @@ import moment from "moment";
 const LrEdit = () => {
   const { state } = useLocation();
   const { data } = state;
-
+  const is_dispatched = state?.is_dispatched;
   const [updateData, setUpdateData] = useState([]);
 
   const navigate = useNavigate();
@@ -90,7 +90,32 @@ const LrEdit = () => {
     }
   };
 
-  const validate = Yup.object().shape({
+  const validate = is_dispatched ? 
+  Yup.object().shape({
+    sender_name: Yup.string().required("Please enter Sender name"),
+    sender_number: Yup.string()
+      .required("Please enter Sender number")
+      .max(10, "Maximum 10 numbers only!")
+      .min(10, "Minimum 10 numbers!"),
+    receiver_name: Yup.string().required("Please enter Receiver name"),
+    receiver_number: Yup.string()
+      .required("Please enter Receiver number")
+      .max(10, "Maximum 10 numbers only!")
+      .min(10, "Minimum 10 numbers!"),
+    item_detail: Yup.string().required("Please select item detail"),
+    // color: Yup.string().required("Please select item color"),
+    quantity: Yup.string().required("Please enter qunatity"),
+    rate: Yup.string().required("Please enter rate"),
+    total_amount: Yup.string().required("Please enter total amount"),
+    payment_type: Yup.string().required("Please select Payment type"),
+    place_to_send: Yup.string().required("Please select Place to Send"),
+    handover_person_name: Yup.string().required("Please enter handover person name"),
+    handover_person_number: Yup.string().required("Please enter handover person number"),
+    // remarks: Yup.string().required("Please enter remarks"),
+    // driver: Yup.string().required("Please enter driver number"),
+  })
+  :
+  Yup.object().shape({
     sender_name: Yup.string().required("Please enter Sender name"),
     sender_number: Yup.string()
       .required("Please enter Sender number")
@@ -113,7 +138,23 @@ const LrEdit = () => {
   });
 
   const formik = useFormik({
-    initialValues: {
+    initialValues: is_dispatched ? {
+      sender_name: "",
+      sender_number: "",
+      receiver_name: "",
+      receiver_number: "",
+      item_detail: "",
+      color: "",
+      quantity: "",
+      rate: "",
+      payment_type: "",
+      total_amount: "",
+      place_to_send: "",
+      remarks: "",
+      is_dispatched: false,
+      handover_person_name: "",
+      handover_person_number: "",
+    } : {
       sender_name: "",
       sender_number: "",
       receiver_name: "",
@@ -161,6 +202,24 @@ const LrEdit = () => {
       console.log("return error: ", error);
     }
   };
+
+  const dispatchParcel = async () => {
+    const { data, error } = await supabase
+        .from("parcels")
+        .update({
+          is_dispatched: is_dispatched,
+          handover_person_name: formik.values.handover_person_name,
+          handover_person_number: formik.values.handover_person_number,
+        })
+        .eq("receipt_no", state?.data[0]?.receipt_no)
+        .select("*");
+      if (!error) {
+        setUpdateData(data);
+        // window.location.reload();
+      } else {
+        console.log("update error: ", error);
+      }
+  }
 
   return (
     <div className="pt_admin_lr">
@@ -483,12 +542,12 @@ const LrEdit = () => {
                       Cancel
                     </button>
                     {moment(data[0]?.created_at).get("date") !==
-                    moment().get("date") ? (
+                      moment().get("date") ? (
                       <button
                         // type="submit"
                         onClick={handlePrint}
                         className="pt__lr_num time_btn btn btn-submit"
-                        // disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
+                      // disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       >
                         Print
                       </button>
@@ -506,6 +565,59 @@ const LrEdit = () => {
                     )}
                   </div>
                 </div>
+
+                {is_dispatched ? <div className="row justify-between align-end mt-30">
+                  <div className="col-25">
+                    <div className="form_control_wrapper">
+                      <label>Handover person name</label>
+                      <input
+                        name="handover_person_name"
+                        type="text"
+                        value={formik.values.handover_person_name}
+                        onChange={formik.handleChange}
+                        // disabled={
+                        //   moment(data[0]?.created_at).get("date") !==
+                        //   moment().get("date")
+                        // }
+                      />
+                      {formik.touched.handover_person_name && formik.errors.handover_person_name && (
+                        <div className="text-danger">
+                          {formik.errors.handover_person_name}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-25">
+                    <div className="form_control_wrapper">
+                      <label>Handover person number</label>
+                      <input
+                        name="handover_person_number"
+                        type="number"
+                        value={formik.values.handover_person_number}
+                        onChange={formik.handleChange}
+                        // disabled
+                      />
+                      {formik.touched.handover_person_number && formik.errors.handover_person_number && (
+                        <div className="text-danger">{formik.errors.handover_person_number}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <button
+                      type="submit"
+                      className="pt__lr_num time_btn btn btn-submit"
+                      disabled={
+                        !formik.values.handover_person_number || !formik.values.handover_person_name
+                      }
+                      onClick={(e) => {
+                        e.preventDefault();
+                        dispatchParcel();
+                      }}
+                    >
+                      Dispatch
+                    </button>
+                  </div>
+                </div> : null}
               </div>
             </div>
             <div className="col-25">
@@ -525,11 +637,11 @@ const LrEdit = () => {
                   </tr>
                   <tr>
                     <td>Total</td>
-                    <td>{10}</td>
+                    <td>{Number(formik.values.total_amount)}</td>
                   </tr>
                   <tr>
                     <td>Grand Total</td>
-                    <td>{10}</td>
+                    <td>{Number(formik.values.total_amount) + 10}</td>
                   </tr>
                 </table>
               </div>

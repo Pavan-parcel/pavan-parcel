@@ -11,6 +11,7 @@ const General = () => {
   const generalRef2 = useRef();
   const { state } = useLocation();
   const { data, dates, type } = state;
+  console.log("state data: ", data);
   const dummay = data.filter((item) => !item?.returned);
   const handlePrint = useReactToPrint({
     content: () => generalRef2.current,

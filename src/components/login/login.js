@@ -47,10 +47,19 @@ const Login = () => {
       );
       if (validate.length === 1) {
         setError("");
+        if(validate[0]?.type === "admin"){
+          localStorage.setItem(CONSTANTS.USER_TYPE, "admin");
+          navigate("/setting/items");
+          return;
+        } else {
+          localStorage.setItem(CONSTANTS.USER_TYPE, "user");
+          localStorage.setItem(CONSTANTS.BRANCH, validate[0]?.branch_name);
+          localStorage.setItem(CONSTANTS.BRANCH_ID, validate[0]?.id);
+          navigate("/");
+        }
         // const branch = capitalizeFirstLetter(values.branch)
-        localStorage.setItem(CONSTANTS.BRANCH, validate[0]?.branch_name);
-        navigate("/");
       } else {
+        console.log("validate: ", validate);
         setError("Invalid Branch name or Password");
       }
     },
