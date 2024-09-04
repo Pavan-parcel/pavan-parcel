@@ -637,11 +637,11 @@ const LrEdit = () => {
                   </tr>
                   <tr>
                     <td>Total</td>
-                    <td>{Number(formik.values.total_amount)}</td>
+                    <td>{formik.values.payment_type === "To Pay" ? Number(formik.values.total_amount): 0}</td>
                   </tr>
                   <tr>
                     <td>Grand Total</td>
-                    <td>{Number(formik.values.total_amount) + 10}</td>
+                    <td>{formik.values.payment_type === "To Pay" ? Number(formik.values.total_amount) + 10 : 0}</td>
                   </tr>
                 </table>
               </div>
