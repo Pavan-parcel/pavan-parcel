@@ -17,6 +17,7 @@ const Table = () => {
   const [data, setData] = useState([]);
   const [date, setDate] = useState(null);
   const [type, setType] = useState("general");
+  const [dispatchModal, setDispatchModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -51,7 +52,7 @@ const Table = () => {
         const filteredData = data.filter(
           (item) =>
             new Date(item?.created_at).toLocaleDateString() ===
-              new Date().toLocaleDateString() &&
+            new Date().toLocaleDateString() &&
             item.branch === localStorage.getItem(CONSTANTS.BRANCH)
         );
         setData(filteredData);
@@ -104,7 +105,7 @@ const Table = () => {
     const [sentBranch, setSentBranch] = useState("");
     const [selectedBranches, setSelectedBranches] = useState([]);
     const [selectedPlaceToSend, setSelectedPlaceToSend] = useState([]);
-    console.log("selectedPlaceToSend", selectedPlaceToSend);
+
     const generalRef = useRef();
     const navigate = useNavigate();
 
@@ -133,21 +134,31 @@ const Table = () => {
     const getBranches = async () => {
       const { data, error } = await supabase.from("branches").select("*");
       if (!error) {
-        //   console.log("data: ", data);
-        setBranches(data);
+        // console.log("data: ", data);
+        setBranches(data?.filter(item => item.type !== "admin"));
       } else {
         console.log("error: ", error);
       }
     };
 
     const getPlaceToSend = async () => {
-      const { data, error } = await supabase.from("place_to_send").select("*");
-      if (!error) {
-        //   console.log("data: ", data);
-        setPlaceToSend(data);
+      // const { data, error } = await supabase.from("place_to_send").select("*");
+      // if (!error) {
+      //   //   console.log("data: ", data);
+      //   setPlaceToSend(data);
+      // } else {
+      //   console.log("error: ", error);
+      // }
+
+      const access = await supabase.from("access_branch").select("*").eq("branch", localStorage.getItem(CONSTANTS.BRANCH_ID));
+      if(!access.error){
+        if(access.data.length > 0){
+          let data = JSON.parse(access.data[0].places);
+          setPlaceToSend(data.map(branch => ({place_to_send: branch})));
+        }
       } else {
-        console.log("error: ", error);
-      }
+      console.log("error: ", access.error);
+    }
     };
 
     const getGeneralData = async () => {
@@ -184,7 +195,7 @@ const Table = () => {
           } else {
             console.log("error: ", error);
           }
-        } else {
+        } else if (type === "dispatch") {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
@@ -218,6 +229,40 @@ const Table = () => {
             console.log("error: ", error);
           }
         }
+        // else if (type === "deliver") {
+        //   const { data, error } = await supabase
+        //     .from("parcels")
+        //     .select("*")
+        //     // .lt(
+        //     //   "created_at",
+        //     //   moment(endDate).add(1, "day").format("YYYY-MM-DD")
+        //     // )
+        //     // .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+        //     .eq("branch", localStorage.getItem(CONSTANTS.BRANCH))
+        //     .eq("is_dispatched", true);
+
+        //   if (!error) {
+        //     const finalFiltered = data.filter((shipment) => {
+        //       return selectedPlaceToSend.some(
+        //         (place) => place.place_to_send === shipment.place_to_send
+        //       );
+        //     });
+        //     // console.log("final data: ", finalFiltered)
+        //     if (finalFiltered.length === 0) {
+        //       alert("No data found!");
+        //       return;
+        //     }
+        //     navigate("/general", {
+        //       state: {
+        //         data: finalFiltered,
+        //         dates: { startDate: startDate, endDate: endDate },
+        //         type: type,
+        //       },
+        //     });
+        //   } else {
+        //     console.log("error: ", error);
+        //   }
+        // }
       } else {
         if (type === "general") {
           const { data, error } = await supabase
@@ -248,7 +293,7 @@ const Table = () => {
               type: type,
             },
           });
-        } else {
+        } else if (type === "dispatch") {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
@@ -279,6 +324,37 @@ const Table = () => {
             },
           });
         }
+        // else if (type === "deliver") {
+        //   const { data, error } = await supabase
+        //     .from("parcels")
+        //     .select("*")
+        //     .eq("branch", localStorage.getItem(CONSTANTS.BRANCH))
+        //     .eq("is_dispatched", true);
+
+        //   // let particularDateData = data.filter(
+        //   //   (parcel) =>
+        //   //     new Date(parcel.created_at).toLocaleDateString() ===
+        //   //     new Date(startDate).toLocaleDateString()
+        //   // );
+
+        //   const finalFiltered = data.filter((shipment) => {
+        //     return selectedPlaceToSend.some(
+        //       (place) => place.place_to_send === shipment.place_to_send
+        //     );
+        //   });
+        //   // console.log("final data: ", finalFiltered)
+        //   if (finalFiltered.length === 0) {
+        //     alert("No data found!");
+        //     return;
+        //   }
+        //   navigate("/general", {
+        //     state: {
+        //       data: finalFiltered,
+        //       dates: { startDate: startDate, endDate: endDate },
+        //       type: type,
+        //     },
+        //   });
+        // }
       }
     };
 
@@ -321,7 +397,7 @@ const Table = () => {
           } else {
             console.log("error: ", error);
           }
-        } else {
+        } else if (type === " dispatch") {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
@@ -359,6 +435,44 @@ const Table = () => {
             console.log("error: ", error);
           }
         }
+        // else if (type === "deliver") {
+        //   const { data, error } = await supabase
+        //     .from("parcels")
+        //     .select("*")
+        //     // .lt(
+        //     //   "created_at",
+        //     //   moment(endDate).add(1, "day").format("YYYY-MM-DD")
+        //     // )
+        //     // .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
+        //     .eq("is_dispatched", true);
+        //   if (!error) {
+        //     const filteredShipments = data.filter((shipment) => {
+        //       return selectedBranches.some(
+        //         (branch) => branch.branch_name === shipment.branch
+        //       );
+        //     });
+        //     // console.log("actual data: ", filteredShipments)
+        //     const finalFiltered = filteredShipments.filter((shipment) => {
+        //       return selectedPlaceToSend.some(
+        //         (place) => place.place_to_send === shipment.place_to_send
+        //       );
+        //     });
+        //     // console.log("final data: ", finalFiltered)
+        //     if (finalFiltered.length === 0) {
+        //       alert("No data found!");
+        //       return;
+        //     }
+        //     navigate("/general", {
+        //       state: {
+        //         data: finalFiltered,
+        //         dates: { startDate: startDate, endDate: endDate },
+        //         type: type,
+        //       },
+        //     });
+        //   } else {
+        //     console.log("error: ", error);
+        //   }
+        // }
       } else {
         if (type === "general") {
           const { data, error } = await supabase.from("parcels").select("*");
@@ -391,7 +505,7 @@ const Table = () => {
               type: type,
             },
           });
-        } else {
+        } else if (type === "dispatch") {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
@@ -426,6 +540,41 @@ const Table = () => {
             },
           });
         }
+        // else if (type === "deliver") {
+        //   const { data, error } = await supabase
+        //     .from("parcels")
+        //     .select("*")
+        //     .eq("is_dispatched", true);
+        //   // let particularDateData = data.filter(
+        //   //   (parcel) =>
+        //   //     new Date(parcel.created_at).toLocaleDateString() ===
+        //   //     new Date(startDate).toLocaleDateString()
+        //   // );
+
+        //   const filteredShipments = data.filter((shipment) => {
+        //     return selectedBranches.some(
+        //       (branch) => branch.branch_name === shipment.branch
+        //     );
+        //   });
+        //   // console.log("actual data: ", filteredShipments)
+        //   const finalFiltered = filteredShipments.filter((shipment) => {
+        //     return selectedPlaceToSend.some(
+        //       (place) => place.place_to_send === shipment.place_to_send
+        //     );
+        //   });
+        //   // console.log("final data: ", finalFiltered)
+        //   if (finalFiltered.length === 0) {
+        //     alert("No data found!");
+        //     return;
+        //   }
+        //   navigate("/general", {
+        //     state: {
+        //       data: finalFiltered,
+        //       dates: { startDate: startDate, endDate: endDate },
+        //       type: type,
+        //     },
+        //   });
+        // }
       }
     };
 
@@ -438,7 +587,7 @@ const Table = () => {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            {type === "general" ? "General" : "Dispatch"}
+            {type === "general" ? "General" : type === "dispatch" ? "Dispatch" : type === "deliver" ? "Deliver" : ""}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -467,52 +616,63 @@ const Table = () => {
             )}
 
             <div className="send-to-rec d-flex justify-content-between align-items-center">
-              {localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? (
-                <Select
-                  options={branches}
-                  getOptionLabel={(option) => `${option.branch_name}`}
-                  getOptionValue={(option) => `${option.branch_name}`}
-                  isMulti
-                  isSearchable={false}
-                  value={selectedBranches}
-                  onChange={(value) => setSelectedBranches(value)}
-                />
-              ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)") ? (
-                <Select
-                  options={branches}
-                  getOptionLabel={(option) => `${option.branch_name}`}
-                  getOptionValue={(option) => `${option.branch_name}`}
-                  isMulti
-                  isSearchable={false}
-                  value={selectedBranches}
-                  onChange={(value) => setSelectedBranches(value)}
-                />
-              ) : (
-                <select
-                  name=""
-                  id=""
-                  disabled
-                  className="w-100 general_delivery"
-                >
-                  <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
-                    {localStorage.getItem(CONSTANTS.BRANCH)}
-                  </option>
-                </select>
-              )}
+              <div className="flex flex-column">
+                {localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? (
+                  <Select
+                    options={branches}
+                    getOptionLabel={(option) => `${option.branch_name}`}
+                    getOptionValue={(option) => `${option.branch_name}`}
+                    isMulti
+                    isSearchable={true}
+                    value={selectedBranches}
+                    onChange={(value) => setSelectedBranches(value)}
+                  />
+                ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)") ? (
+                  <Select
+                    options={branches}
+                    getOptionLabel={(option) => `${option.branch_name}`}
+                    getOptionValue={(option) => `${option.branch_name}`}
+                    isMulti
+                    isSearchable={true}
+                    value={selectedBranches}
+                    onChange={(value) => setSelectedBranches(value)}
+                  />
+                ) : (
+                  <select
+                    name=""
+                    id=""
+                    disabled
+                    className="w-100 general_delivery"
+                  >
+                    <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
+                      {localStorage.getItem(CONSTANTS.BRANCH)}
+                    </option>
+                  </select>
+                )}
+                <div className="text-center mt-2">
+                  <Button onClick={() => setSelectedBranches(branches)}>
+                    Select All
+                  </Button>
+                </div>
+              </div>
               <p className="px-3">To</p>
 
-              <Select
-                options={placeToSend}
-                getOptionLabel={(option) => `${option.place_to_send}`}
-                getOptionValue={(option) => `${option.place_to_send}`}
-                isSearchable={false}
-                isMulti
-                value={selectedPlaceToSend}
-                onChange={(value) => setSelectedPlaceToSend(value)}
-              />
-              <Button onClick={() => setSelectedPlaceToSend(placeToSend)}>
-                select All
-              </Button>
+              <div className="flex flex-column">
+                <Select
+                  options={placeToSend}
+                  getOptionLabel={(option) => `${option.place_to_send}`}
+                  getOptionValue={(option) => `${option.place_to_send}`}
+                  isSearchable={true}
+                  isMulti
+                  value={selectedPlaceToSend}
+                  onChange={(value) => setSelectedPlaceToSend(value)}
+                />
+                <div className="text-center mt-2">
+                  <Button onClick={() => setSelectedPlaceToSend(placeToSend)}>
+                    Select All
+                  </Button>
+                </div>
+              </div>
             </div>
           </form>
         </Modal.Body>
@@ -523,11 +683,11 @@ const Table = () => {
               localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
                 ? getMainBranchData()
                 : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
-                ? getMainBranchData()
-                : getGeneralData()
+                  ? getMainBranchData()
+                  : getGeneralData()
             }
           >
-            {type === "general" ? "Create General" : "Show Dispatch"}
+            {type === "general" ? "Create General" : type === "dispatch" ? "Show Dispatch" : type === "deliver" ? "Show Deliver" : ""}
           </Button>
           <Button onClick={props.onHide}>Close</Button>
         </Modal.Footer>
@@ -555,15 +715,29 @@ const Table = () => {
               className="pt__lr_item time_btn"
               onClick={() => {
                 setType("dispatch");
-                setModalShow(true);
+                setDispatchModal(true);
               }}
             >
               Dispatch
             </Button>
+            {/* <Button
+              variant="primary"
+              className="pt__lr_item time_btn"
+              onClick={() => {
+                setType("deliver");
+                setModalShow(true);
+              }}
+            >
+              Deliver
+            </Button> */}
 
             <MyVerticallyCenteredModal
               show={modalShow}
               onHide={() => setModalShow(false)}
+            />
+            <DispatchModal
+              show={dispatchModal}
+              onHide={() => setDispatchModal(false)}
             />
           </div>
           <div className="search_lr col-4">
@@ -657,3 +831,63 @@ const Table = () => {
 };
 
 export default Table;
+
+const DispatchModal = ({ show, onHide }) => {
+  const navigate = useNavigate();
+  const [lr, setLr] = useState(null);
+  const [error, setError] = useState("");
+
+  const getLrData = async () => {
+    const { data, error } = await supabase
+      .from("parcels")
+      .select("*")
+      .eq("receipt_no", lr);
+    if (!error) {
+      console.log("data: ", data);
+      if(data?.length === 0){
+        setError("Couldn't find data for that");
+        return;  
+      }
+      setError("");
+      navigate("/lr", { state: { data: data, is_dispatched: true } });
+    } else {
+      setError("Couldn't find data for that")
+      console.log("error: ", error);
+    }
+  }
+  return (
+    <Modal
+      show={show}
+      onHide={onHide}
+      size="md"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Dispatch
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <input
+          className="form-control border"
+          placeholder="Enter LR Number"
+          value={lr}
+          onChange={e => setLr(e.target.value)}
+        />
+        {error && <div className="text-danger">{error}</div>}
+      </Modal.Body>
+
+      <Modal.Footer>
+        <Button onClick={onHide}>Close</Button>
+        <Button
+          onClick={() => {
+            getLrData();
+          }}
+        >
+          Dispatch
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  )
+}

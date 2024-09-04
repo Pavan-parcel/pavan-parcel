@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import supabase from "../../supabase/supabaseClient";
 import { MdDelete } from "react-icons/md";
+import AdminSidebar from "../adminSidebar/adminSidebar";
 
 const SendPlacetable = () => {
   const [branches, setBranches] = useState([]);
@@ -40,19 +41,7 @@ const SendPlacetable = () => {
         <div className="setitem_container">
           <div className="row">
             <div className="col-4">
-              <div className="setitem_left">
-                <ul>
-                  <li>
-                    <Link to="/setting/items"> Items </Link>
-                  </li>
-                  <li>
-                    <Link to="/setting/color"> Color </Link>
-                  </li>
-                  <li>
-                    <Link to="/setting/sendplace"> Place To Send </Link>
-                  </li>
-                </ul>
-              </div>
+              <AdminSidebar />
             </div>
             <div className="col-8">
               <div className="setitem_right">

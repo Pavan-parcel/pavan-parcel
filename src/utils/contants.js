@@ -3,5 +3,7 @@ export const UTILS = {
 }
 
 export const CONSTANTS = {
-    BRANCH: 'BRANCH'
+    BRANCH: 'BRANCH',
+    BRANCH_ID: 'BRANCH_ID',
+    USER_TYPE: 'USER_TYPE'
 }

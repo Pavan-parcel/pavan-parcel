@@ -140,15 +140,14 @@ const Admin = () => {
   }, [data]);
 
   const getBranches = async () => {
-    const { data, error } = await supabase.from("place_to_send").select("*");
-    if (!error) {
-      //   console.log("data: ", data);
-      // let datas = data.filter(
-      //   (item) => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH)
-      // );
-      setBranches(data);
-    } else {
-      console.log("error: ", error);
+    const access = await supabase.from("access_branch").select("*").eq("branch", localStorage.getItem(CONSTANTS.BRANCH_ID));
+      if(!access.error){
+        if(access.data.length > 0){
+          let data = JSON.parse(access.data[0].places);
+          setBranches(data.map(branch => ({place_to_send: branch})));
+        }
+      } else {
+      console.log("error: ", access.error);
     }
   };
 
