@@ -56,7 +56,11 @@ const Header = () => {
 
     if (!error) {
       if(data.length === 0) {
-        alert("No data found for selected date range.")
+        setDateModal(false);
+        setConfirmationModal(false);
+        setTimeout(() => {
+          alert("No data found for selected date range.");
+        }, 500);
         return;
       }
       // Format the 'created_at' field using moment
@@ -86,7 +90,18 @@ const Header = () => {
 
       // Remove the link from the DOM
       document.body.removeChild(link);
-      const result = await supabase.from("parcels").delete()
+      
+      console.log("CSV file downloaded successfully.");
+      // setConfirmationModal(false);
+      setDateModal(false);
+      setConfirmationModal(true);
+    } else {
+      console.error("Error fetching data:", error);
+    }
+  }
+
+  const onFinalDelete = async() => {
+    const result = await supabase.from("parcels").delete()
       .lt(
         "created_at",
         moment(endDate).add(1, "day").format("YYYY-MM-DD")
@@ -97,12 +112,6 @@ const Header = () => {
       } else {
         alert("Failed to delete data, try again!");
       }
-      console.log("CSV file downloaded successfully.");
-      setConfirmationModal(false);
-      setDateModal(false);
-    } else {
-      console.error("Error fetching data:", error);
-    }
   }
 
   // Function to convert array of objects to CSV format
@@ -146,7 +155,7 @@ const Header = () => {
                     </li> : null} */}
                     {localStorage.getItem(CONSTANTS.USER_TYPE) === "admin" ? <li className="zn__main-menu-list">
                       <a href=" " className="btn btn-primary" onClick={onDownloadAndDelete}>
-                        Download & Delete
+                        Download
                       </a>
                     </li> : null}
                   </ul>
@@ -190,19 +199,19 @@ const Header = () => {
         </div>
       </div>
 
-      {/* delete confirmation modal */}
+      {/* final delete modal */}
       <Modal show={confirmationModal} centered onHide={() => setConfirmationModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete Parcel Confirmation</Modal.Title>
+          <Modal.Title>Delete Parcel Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete all parcel data? This action cannot be undone.
+          Are you sure you want to delete downloaded parcel data from the database? This action cannot be undone.
         </Modal.Body>
         <Modal.Footer>
           <button onClick={() => setConfirmationModal(false)} className="btn btn-secondary">
             No
           </button>
-          <button onClick={confirmDownloadAndDelete} className="btn btn-primary">
+          <button onClick={onFinalDelete} className="btn btn-primary">
             Yes
           </button>
         </Modal.Footer>
@@ -239,7 +248,7 @@ const Header = () => {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <button onClick={() => setConfirmationModal(true)} className="btn btn-primary">
+          <button onClick={confirmDownloadAndDelete} className="btn btn-primary">
             Download
           </button>
         </Modal.Footer>
