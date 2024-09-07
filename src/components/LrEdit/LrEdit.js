@@ -11,7 +11,7 @@ import moment from "moment";
 
 const LrEdit = () => {
   const { state } = useLocation();
-  const { data } = state;
+  const data = state?.data;
   const is_dispatched = state?.is_dispatched;
   const [updateData, setUpdateData] = useState([]);
 
@@ -90,52 +90,52 @@ const LrEdit = () => {
     }
   };
 
-  const validate = is_dispatched ? 
-  Yup.object().shape({
-    sender_name: Yup.string().required("Please enter Sender name"),
-    sender_number: Yup.string()
-      .required("Please enter Sender number")
-      .max(10, "Maximum 10 numbers only!")
-      .min(10, "Minimum 10 numbers!"),
-    receiver_name: Yup.string().required("Please enter Receiver name"),
-    receiver_number: Yup.string()
-      .required("Please enter Receiver number")
-      .max(10, "Maximum 10 numbers only!")
-      .min(10, "Minimum 10 numbers!"),
-    item_detail: Yup.string().required("Please select item detail"),
-    // color: Yup.string().required("Please select item color"),
-    quantity: Yup.string().required("Please enter qunatity"),
-    rate: Yup.string().required("Please enter rate"),
-    total_amount: Yup.string().required("Please enter total amount"),
-    payment_type: Yup.string().required("Please select Payment type"),
-    place_to_send: Yup.string().required("Please select Place to Send"),
-    handover_person_name: Yup.string().required("Please enter handover person name"),
-    handover_person_number: Yup.string().required("Please enter handover person number"),
-    // remarks: Yup.string().required("Please enter remarks"),
-    // driver: Yup.string().required("Please enter driver number"),
-  })
-  :
-  Yup.object().shape({
-    sender_name: Yup.string().required("Please enter Sender name"),
-    sender_number: Yup.string()
-      .required("Please enter Sender number")
-      .max(10, "Maximum 10 numbers only!")
-      .min(10, "Minimum 10 numbers!"),
-    receiver_name: Yup.string().required("Please enter Receiver name"),
-    receiver_number: Yup.string()
-      .required("Please enter Receiver number")
-      .max(10, "Maximum 10 numbers only!")
-      .min(10, "Minimum 10 numbers!"),
-    item_detail: Yup.string().required("Please select item detail"),
-    // color: Yup.string().required("Please select item color"),
-    quantity: Yup.string().required("Please enter qunatity"),
-    rate: Yup.string().required("Please enter rate"),
-    total_amount: Yup.string().required("Please enter total amount"),
-    payment_type: Yup.string().required("Please select Payment type"),
-    place_to_send: Yup.string().required("Please select Place to Send"),
-    // remarks: Yup.string().required("Please enter remarks"),
-    // driver: Yup.string().required("Please enter driver number"),
-  });
+  const validate = is_dispatched ?
+    Yup.object().shape({
+      sender_name: Yup.string().required("Please enter Sender name"),
+      sender_number: Yup.string()
+        .required("Please enter Sender number")
+        .max(10, "Maximum 10 numbers only!")
+        .min(10, "Minimum 10 numbers!"),
+      receiver_name: Yup.string().required("Please enter Receiver name"),
+      receiver_number: Yup.string()
+        .required("Please enter Receiver number")
+        .max(10, "Maximum 10 numbers only!")
+        .min(10, "Minimum 10 numbers!"),
+      item_detail: Yup.string().required("Please select item detail"),
+      // color: Yup.string().required("Please select item color"),
+      quantity: Yup.string().required("Please enter qunatity"),
+      rate: Yup.string().required("Please enter rate"),
+      total_amount: Yup.string().required("Please enter total amount"),
+      payment_type: Yup.string().required("Please select Payment type"),
+      place_to_send: Yup.string().required("Please select Place to Send"),
+      handover_person_name: Yup.string().required("Please enter handover person name"),
+      handover_person_number: Yup.string().required("Please enter handover person number"),
+      // remarks: Yup.string().required("Please enter remarks"),
+      // driver: Yup.string().required("Please enter driver number"),
+    })
+    :
+    Yup.object().shape({
+      sender_name: Yup.string().required("Please enter Sender name"),
+      sender_number: Yup.string()
+        .required("Please enter Sender number")
+        .max(10, "Maximum 10 numbers only!")
+        .min(10, "Minimum 10 numbers!"),
+      receiver_name: Yup.string().required("Please enter Receiver name"),
+      receiver_number: Yup.string()
+        .required("Please enter Receiver number")
+        .max(10, "Maximum 10 numbers only!")
+        .min(10, "Minimum 10 numbers!"),
+      item_detail: Yup.string().required("Please select item detail"),
+      // color: Yup.string().required("Please select item color"),
+      quantity: Yup.string().required("Please enter qunatity"),
+      rate: Yup.string().required("Please enter rate"),
+      total_amount: Yup.string().required("Please enter total amount"),
+      payment_type: Yup.string().required("Please select Payment type"),
+      place_to_send: Yup.string().required("Please select Place to Send"),
+      // remarks: Yup.string().required("Please enter remarks"),
+      // driver: Yup.string().required("Please enter driver number"),
+    });
 
   const formik = useFormik({
     initialValues: is_dispatched ? {
@@ -205,20 +205,20 @@ const LrEdit = () => {
 
   const dispatchParcel = async () => {
     const { data, error } = await supabase
-        .from("parcels")
-        .update({
-          is_dispatched: is_dispatched,
-          handover_person_name: formik.values.handover_person_name,
-          handover_person_number: formik.values.handover_person_number,
-        })
-        .eq("receipt_no", state?.data[0]?.receipt_no)
-        .select("*");
-      if (!error) {
-        setUpdateData(data);
-        // window.location.reload();
-      } else {
-        console.log("update error: ", error);
-      }
+      .from("parcels")
+      .update({
+        is_dispatched: is_dispatched,
+        handover_person_name: formik.values.handover_person_name,
+        handover_person_number: formik.values.handover_person_number,
+      })
+      .eq("receipt_no", state?.data[0]?.receipt_no)
+      .select("*");
+    if (!error) {
+      setUpdateData(data);
+      // window.location.reload();
+    } else {
+      console.log("update error: ", error);
+    }
   }
 
   return (
@@ -535,8 +535,9 @@ const LrEdit = () => {
                       // type="submit"
                       className="me-3 time_btn btn btn-submit btn-danger"
                       disabled={
-                        moment(data[0]?.created_at).get("date") !==
-                        moment().get("date")
+                        localStorage.getItem(CONSTANTS.USER_TYPE) === "admin" ? false :
+                          moment(data[0]?.created_at).get("date") !==
+                          moment().get("date")
                       }
                     >
                       Cancel
@@ -575,10 +576,10 @@ const LrEdit = () => {
                         type="text"
                         value={formik.values.handover_person_name}
                         onChange={formik.handleChange}
-                        // disabled={
-                        //   moment(data[0]?.created_at).get("date") !==
-                        //   moment().get("date")
-                        // }
+                      // disabled={
+                      //   moment(data[0]?.created_at).get("date") !==
+                      //   moment().get("date")
+                      // }
                       />
                       {formik.touched.handover_person_name && formik.errors.handover_person_name && (
                         <div className="text-danger">
@@ -595,7 +596,7 @@ const LrEdit = () => {
                         type="number"
                         value={formik.values.handover_person_number}
                         onChange={formik.handleChange}
-                        // disabled
+                      // disabled
                       />
                       {formik.touched.handover_person_number && formik.errors.handover_person_number && (
                         <div className="text-danger">{formik.errors.handover_person_number}</div>
@@ -637,7 +638,7 @@ const LrEdit = () => {
                   </tr>
                   <tr>
                     <td>Total</td>
-                    <td>{formik.values.payment_type === "To Pay" ? Number(formik.values.total_amount): 0}</td>
+                    <td>{formik.values.payment_type === "To Pay" ? Number(formik.values.total_amount) : 0}</td>
                   </tr>
                   <tr>
                     <td>Grand Total</td>
