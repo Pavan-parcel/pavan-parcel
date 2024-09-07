@@ -68,6 +68,7 @@ function App() {
         <Route path="/setting/color" element={<ColorTable />} />
         <Route path="/setting/sendplace" element={<SendPlacetable />} />
         <Route path="/setting/access" element={<Access />} />
+          <Route path="/lr" element={<LrEdit />} />
         <Route path="*" element={<Navigate to={"/setting/items"} />} />
           </>
         }

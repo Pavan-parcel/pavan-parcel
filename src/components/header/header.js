@@ -25,7 +25,7 @@ const Header = () => {
       .eq("receipt_no", lr);
     if (!error) {
       console.log("data: ", data);
-      navigate("/lr", { state: { data: data } });
+      navigate("/lr", { state: { data: data, is_dispatched: data[0]?.is_dispatched } });
     } else {
       console.log("error: ", error);
     }
@@ -162,7 +162,8 @@ const Header = () => {
                 </nav>
               </div>
               <div className="zn__header-btn">
-                {localStorage.getItem(CONSTANTS.USER_TYPE) !== "admin" ? <form className="header_form">
+                {/* {localStorage.getItem(CONSTANTS.USER_TYPE) !== "admin" ?  */}
+                <form className="header_form">
                   <input
                     onKeyDown={handleEnter}
                     // type="number"
@@ -180,7 +181,8 @@ const Header = () => {
                   >
                     Find Details
                   </Link>
-                </form> : null}
+                </form> 
+                {/* : null} */}
 
                 <button
                   className="btn btn-primary ms-5"

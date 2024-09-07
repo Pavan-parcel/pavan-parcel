@@ -587,7 +587,7 @@ const Table = () => {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            {type === "general" ? "General" : type === "dispatch" ? "Dispatch" : type === "deliver" ? "Deliver" : ""}
+            {type === "general" ? "General" : type === "dispatch" ? "Deliver" :  ""}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -687,7 +687,7 @@ const Table = () => {
                   : getGeneralData()
             }
           >
-            {type === "general" ? "Create General" : type === "dispatch" ? "Show Dispatch" : type === "deliver" ? "Show Deliver" : ""}
+            {type === "general" ? "Create General" : type === "dispatch" ? "Show Deliver" : ""}
           </Button>
           <Button onClick={props.onHide}>Close</Button>
         </Modal.Footer>
@@ -718,7 +718,7 @@ const Table = () => {
                 setDispatchModal(true);
               }}
             >
-              Dispatch
+              Deliver
             </Button>
             {/* <Button
               variant="primary"
@@ -849,7 +849,7 @@ const DispatchModal = ({ show, onHide }) => {
         return;  
       }
       setError("");
-      navigate("/lr", { state: { data: data, is_dispatched: true } });
+      navigate("/lr", { state: { data: data, is_dispatched: data[0]?.is_dispatched } });
     } else {
       setError("Couldn't find data for that")
       console.log("error: ", error);
@@ -865,7 +865,7 @@ const DispatchModal = ({ show, onHide }) => {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Dispatch
+          Deliver
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -885,7 +885,7 @@ const DispatchModal = ({ show, onHide }) => {
             getLrData();
           }}
         >
-          Dispatch
+          Deliver
         </Button>
       </Modal.Footer>
     </Modal>

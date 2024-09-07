@@ -566,7 +566,7 @@ const LrEdit = () => {
                   </div>
                 </div>
 
-                {is_dispatched ? <div className="row justify-between align-end mt-30">
+                {!is_dispatched ? <div className="row justify-between align-end mt-30">
                   <div className="col-25">
                     <div className="form_control_wrapper">
                       <label>Handover person name</label>
@@ -614,7 +614,7 @@ const LrEdit = () => {
                         dispatchParcel();
                       }}
                     >
-                      Dispatch
+                      Deliver
                     </button>
                   </div>
                 </div> : null}
