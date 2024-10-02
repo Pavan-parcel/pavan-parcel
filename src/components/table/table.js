@@ -365,12 +365,10 @@ const Table = () => {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
-            .lt(
-              "created_at",
-              moment(endDate).add(1, "day").format("YYYY-MM-DD")
-            )
-            .gte("created_at", moment(startDate).format("YYYY-MM-DD"));
+            .gte("created_at", moment(startDate).startOf('day').toISOString())
+            .lt("created_at", moment(endDate).add(1, 'day').startOf('day').toISOString());
           if (!error) {
+            // console.log("data: ", data.map(item => moment(item.created_at).format("DD-MM-YYYY hh:mm a")));
             const filteredShipments = data.filter((shipment) => {
               return selectedBranches.some(
                 (branch) => branch.branch_name === shipment.branch
@@ -475,11 +473,11 @@ const Table = () => {
         // }
       } else {
         if (type === "general") {
-          const { data, error } = await supabase.from("parcels").select("*");
+          const { data } = await supabase.from("parcels").select("*");
           let particularDateData = data.filter(
-            (parcel) =>
-              new Date(parcel.created_at).toLocaleDateString() ===
-              new Date(startDate).toLocaleDateString()
+            (parcel) => moment(startDate).get("date") === moment(parcel?.created_at).get("date") && moment(startDate).get("month") === moment(parcel?.created_at).get("month")
+              // new Date(parcel.created_at).toLocaleDateString() ===
+              // new Date(startDate).toLocaleDateString()
           );
 
           const filteredShipments = particularDateData.filter((shipment) => {
@@ -487,6 +485,7 @@ const Table = () => {
               (branch) => branch.branch_name === shipment.branch
             );
           });
+          // const finalFiltered = filteredShipments;
           // console.log("actual data: ", filteredShipments)
           const finalFiltered = filteredShipments.filter((shipment) => {
             return selectedPlaceToSend.some(
