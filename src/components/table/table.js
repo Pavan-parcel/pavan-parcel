@@ -48,6 +48,14 @@ const Table = () => {
             new Date().toLocaleDateString()
         );
         setData(filteredData);
+      } else if(localStorage.getItem(CONSTANTS.BRANCH) === "Mumbai Borivali (BO)"){
+        const filteredData = data.filter(
+          (item) =>
+            new Date(item?.created_at).toLocaleDateString() ===
+            new Date().toLocaleDateString() &&
+            item.branch?.includes("Mumbai")
+        );
+        setData(filteredData);
       } else {
         const filteredData = data.filter(
           (item) =>
