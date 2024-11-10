@@ -142,7 +142,7 @@ const Table = () => {
     const getBranches = async () => {
       const { data, error } = await supabase.from("branches").select("*");
       if (!error) {
-        console.log("branches: ", data);
+        // console.log("branches: ", data);
         setBranches(data?.filter(item => item.type !== "admin"));
       } else {
         console.log("error: ", error);
