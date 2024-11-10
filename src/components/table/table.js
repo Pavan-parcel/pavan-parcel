@@ -142,7 +142,7 @@ const Table = () => {
     const getBranches = async () => {
       const { data, error } = await supabase.from("branches").select("*");
       if (!error) {
-        // console.log("data: ", data);
+        console.log("branches: ", data);
         setBranches(data?.filter(item => item.type !== "admin"));
       } else {
         console.log("error: ", error);
@@ -644,7 +644,18 @@ const Table = () => {
                     value={selectedBranches}
                     onChange={(value) => setSelectedBranches(value)}
                   />
-                ) : (
+                ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BO)") ? (
+                  <Select
+                    options={branches?.filter(branch => branch?.branch_name?.includes("Mumbai"))}
+                    getOptionLabel={(option) => `${option.branch_name}`}
+                    getOptionValue={(option) => `${option.branch_name}`}
+                    isMulti
+                    isSearchable={true}
+                    value={selectedBranches}
+                    onChange={(value) => setSelectedBranches(value)}
+                  />
+                )
+                : (
                   <select
                     name=""
                     id=""
@@ -657,7 +668,13 @@ const Table = () => {
                   </select>
                 )}
                 <div className="text-center mt-2">
-                  <Button onClick={() => setSelectedBranches(branches)}>
+                  <Button onClick={() => {
+                    if(localStorage.getItem(CONSTANTS.BRANCH)?.includes("Mumbai")){
+                      setSelectedBranches(branches?.filter(branch => branch?.branch_name?.includes("Mumbai")))
+                    } else {
+                      setSelectedBranches(branches)
+                    }
+                  }}>
                     Select All
                   </Button>
                 </div>
@@ -691,6 +708,8 @@ const Table = () => {
                 ? getMainBranchData()
                 : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
                   ? getMainBranchData()
+                  : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BO)") ?
+                  getMainBranchData()
                   : getGeneralData()
             }
           >
