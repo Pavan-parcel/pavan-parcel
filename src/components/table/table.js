@@ -646,7 +646,7 @@ const Table = () => {
                   />
                 ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BO)") ? (
                   <Select
-                    options={branches?.filter(branch => branch?.branch_name?.includes("Mumbai"))}
+                    options={branches?.filter(branch => branch?.branch_name?.includes("Mumbai") || branch?.branch_name?.includes("Sahara") || branch?.branch_name?.includes(("Hirabagh")))}
                     getOptionLabel={(option) => `${option.branch_name}`}
                     getOptionValue={(option) => `${option.branch_name}`}
                     isMulti
