@@ -6,7 +6,6 @@ import supabase from "../../supabase/supabaseClient";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { CONSTANTS } from "../../utils/contants";
-import { Document } from "../../general/document";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment";
 import { Link, useNavigate } from "react-router-dom";
