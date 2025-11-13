@@ -83,6 +83,12 @@ const Admin = () => {
           branch = "PU/";
         } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(LI)")) {
           branch = "LI/";
+        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BP)")) {
+          branch = "BP/";
+        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(PL)")) {
+          branch = "PL/";
+        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(ST)")) {
+          branch = "ST/";
         }
 
         const { data, error } = await supabase

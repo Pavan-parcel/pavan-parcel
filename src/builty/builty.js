@@ -24,6 +24,12 @@ const Builty = forwardRef((props, ref) => {
     branch = "PU/";
   } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(LI)")) {
     branch = "LI/";
+  } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BP)")) {
+    branch = "BP/";
+  }else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(PL)")) {
+    branch = "PL/";
+  }else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(ST)")) {
+    branch = "ST/";
   }
   return (
     <div ref={ref} className="builty_table">
