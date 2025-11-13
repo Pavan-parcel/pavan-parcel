@@ -122,12 +122,12 @@ const Manual = () => {
             branch = "PU/";
           } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(LI)")) {
             branch = "LI/";
-          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BP)")) {
-            branch = "BP/";
-          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(PL)")) {
-            branch = "PL/";
-          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(ST)")) {
-            branch = "ST/";
+          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)")) {
+            branch = "BA/";
+          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(PA)")) {
+            branch = "PA/";
+          } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SET)")) {
+            branch = "SET/";
           }
           const addManual = await supabase.from("parcels").insert({
             ...values,

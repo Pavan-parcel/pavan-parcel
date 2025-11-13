@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from "../../images/pavan_logo.jpeg";
+import logo from "../../images/savan-logo.png";
 import "./header.sass";
 import { Link, useNavigate } from "react-router-dom";
 import { CONSTANTS, UTILS } from "../../utils/contants";
@@ -143,7 +143,7 @@ const Header = () => {
               <div className="d-flex align-center gap">
                 <div className="zn__header-logo">
                   <Link to="/">
-                    <img src={logo} alt="logo" />
+                    <img src={logo} alt="logo" width={60} />
                   </Link>
                 </div>
                 <nav className="zn__header-menu">

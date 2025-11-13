@@ -644,7 +644,18 @@ const Table = () => {
                     value={selectedBranches}
                     onChange={(value) => setSelectedBranches(value)}
                   />
-                ) : (
+                ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)") ? (
+                  <Select
+                    options={branches}
+                    getOptionLabel={(option) => `${option.branch_name}`}
+                    getOptionValue={(option) => `${option.branch_name}`}
+                    isMulti
+                    isSearchable={true}
+                    value={selectedBranches}
+                    onChange={(value) => setSelectedBranches(value)}
+                  />
+                )
+                 : (
                   <select
                     name=""
                     id=""
