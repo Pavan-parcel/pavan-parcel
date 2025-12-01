@@ -30,14 +30,11 @@ const Admin = () => {
       .max(10, "Maximum 10 numbers only!")
       .min(10, "Minimum 10 numbers!"),
     item_detail: Yup.string().required("Please select item detail"),
-    // color: Yup.string().required("Please select item color"),
     quantity: Yup.string().required("Please enter qunatity"),
     rate: Yup.string().required("Please enter rate"),
     total_amount: Yup.string().required("Please enter total amount"),
     payment_type: Yup.string().required("Please select Payment type"),
     place_to_send: Yup.string().required("Please select Place to Send"),
-    // remarks: Yup.string().required("Please enter remarks"),
-    // driver: Yup.string().required("Please enter driver number"),
   });
 
   const formik = useFormik({
@@ -53,71 +50,75 @@ const Admin = () => {
       payment_type: "",
       total_amount: "",
       place_to_send: "",
+      address: "", // 👈 only in React, not in DB
       remarks: "",
     },
     validationSchema: validate,
     onSubmit: async (values) => {
       setLoading(true);
-      // console.log("values: ", values)
-      const form = await supabase
-        .from("forms")
-        .select("*")
-        .eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
-      if (form.data) {
-        let branch = "";
-        if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")) {
-          branch = "HO/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("SA")) {
-          branch = "SA/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("KA")) {
-          branch = "KA/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BHI)")) {
-          branch = "BHI/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BO)")) {
-          branch = "BO/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(GH)")) {
-          branch = "GH/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(AN)")) {
-          branch = "AN/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(PU)")) {
-          branch = "PU/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(LI)")) {
-          branch = "LI/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)")) {
-          branch = "BA/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(PA)")) {
-          branch = "PA/";
-        } else if (localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SET)")) {
-          branch = "SET/";
+      try {
+        const form = await supabase
+          .from("forms")
+          .select("*")
+          .eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
+
+        if (!form.data || form.data.length === 0) {
+          throw new Error("Form config not found");
         }
 
-        const { data, error } = await supabase
+        // branch prefix for receipt no
+        let branchPrefix = "";
+        const branchStr = localStorage.getItem(CONSTANTS.BRANCH) || "";
+        if (branchStr.includes("(HO)")) branchPrefix = "HO/";
+        else if (branchStr.includes("SA")) branchPrefix = "SA/";
+        else if (branchStr.includes("KA")) branchPrefix = "KA/";
+        else if (branchStr.includes("(BHI)")) branchPrefix = "BHI/";
+        else if (branchStr.includes("(BO)")) branchPrefix = "BO/";
+        else if (branchStr.includes("(GH)")) branchPrefix = "GH/";
+        else if (branchStr.includes("(AN)")) branchPrefix = "AN/";
+        else if (branchStr.includes("(PU)")) branchPrefix = "PU/";
+        else if (branchStr.includes("(LI)")) branchPrefix = "LI/";
+        else if (branchStr.includes("(BA)")) branchPrefix = "BA/";
+        else if (branchStr.includes("(PA)")) branchPrefix = "PA/";
+        else if (branchStr.includes("(SET)")) branchPrefix = "SET/";
+
+        const currentFormNo = form.data[0]?.form_no;
+
+        // ❌ we DON'T want to send "address" to parcels (no such column)
+        const { address, ...restValues } = values;
+
+        const { data: inserted, error } = await supabase
           .from("parcels")
           .insert({
-            ...values,
-            id: form.data[0]?.form_no,
-            receipt_no: branch + form.data[0]?.form_no,
+            ...restValues, // everything except address
+            id: currentFormNo,
+            receipt_no: branchPrefix + currentFormNo,
             total_amount: Number(values.total_amount) + 10,
             branch: localStorage.getItem(CONSTANTS.BRANCH),
+            // address is NOT sent, because parcels table doesn't have it
           })
           .select("*");
-        if (!error) {
-          // console.log("data: ", data);
-          let count = form.data[0]?.form_no;
-          console.log("count: ", count);
-          const formUpdate = await supabase
-            .from("forms")
-            .update({ form_no: count + 1 })
-            .eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
-          if (formUpdate.data) {
-          } else {
-            console.log("eror: ", formUpdate.error);
-          }
-          setData(data);
-        } else {
-          console.log("error: ", error);
-          throw new Error(error);
+
+        if (error) {
+          console.log("insert error: ", error);
+          throw new Error(error.message);
         }
+
+        // update form no
+        const { error: updateErr } = await supabase
+          .from("forms")
+          .update({ form_no: currentFormNo + 1 })
+          .eq("branch_name", localStorage.getItem(CONSTANTS.BRANCH));
+
+        if (updateErr) {
+          console.log("form update error: ", updateErr);
+        }
+
+        setData(inserted || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     },
   });
@@ -136,31 +137,29 @@ const Admin = () => {
     if (data.length > 0) {
       handlePrint();
 
-      // Delay the page reload
       setTimeout(() => {
-        // setLoading(false);
         window.location.reload();
       }, 1000);
-      // setData([])
     }
-  }, [data]);
+  }, [data, handlePrint]);
 
+  // 🔹 Get from place_to_send (has place_to_send + address)
   const getBranches = async () => {
-    const access = await supabase.from("access_branch").select("*").eq("branch", localStorage.getItem(CONSTANTS.BRANCH_ID));
-      if(!access.error){
-        if(access.data.length > 0){
-          let data = JSON.parse(access.data[0].places);
-          setBranches(data.map(branch => ({place_to_send: branch})));
-        }
-      } else {
-      console.log("error: ", access.error);
+    const { data, error } = await supabase
+      .from("place_to_send")
+      .select("id, place_to_send, address")
+      .order("id", { ascending: true });
+
+    if (!error) {
+      setBranches(data || []);
+    } else {
+      console.log("error: ", error);
     }
   };
 
   const getItems = async () => {
     const { data, error } = await supabase.from("items").select("*");
     if (!error) {
-      //   console.log("data: ", data);
       setItems(data);
     } else {
       console.log("error: ", error);
@@ -195,11 +194,28 @@ const Admin = () => {
     }
   }
 
+  const handlePlaceChange = (e) => {
+    const val = e.target.value;
+    formik.setFieldValue("place_to_send", val);
+
+    // 🔹 find selected branch and set address into formik (for printing)
+    const branchObj = branches.find((b) => b.place_to_send === val);
+    const addr = branchObj?.address || "";
+    console.log("Branch OBJ", branchObj);
+    formik.setFieldValue("address", addr);
+  };
+
   return (
     <section className="pt__admin">
+      {/* Builty will get address from formik (NOT from parcels table) */}
       <div className="d-none">
-        <Builty ref={builtyRef} data={data} />
+        <Builty
+          ref={builtyRef}
+          data={data}
+          address={formik.values.address} // 👈 comes from place_to_send via handlePlaceChange
+        />
       </div>
+
       <form onSubmit={formik.handleSubmit}>
         <div className="container">
           <div className="row">
@@ -238,6 +254,7 @@ const Admin = () => {
                     </ul>
                   </div>
                 </div>
+
                 <div className="row m-15 justify-between">
                   <div className="col-8">
                     <div className="form_control_wrapper">
@@ -245,15 +262,17 @@ const Admin = () => {
                       <select
                         onKeyDown={handleEnter}
                         name="place_to_send"
-                        id="cars"
                         value={formik.values.place_to_send}
-                        onChange={formik.handleChange}
+                        onChange={handlePlaceChange} // 👈 custom handler
                       >
                         <option value="">Select Place to Send...</option>
                         {branches &&
                           branches.map((branch) => (
-                            <option value={branch?.place_to_send}>
-                              {branch?.place_to_send}
+                            <option
+                              key={branch.id}
+                              value={branch.place_to_send}
+                            >
+                              {branch.place_to_send}
                             </option>
                           ))}
                       </select>
@@ -266,6 +285,7 @@ const Admin = () => {
                     </div>
                   </div>
                 </div>
+
                 <div className="row justify-between">
                   <div className="col-30">
                     <div className="form_control_wrapper">
@@ -342,6 +362,7 @@ const Admin = () => {
                     </div>
                   </div>
                 </div>
+
                 <div className="row justify-between mt-30">
                   <div className="col-30">
                     <div className="form_control_wrapper">
@@ -349,15 +370,14 @@ const Admin = () => {
                       <select
                         onKeyDown={handleEnter}
                         name="item_detail"
-                        id="cars"
                         value={formik.values.item_detail}
                         onChange={formik.handleChange}
                       >
                         <option value="">Select Item detail...</option>
                         {items &&
                           items.map((item) => (
-                            <option value={item?.item_name}>
-                              {item?.item_name}
+                            <option key={item.id} value={item.item_name}>
+                              {item.item_name}
                             </option>
                           ))}
                       </select>
@@ -369,26 +389,8 @@ const Admin = () => {
                         )}
                     </div>
                   </div>
-                  {/* <div className="col-30">
-                    <div className="form_control_wrapper">
-                      <label>Colors</label>
-                      <select
-                        onKeyDown={handleEnter}
-                        name="color"
-                        id="color"
-                        value={formik.values.color}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Color...</option>
-                        {colors &&
-                          colors.map((item) => (
-                            <option value={item?.color}>{item?.color}</option>
-                          ))}
-                      </select>
-                      
-                    </div>
-                  </div> */}
                 </div>
+
                 <div className="row justify-between mt-30">
                   <div className="col-25">
                     <div className="form_control_wrapper">
@@ -400,11 +402,12 @@ const Admin = () => {
                         value={formik.values.quantity}
                         onChange={formik.handleChange}
                       />
-                      {formik.touched.quantity && formik.errors.quantity && (
-                        <div className="text-danger">
-                          {formik.errors.quantity}
-                        </div>
-                      )}
+                      {formik.touched.quantity &&
+                        formik.errors.quantity && (
+                          <div className="text-danger">
+                            {formik.errors.quantity}
+                          </div>
+                        )}
                     </div>
                   </div>
                   <div className="col-25">
@@ -424,7 +427,9 @@ const Admin = () => {
                         }}
                       />
                       {formik.touched.rate && formik.errors.rate && (
-                        <div className="text-danger">{formik.errors.rate}</div>
+                        <div className="text-danger">
+                          {formik.errors.rate}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -481,9 +486,6 @@ const Admin = () => {
                         value={formik.values.remarks}
                         onChange={formik.handleChange}
                       />
-                      {/* {
-                                    formik.errors.remarks && <div className='text-danger'>{formik.errors.remarks}</div>
-                                } */}
                     </div>
                   </div>
                   <div className="col-4 d-flex justify-content-end align-items-center text-end">
@@ -496,37 +498,40 @@ const Admin = () => {
                       {loading ? "Please wait" : "Print and Save"}
                       {loading && <Loader />}
                     </button>
-                    
                   </div>
                 </div>
               </div>
             </div>
+
             <div className="col-25">
               <div className="pt__admin_charges">
                 <table>
-                  <tr>
-                    <th width="50">Charges</th>
-                    <th width="50"></th>
-                  </tr>
-                  <tr>
-                    <td>Freight</td>
-                    <td>{formik.values.total_amount || 0}</td>
-                  </tr>
-                  <tr>
-                    <td>LR Charge</td>
-                    <td>10</td>
-                  </tr>
-                  <tr>
-                    <td>Total</td>
-                    <td>{Number(formik.values.total_amount) + 10}</td>
-                  </tr>
-                  <tr>
-                    <td>Grand Total</td>
-                    <td>{Number(formik.values.total_amount) + 10}</td>
-                  </tr>
+                  <tbody>
+                    <tr>
+                      <th width="50">Charges</th>
+                      <th width="50"></th>
+                    </tr>
+                    <tr>
+                      <td>Freight</td>
+                      <td>{formik.values.total_amount || 0}</td>
+                    </tr>
+                    <tr>
+                      <td>LR Charge</td>
+                      <td>10</td>
+                    </tr>
+                    <tr>
+                      <td>Total</td>
+                      <td>{Number(formik.values.total_amount) + 10}</td>
+                    </tr>
+                    <tr>
+                      <td>Grand Total</td>
+                      <td>{Number(formik.values.total_amount) + 10}</td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             </div>
+
           </div>
         </div>
       </form>

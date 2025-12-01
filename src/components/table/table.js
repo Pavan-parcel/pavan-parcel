@@ -47,19 +47,20 @@ const Table = () => {
             new Date().toLocaleDateString()
         );
         setData(filteredData);
-      } else if(localStorage.getItem(CONSTANTS.BRANCH) === "Mumbai Borivali (BO)"){
+      } else if (
+        localStorage.getItem(CONSTANTS.BRANCH) === "Mumbai Borivali (BO)"
+      ) {
         const filteredData = data.filter(
           (item) =>
             new Date(item?.created_at).toLocaleDateString() ===
-            new Date().toLocaleDateString() &&
-            item.branch?.includes("Mumbai")
+              new Date().toLocaleDateString() && item.branch?.includes("Mumbai")
         );
         setData(filteredData);
       } else {
         const filteredData = data.filter(
           (item) =>
             new Date(item?.created_at).toLocaleDateString() ===
-            new Date().toLocaleDateString() &&
+              new Date().toLocaleDateString() &&
             item.branch === localStorage.getItem(CONSTANTS.BRANCH)
         );
         setData(filteredData);
@@ -142,7 +143,7 @@ const Table = () => {
       const { data, error } = await supabase.from("branches").select("*");
       if (!error) {
         // console.log("data: ", data);
-        setBranches(data?.filter(item => item.type !== "admin"));
+        setBranches(data?.filter((item) => item.type !== "admin"));
       } else {
         console.log("error: ", error);
       }
@@ -157,15 +158,18 @@ const Table = () => {
       //   console.log("error: ", error);
       // }
 
-      const access = await supabase.from("access_branch").select("*").eq("branch", localStorage.getItem(CONSTANTS.BRANCH_ID));
-      if(!access.error){
-        if(access.data.length > 0){
+      const access = await supabase
+        .from("access_branch")
+        .select("*")
+        .eq("branch", localStorage.getItem(CONSTANTS.BRANCH_ID));
+      if (!access.error) {
+        if (access.data.length > 0) {
           let data = JSON.parse(access.data[0].places);
-          setPlaceToSend(data.map(branch => ({place_to_send: branch})));
+          setPlaceToSend(data.map((branch) => ({ place_to_send: branch })));
         }
       } else {
-      console.log("error: ", access.error);
-    }
+        console.log("error: ", access.error);
+      }
     };
 
     const getGeneralData = async () => {
@@ -372,8 +376,11 @@ const Table = () => {
           const { data, error } = await supabase
             .from("parcels")
             .select("*")
-            .gte("created_at", moment(startDate).startOf('day').toISOString())
-            .lt("created_at", moment(endDate).add(1, 'day').startOf('day').toISOString());
+            .gte("created_at", moment(startDate).startOf("day").toISOString())
+            .lt(
+              "created_at",
+              moment(endDate).add(1, "day").startOf("day").toISOString()
+            );
           if (!error) {
             // console.log("data: ", data.map(item => moment(item.created_at).format("DD-MM-YYYY hh:mm a")));
             const filteredShipments = data.filter((shipment) => {
@@ -482,9 +489,13 @@ const Table = () => {
         if (type === "general") {
           const { data } = await supabase.from("parcels").select("*");
           let particularDateData = data.filter(
-            (parcel) => moment(startDate).get("date") === moment(parcel?.created_at).get("date") && moment(startDate).get("month") === moment(parcel?.created_at).get("month")
-              // new Date(parcel.created_at).toLocaleDateString() ===
-              // new Date(startDate).toLocaleDateString()
+            (parcel) =>
+              moment(startDate).get("date") ===
+                moment(parcel?.created_at).get("date") &&
+              moment(startDate).get("month") ===
+                moment(parcel?.created_at).get("month")
+            // new Date(parcel.created_at).toLocaleDateString() ===
+            // new Date(startDate).toLocaleDateString()
           );
 
           const filteredShipments = particularDateData.filter((shipment) => {
@@ -593,7 +604,11 @@ const Table = () => {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            {type === "general" ? "General" : type === "dispatch" ? "Deliver" :  ""}
+            {type === "general"
+              ? "General"
+              : type === "dispatch"
+              ? "Deliver"
+              : ""}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -653,8 +668,7 @@ const Table = () => {
                     value={selectedBranches}
                     onChange={(value) => setSelectedBranches(value)}
                   />
-                )
-                 : (
+                ) : (
                   <select
                     name=""
                     id=""
@@ -700,11 +714,15 @@ const Table = () => {
               localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
                 ? getMainBranchData()
                 : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
-                  ? getMainBranchData()
-                  : getGeneralData()
+                ? getMainBranchData()
+                : getGeneralData()
             }
           >
-            {type === "general" ? "Create General" : type === "dispatch" ? "Show Deliver" : ""}
+            {type === "general"
+              ? "Create General"
+              : type === "dispatch"
+              ? "Show Deliver"
+              : ""}
           </Button>
           <Button onClick={props.onHide}>Close</Button>
         </Modal.Footer>
@@ -861,17 +879,19 @@ const DispatchModal = ({ show, onHide }) => {
       .eq("receipt_no", lr);
     if (!error) {
       console.log("data: ", data);
-      if(data?.length === 0){
+      if (data?.length === 0) {
         setError("Couldn't find data for that");
-        return;  
+        return;
       }
       setError("");
-      navigate("/lr", { state: { data: data, is_dispatched: data[0]?.is_dispatched } });
+      navigate("/lr", {
+        state: { data: data, is_dispatched: data[0]?.is_dispatched },
+      });
     } else {
-      setError("Couldn't find data for that")
+      setError("Couldn't find data for that");
       console.log("error: ", error);
     }
-  }
+  };
   return (
     <Modal
       show={show}
@@ -881,16 +901,14 @@ const DispatchModal = ({ show, onHide }) => {
       centered
     >
       <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Deliver
-        </Modal.Title>
+        <Modal.Title id="contained-modal-title-vcenter">Deliver</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <input
           className="form-control border"
           placeholder="Enter LR Number"
           value={lr}
-          onChange={e => setLr(e.target.value)}
+          onChange={(e) => setLr(e.target.value)}
         />
         {error && <div className="text-danger">{error}</div>}
       </Modal.Body>
@@ -906,5 +924,5 @@ const DispatchModal = ({ show, onHide }) => {
         </Button>
       </Modal.Footer>
     </Modal>
-  )
-}
+  );
+};

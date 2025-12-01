@@ -17,6 +17,9 @@ const AdminSidebar = () => {
                 <li>
                     <Link to="/setting/access">Access to Places </Link>
                 </li>
+                <li>
+                    <Link to="/setting/address">Address</Link>
+                </li>
             </ul>
         </div>
     )

@@ -15,6 +15,7 @@ import LrEdit from "./components/LrEdit/LrEdit";
 import Manual from "./components/manual/manual";
 import Access from "./components/access/access";
 import { Toaster } from 'react-hot-toast';
+import Address from "./components/address/Address";
 
 function App() {
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ function App() {
         <Route path="/setting/color" element={<ColorTable />} />
         <Route path="/setting/sendplace" element={<SendPlacetable />} />
         <Route path="/setting/access" element={<Access />} />
+        <Route path="/setting/address" element={<Address />} />
           <Route path="/lr" element={<LrEdit />} />
         <Route path="*" element={<Navigate to={"/setting/items"} />} />
           </>
