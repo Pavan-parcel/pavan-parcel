@@ -47,8 +47,7 @@ const Table = () => {
             new Date().toLocaleDateString()
         );
         setData(filteredData);
-      } 
-      else if (
+      } else if (
         localStorage.getItem(CONSTANTS.BRANCH) === "Mumbai Borivali (BO)"
       ) {
         const filteredData = data.filter(
@@ -57,8 +56,7 @@ const Table = () => {
               new Date().toLocaleDateString() && item.branch?.includes("Mumbai")
         );
         setData(filteredData);
-      } 
-      else {
+      } else {
         const filteredData = data.filter(
           (item) =>
             new Date(item?.created_at).toLocaleDateString() ===
@@ -716,8 +714,6 @@ const Table = () => {
               localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
                 ? getMainBranchData()
                 : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
-                ? getMainBranchData()
-                : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)")
                 ? getMainBranchData()
                 : getGeneralData()
             }

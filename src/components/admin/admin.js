@@ -15,7 +15,7 @@ const Admin = () => {
   const [colors, setColors] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  console.log("BRANCHES ADMIN>>", branches);
   const builtyRef = useRef();
 
   const validate = Yup.object().shape({
@@ -145,16 +145,66 @@ const Admin = () => {
 
   // 🔹 Get from place_to_send (has place_to_send + address)
   const getBranches = async () => {
-    const { data, error } = await supabase
-      .from("place_to_send")
-      .select("id, place_to_send, address")
-      .order("id", { ascending: true });
+    const branchId = localStorage.getItem(CONSTANTS.BRANCH_ID);
 
-    if (!error) {
-      setBranches(data || []);
-    } else {
+    const { data, error } = await supabase
+      .from("access_branch")
+      .select("places")
+      .eq("branch", branchId);
+
+    if (error) {
       console.log("error: ", error);
+      setBranches([]);
+      return;
     }
+
+    if (!data || data.length === 0) {
+      setBranches([]);
+      return;
+    }
+
+    const rawPlaces = data[0].places;
+    console.log("RAW PLACES FROM DB >>", rawPlaces);
+
+    let list = [];
+
+    if (Array.isArray(rawPlaces)) {
+      // Your case: [ "[\"RAJKOT...\",\"AHMEDABAD...\"]" ]
+      if (
+        rawPlaces.length === 1 &&
+        typeof rawPlaces[0] === "string" &&
+        rawPlaces[0].trim().startsWith("[")
+      ) {
+        // parse the JSON string inside the array
+        try {
+          const parsed = JSON.parse(rawPlaces[0]);
+          if (Array.isArray(parsed)) {
+            list = parsed;
+          } else {
+            list = [rawPlaces[0]];
+          }
+        } catch (e) {
+          console.error("Failed to parse places JSON string:", e);
+          list = rawPlaces;
+        }
+      } else {
+        // normal array of strings
+        list = rawPlaces;
+      }
+    } else if (typeof rawPlaces === "string") {
+      // just in case it's a plain JSON string without outer array
+      try {
+        const parsed = JSON.parse(rawPlaces);
+        list = Array.isArray(parsed) ? parsed : [rawPlaces];
+      } catch {
+        list = [rawPlaces];
+      }
+    } else {
+      list = [];
+    }
+
+    console.log("FINAL PLACES LIST >>", list);
+    setBranches(list);
   };
 
   const getItems = async () => {
@@ -194,15 +244,27 @@ const Admin = () => {
     }
   }
 
-  const handlePlaceChange = (e) => {
+  const handlePlaceChange = async (e) => {
     const val = e.target.value;
     formik.setFieldValue("place_to_send", val);
 
-    // 🔹 find selected branch and set address into formik (for printing)
-    const branchObj = branches.find((b) => b.place_to_send === val);
-    const addr = branchObj?.address || "";
-    console.log("Branch OBJ", branchObj);
-    formik.setFieldValue("address", addr);
+    try {
+      const { data, error } = await supabase
+        .from("place_to_send")
+        .select("address")
+        .eq("place_to_send", val)
+        .maybeSingle();
+
+      if (!error && data) {
+        console.log("ADDRESS FROM place_to_send >>", data.address);
+        formik.setFieldValue("address", data.address || "");
+      } else {
+        formik.setFieldValue("address", "");
+      }
+    } catch (err) {
+      console.error("Error fetching address for place:", err);
+      formik.setFieldValue("address", "");
+    }
   };
 
   return (
@@ -263,16 +325,13 @@ const Admin = () => {
                         onKeyDown={handleEnter}
                         name="place_to_send"
                         value={formik.values.place_to_send}
-                        onChange={handlePlaceChange} // 👈 custom handler
+                        onChange={handlePlaceChange}
                       >
                         <option value="">Select Place to Send...</option>
-                        {branches &&
-                          branches.map((branch) => (
-                            <option
-                              key={branch.id}
-                              value={branch.place_to_send}
-                            >
-                              {branch.place_to_send}
+                        {Array.isArray(branches) &&
+                          branches.map((place, idx) => (
+                            <option key={idx} value={place}>
+                              {place}
                             </option>
                           ))}
                       </select>
@@ -402,12 +461,11 @@ const Admin = () => {
                         value={formik.values.quantity}
                         onChange={formik.handleChange}
                       />
-                      {formik.touched.quantity &&
-                        formik.errors.quantity && (
-                          <div className="text-danger">
-                            {formik.errors.quantity}
-                          </div>
-                        )}
+                      {formik.touched.quantity && formik.errors.quantity && (
+                        <div className="text-danger">
+                          {formik.errors.quantity}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="col-25">
@@ -427,9 +485,7 @@ const Admin = () => {
                         }}
                       />
                       {formik.touched.rate && formik.errors.rate && (
-                        <div className="text-danger">
-                          {formik.errors.rate}
-                        </div>
+                        <div className="text-danger">{formik.errors.rate}</div>
                       )}
                     </div>
                   </div>
@@ -531,7 +587,6 @@ const Admin = () => {
                 </table>
               </div>
             </div>
-
           </div>
         </div>
       </form>

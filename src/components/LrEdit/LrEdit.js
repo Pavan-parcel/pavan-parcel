@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./LrEdit.sass";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -11,60 +11,197 @@ import moment from "moment";
 
 const LrEdit = () => {
   const { state } = useLocation();
-  const data = state?.data;
+  const data = state?.data || [];
   const is_dispatched = state?.is_dispatched;
+
   const [updateData, setUpdateData] = useState([]);
-
-  const navigate = useNavigate();
-
+  const [selectedBranch, setSelectedBranch] = useState({});
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
   const [colors, setColors] = useState([]);
+  const [initialAddressSet, setInitialAddressSet] = useState(false);
 
+  const navigate = useNavigate();
   const builtyRef = useRef();
 
   const handlePrint = useReactToPrint({
     content: () => builtyRef.current,
   });
 
+  // (Optional) debug only
   useEffect(() => {
-    getBranches();
-    getItems();
-    getColors();
-    formik.setFieldValue("sender_name", data[0]?.sender_name);
-    formik.setFieldValue("sender_number", data[0]?.sender_number);
-    formik.setFieldValue("receiver_name", data[0]?.receiver_name);
-    formik.setFieldValue("receiver_number", data[0]?.receiver_number);
-    formik.setFieldValue("item_detail", data[0]?.item_detail);
-    formik.setFieldValue("color", data[0]?.color);
-    formik.setFieldValue("quantity", data[0]?.quantity);
-    formik.setFieldValue("rate", data[0]?.rate);
-    formik.setFieldValue("total_amount", Number(data[0]?.total_amount) - 10);
-    formik.setFieldValue("payment_type", data[0]?.payment_type);
-    formik.setFieldValue("place_to_send", data[0]?.place_to_send);
-    formik.setFieldValue("remarks", data[0]?.remarks);
-    formik.setFieldValue("is_dispatched", data[0]?.is_dispatched);
+    console.log("Selected Branch LR EDIT >>", selectedBranch);
+  }, [selectedBranch]);
+
+  const validate = is_dispatched
+    ? Yup.object().shape({
+        sender_name: Yup.string().required("Please enter Sender name"),
+        sender_number: Yup.string()
+          .required("Please enter Sender number")
+          .max(10, "Maximum 10 numbers only!")
+          .min(10, "Minimum 10 numbers!"),
+        receiver_name: Yup.string().required("Please enter Receiver name"),
+        receiver_number: Yup.string()
+          .required("Please enter Receiver number")
+          .max(10, "Maximum 10 numbers only!")
+          .min(10, "Minimum 10 numbers!"),
+        item_detail: Yup.string().required("Please select item detail"),
+        quantity: Yup.string().required("Please enter qunatity"),
+        rate: Yup.string().required("Please enter rate"),
+        total_amount: Yup.string().required("Please enter total amount"),
+        payment_type: Yup.string().required("Please select Payment type"),
+        place_to_send: Yup.string().required("Please select Place to Send"),
+        handover_person_name: Yup.string().required(
+          "Please enter handover person name"
+        ),
+        handover_person_number: Yup.string().required(
+          "Please enter handover person number"
+        ),
+      })
+    : Yup.object().shape({
+        sender_name: Yup.string().required("Please enter Sender name"),
+        sender_number: Yup.string()
+          .required("Please enter Sender number")
+          .max(10, "Maximum 10 numbers only!")
+          .min(10, "Minimum 10 numbers!"),
+        receiver_name: Yup.string().required("Please enter Receiver name"),
+        receiver_number: Yup.string()
+          .required("Please enter Receiver number")
+          .max(10, "Maximum 10 numbers only!")
+          .min(10, "Minimum 10 numbers!"),
+        item_detail: Yup.string().required("Please select item detail"),
+        quantity: Yup.string().required("Please enter qunatity"),
+        rate: Yup.string().required("Please enter rate"),
+        total_amount: Yup.string().required("Please enter total amount"),
+        payment_type: Yup.string().required("Please select Payment type"),
+        place_to_send: Yup.string().required("Please select Place to Send"),
+      });
+
+  const formik = useFormik({
+    initialValues: is_dispatched
+      ? {
+          sender_name: "",
+          sender_number: "",
+          receiver_name: "",
+          receiver_number: "",
+          item_detail: "",
+          color: "",
+          quantity: "",
+          rate: "",
+          payment_type: "",
+          total_amount: "",
+          place_to_send: "",
+          address: "", // only in formik, not DB
+          remarks: "",
+          is_dispatched: false,
+          handover_person_name: "",
+          handover_person_number: "",
+        }
+      : {
+          sender_name: "",
+          sender_number: "",
+          receiver_name: "",
+          receiver_number: "",
+          item_detail: "",
+          color: "",
+          quantity: "",
+          rate: "",
+          payment_type: "",
+          total_amount: "",
+          place_to_send: "",
+          address: "", // only in formik, not DB
+          remarks: "",
+          is_dispatched: false,
+        },
+    validationSchema: validate,
+    onSubmit: async (values) => {
+      // ⛔ Do NOT send address to DB (parcels has no address column)
+      const { address, ...rest } = values;
+
+      const { data: updated, error } = await supabase
+        .from("parcels")
+        .update({
+          ...rest,
+          total_amount: Number(rest.total_amount) + 10,
+        })
+        .eq("receipt_no", data?.[0]?.receipt_no)
+        .select("*");
+
+      if (!error) {
+        setUpdateData(updated);
+      } else {
+        console.log("update error: ", error);
+      }
+    },
+  });
+
+  // Initial load: fetch dropdown data + fill form fields
+  useEffect(() => {
+    const init = async () => {
+      await getBranches();
+      await getItems();
+      await getColors();
+
+      if (!data[0]) return;
+
+      formik.setFieldValue("sender_name", data[0]?.sender_name || "");
+      formik.setFieldValue("sender_number", data[0]?.sender_number || "");
+      formik.setFieldValue("receiver_name", data[0]?.receiver_name || "");
+      formik.setFieldValue("receiver_number", data[0]?.receiver_number || "");
+      formik.setFieldValue("item_detail", data[0]?.item_detail || "");
+      formik.setFieldValue("color", data[0]?.color || "");
+      formik.setFieldValue("quantity", data[0]?.quantity || "");
+      formik.setFieldValue("rate", data[0]?.rate || "");
+      formik.setFieldValue(
+        "total_amount",
+        data[0]?.total_amount ? Number(data[0]?.total_amount) - 10 : ""
+      );
+      formik.setFieldValue("payment_type", data[0]?.payment_type || "");
+      formik.setFieldValue("place_to_send", data[0]?.place_to_send || "");
+      formik.setFieldValue("remarks", data[0]?.remarks || "");
+      formik.setFieldValue("is_dispatched", data[0]?.is_dispatched || false);
+      formik.setFieldValue("address", data[0]?.address || ""); // will be "" since DB has no address
+    };
+
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Once branches are loaded, if address is still empty, derive it from place_to_send
+  useEffect(() => {
+    if (
+      !initialAddressSet &&
+      branches.length > 0 &&
+      data?.[0]?.place_to_send &&
+      !formik.values.address
+    ) {
+      const branchObj = branches.find(
+        (b) => b.place_to_send === data[0].place_to_send
+      );
+
+      if (branchObj) {
+        setSelectedBranch(branchObj);
+        // change branchObj.address if your place_to_send table uses another field name
+        formik.setFieldValue("address", branchObj.address || "");
+        setInitialAddressSet(true);
+      }
+    }
+  }, [branches, data, initialAddressSet, formik.values.address]);
+
+  // After successful update/dispatch, print and reload
   useEffect(() => {
     if (updateData.length > 0) {
       handlePrint();
-
-      // Delay the page reload
       setTimeout(() => {
         window.location.reload();
       }, 1000);
     }
-  }, [updateData]);
+  }, [updateData, handlePrint]);
 
   const getBranches = async () => {
     const { data, error } = await supabase.from("place_to_send").select("*");
     if (!error) {
-      //   console.log("data: ", data);
-      // let datas = data.filter(
-      //   (item) => item.branch_name !== localStorage.getItem(CONSTANTS.BRANCH)
-      // );
-      setBranches(data);
+      setBranches(data || []);
     } else {
       console.log("error: ", error);
     }
@@ -73,8 +210,7 @@ const LrEdit = () => {
   const getItems = async () => {
     const { data, error } = await supabase.from("items").select("*");
     if (!error) {
-      //   console.log("data: ", data);
-      setItems(data);
+      setItems(data || []);
     } else {
       console.log("error: ", error);
     }
@@ -83,120 +219,18 @@ const LrEdit = () => {
   const getColors = async () => {
     const { data, error } = await supabase.from("colors").select("*");
     if (!error) {
-      //   console.log("data: ", data);
-      setColors(data);
+      setColors(data || []);
     } else {
       console.log("error: ", error);
     }
   };
 
-  const validate = is_dispatched ?
-    Yup.object().shape({
-      sender_name: Yup.string().required("Please enter Sender name"),
-      sender_number: Yup.string()
-        .required("Please enter Sender number")
-        .max(10, "Maximum 10 numbers only!")
-        .min(10, "Minimum 10 numbers!"),
-      receiver_name: Yup.string().required("Please enter Receiver name"),
-      receiver_number: Yup.string()
-        .required("Please enter Receiver number")
-        .max(10, "Maximum 10 numbers only!")
-        .min(10, "Minimum 10 numbers!"),
-      item_detail: Yup.string().required("Please select item detail"),
-      // color: Yup.string().required("Please select item color"),
-      quantity: Yup.string().required("Please enter qunatity"),
-      rate: Yup.string().required("Please enter rate"),
-      total_amount: Yup.string().required("Please enter total amount"),
-      payment_type: Yup.string().required("Please select Payment type"),
-      place_to_send: Yup.string().required("Please select Place to Send"),
-      handover_person_name: Yup.string().required("Please enter handover person name"),
-      handover_person_number: Yup.string().required("Please enter handover person number"),
-      // remarks: Yup.string().required("Please enter remarks"),
-      // driver: Yup.string().required("Please enter driver number"),
-    })
-    :
-    Yup.object().shape({
-      sender_name: Yup.string().required("Please enter Sender name"),
-      sender_number: Yup.string()
-        .required("Please enter Sender number")
-        .max(10, "Maximum 10 numbers only!")
-        .min(10, "Minimum 10 numbers!"),
-      receiver_name: Yup.string().required("Please enter Receiver name"),
-      receiver_number: Yup.string()
-        .required("Please enter Receiver number")
-        .max(10, "Maximum 10 numbers only!")
-        .min(10, "Minimum 10 numbers!"),
-      item_detail: Yup.string().required("Please select item detail"),
-      // color: Yup.string().required("Please select item color"),
-      quantity: Yup.string().required("Please enter qunatity"),
-      rate: Yup.string().required("Please enter rate"),
-      total_amount: Yup.string().required("Please enter total amount"),
-      payment_type: Yup.string().required("Please select Payment type"),
-      place_to_send: Yup.string().required("Please select Place to Send"),
-      // remarks: Yup.string().required("Please enter remarks"),
-      // driver: Yup.string().required("Please enter driver number"),
-    });
-
-  const formik = useFormik({
-    initialValues: is_dispatched ? {
-      sender_name: "",
-      sender_number: "",
-      receiver_name: "",
-      receiver_number: "",
-      item_detail: "",
-      color: "",
-      quantity: "",
-      rate: "",
-      payment_type: "",
-      total_amount: "",
-      place_to_send: "",
-      remarks: "",
-      is_dispatched: false,
-      handover_person_name: "",
-      handover_person_number: "",
-    } : {
-      sender_name: "",
-      sender_number: "",
-      receiver_name: "",
-      receiver_number: "",
-      item_detail: "",
-      color: "",
-      quantity: "",
-      rate: "",
-      payment_type: "",
-      total_amount: "",
-      place_to_send: "",
-      remarks: "",
-      is_dispatched: false,
-      //   driver: "",
-    },
-    validationSchema: validate,
-    onSubmit: async (values) => {
-      //   console.log("values: ", values);
-      const { data, error } = await supabase
-        .from("parcels")
-        .update({
-          ...values,
-          total_amount: Number(formik.values.total_amount) + 10,
-        })
-        .eq("receipt_no", state?.data[0]?.receipt_no)
-        .select("*");
-      if (!error) {
-        setUpdateData(data);
-        // window.location.reload();
-      } else {
-        console.log("update error: ", error);
-      }
-    },
-  });
-
   const onCancel = async () => {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("parcels")
       .update({ returned: true })
-      .eq("id", state?.data[0]?.id);
+      .eq("id", data?.[0]?.id);
     if (!error) {
-      console.log("success return");
       navigate("/");
     } else {
       console.log("return error: ", error);
@@ -204,25 +238,27 @@ const LrEdit = () => {
   };
 
   const dispatchParcel = async () => {
-    const { data, error } = await supabase
+    const { data: updated, error } = await supabase
       .from("parcels")
       .update({
         is_dispatched: is_dispatched,
         handover_person_name: formik.values.handover_person_name,
         handover_person_number: formik.values.handover_person_number,
+        // no address here either
       })
-      .eq("receipt_no", state?.data[0]?.receipt_no)
+      .eq("receipt_no", data?.[0]?.receipt_no)
       .select("*");
+
     if (!error) {
-      setUpdateData(data);
-      // window.location.reload();
+      setUpdateData(updated);
     } else {
       console.log("update error: ", error);
     }
-  }
+  };
 
   return (
     <div className="pt_admin_lr">
+      {/* Hidden print content */}
       <div className="d-none">
         <Builty
           ref={builtyRef}
@@ -231,13 +267,16 @@ const LrEdit = () => {
               ? data
               : updateData
           }
+          address={selectedBranch.address} // address passed to Builty only via props
         />
       </div>
+
       <form onSubmit={formik.handleSubmit}>
         <div className="container">
           <div className="row">
             <div className="col-7">
               <div className="container">
+                {/* Place to send */}
                 <div className="row m-15 justify-between">
                   <div className="col-8">
                     <div className="form_control_wrapper">
@@ -246,7 +285,25 @@ const LrEdit = () => {
                         name="place_to_send"
                         id="cars"
                         value={formik.values.place_to_send}
-                        onChange={formik.handleChange}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          formik.handleChange(e);
+
+                          const branchObj = branches.find(
+                            (branch) => branch.place_to_send === value
+                          );
+                          console.log("BRANCH OBJ LR EDIT >>", branchObj);
+
+                          if (branchObj) {
+                            setSelectedBranch(branchObj);
+                            // adjust field name if needed (e.g. branchObj.branch_address)
+                            formik.setFieldValue(
+                              "address",
+                              branchObj.address || ""
+                            );
+                          }
+                        }}
                         disabled={
                           moment(data[0]?.created_at).get("date") !==
                           moment().get("date")
@@ -255,7 +312,10 @@ const LrEdit = () => {
                         <option value="">Select Place to Send...</option>
                         {branches &&
                           branches.map((branch) => (
-                            <option value={branch?.place_to_send}>
+                            <option
+                              key={branch.id || branch.place_to_send}
+                              value={branch?.place_to_send}
+                            >
                               {branch?.place_to_send}
                             </option>
                           ))}
@@ -268,16 +328,9 @@ const LrEdit = () => {
                         )}
                     </div>
                   </div>
-                  {/* <div className="col-4">
-                    <ul className="d-flex gap-30 justify-content-end">
-                      <li className="zn__main-menu-list">
-                        <Link to="" className="btn btn-primary">
-                          Edit
-                        </Link>
-                      </li>
-                    </ul>
-                  </div> */}
                 </div>
+
+                {/* Sender / Receiver */}
                 <div className="row justify-between">
                   <div className="col-30">
                     <div className="form_control_wrapper">
@@ -366,6 +419,8 @@ const LrEdit = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Item Details */}
                 <div className="row justify-between mt-30">
                   <div className="col-30">
                     <div className="form_control_wrapper">
@@ -383,7 +438,10 @@ const LrEdit = () => {
                         <option value="">Select Item detail...</option>
                         {items &&
                           items.map((item) => (
-                            <option value={item?.item_name}>
+                            <option
+                              key={item.id || item.item_name}
+                              value={item?.item_name}
+                            >
                               {item?.item_name}
                             </option>
                           ))}
@@ -396,24 +454,9 @@ const LrEdit = () => {
                         )}
                     </div>
                   </div>
-                  {/* <div className="col-30">
-                    <div className="form_control_wrapper">
-                      <label>Colors</label>
-                      <select
-                        name="color"
-                        id="color"
-                        value={formik.values.color}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Color...</option>
-                        {colors &&
-                          colors.map((item) => (
-                            <option value={item?.color}>{item?.color}</option>
-                          ))}
-                      </select>
-                    </div>
-                  </div> */}
                 </div>
+
+                {/* Quantity / Rate / Amount / Payment */}
                 <div className="row justify-between mt-30">
                   <div className="col-25">
                     <div className="form_control_wrapper">
@@ -501,6 +544,7 @@ const LrEdit = () => {
                   </div>
                 </div>
 
+                {/* Remarks / Dispatched / Buttons */}
                 <div className="d-flex row justify-between align-items-end mt-30">
                   <div className="col-3">
                     <div className="form_control_wrapper">
@@ -532,23 +576,21 @@ const LrEdit = () => {
                   <div className="col-3 text-end">
                     <button
                       onClick={onCancel}
-                      // type="submit"
                       className="me-3 time_btn btn btn-submit btn-danger"
                       disabled={
-                        localStorage.getItem(CONSTANTS.USER_TYPE) === "admin" ? false :
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
+                        localStorage.getItem(CONSTANTS.USER_TYPE) === "admin"
+                          ? false
+                          : moment(data[0]?.created_at).get("date") !==
+                            moment().get("date")
                       }
                     >
                       Cancel
                     </button>
                     {moment(data[0]?.created_at).get("date") !==
-                      moment().get("date") ? (
+                    moment().get("date") ? (
                       <button
-                        // type="submit"
                         onClick={handlePrint}
                         className="pt__lr_num time_btn btn btn-submit"
-                      // disabled={moment(data[0]?.created_at).get('date') !== moment().get('date')}
                       >
                         Print
                       </button>
@@ -567,86 +609,102 @@ const LrEdit = () => {
                   </div>
                 </div>
 
-                {!is_dispatched ? <div className="row justify-between align-end mt-30">
-                  <div className="col-25">
-                    <div className="form_control_wrapper">
-                      <label>Handover person name</label>
-                      <input
-                        name="handover_person_name"
-                        type="text"
-                        value={formik.values.handover_person_name}
-                        onChange={formik.handleChange}
-                      // disabled={
-                      //   moment(data[0]?.created_at).get("date") !==
-                      //   moment().get("date")
-                      // }
-                      />
-                      {formik.touched.handover_person_name && formik.errors.handover_person_name && (
-                        <div className="text-danger">
-                          {formik.errors.handover_person_name}
-                        </div>
-                      )}
+                {/* Handover section */}
+                {!is_dispatched ? (
+                  <div className="row justify-between align-end mt-30">
+                    <div className="col-25">
+                      <div className="form_control_wrapper">
+                        <label>Handover person name</label>
+                        <input
+                          name="handover_person_name"
+                          type="text"
+                          value={formik.values.handover_person_name}
+                          onChange={formik.handleChange}
+                        />
+                        {formik.touched.handover_person_name &&
+                          formik.errors.handover_person_name && (
+                            <div className="text-danger">
+                              {formik.errors.handover_person_name}
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                    <div className="col-25">
+                      <div className="form_control_wrapper">
+                        <label>Handover person number</label>
+                        <input
+                          name="handover_person_number"
+                          type="number"
+                          value={formik.values.handover_person_number}
+                          onChange={formik.handleChange}
+                        />
+                        {formik.touched.handover_person_number &&
+                          formik.errors.handover_person_number && (
+                            <div className="text-danger">
+                              {formik.errors.handover_person_number}
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <button
+                        type="submit"
+                        className="pt__lr_num time_btn btn btn-submit"
+                        disabled={
+                          !formik.values.handover_person_number ||
+                          !formik.values.handover_person_name
+                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          dispatchParcel();
+                        }}
+                      >
+                        Deliver
+                      </button>
                     </div>
                   </div>
-                  <div className="col-25">
-                    <div className="form_control_wrapper">
-                      <label>Handover person number</label>
-                      <input
-                        name="handover_person_number"
-                        type="number"
-                        value={formik.values.handover_person_number}
-                        onChange={formik.handleChange}
-                      // disabled
-                      />
-                      {formik.touched.handover_person_number && formik.errors.handover_person_number && (
-                        <div className="text-danger">{formik.errors.handover_person_number}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col-6">
-                    <button
-                      type="submit"
-                      className="pt__lr_num time_btn btn btn-submit"
-                      disabled={
-                        !formik.values.handover_person_number || !formik.values.handover_person_name
-                      }
-                      onClick={(e) => {
-                        e.preventDefault();
-                        dispatchParcel();
-                      }}
-                    >
-                      Deliver
-                    </button>
-                  </div>
-                </div> : null}
+                ) : null}
               </div>
             </div>
+
+            {/* Charges */}
             <div className="col-25">
               <div className="pt__admin_charges">
                 <table>
-                  <tr>
-                    <th width="50">Charges</th>
-                    <th width="50"></th>
-                  </tr>
-                  <tr>
-                    <td>Freight</td>
-                    <td>{0}</td>
-                  </tr>
-                  <tr>
-                    <td>LR Charge</td>
-                    <td>10</td>
-                  </tr>
-                  <tr>
-                    <td>Total</td>
-                    <td>{formik.values.payment_type === "To Pay" ? Number(formik.values.total_amount) : 0}</td>
-                  </tr>
-                  <tr>
-                    <td>Grand Total</td>
-                    <td>{formik.values.payment_type === "To Pay" ? Number(formik.values.total_amount) + 10 : 0}</td>
-                  </tr>
+                  <tbody>
+                    <tr>
+                      <th width="50">Charges</th>
+                      <th width="50"></th>
+                    </tr>
+                    <tr>
+                      <td>Freight</td>
+                      <td>{0}</td>
+                    </tr>
+                    <tr>
+                      <td>LR Charge</td>
+                      <td>10</td>
+                    </tr>
+                    <tr>
+                      <td>Total</td>
+                      <td>
+                        {formik.values.payment_type === "To Pay"
+                          ? Number(formik.values.total_amount)
+                          : 0}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Grand Total</td>
+                      <td>
+                        {formik.values.payment_type === "To Pay"
+                          ? Number(formik.values.total_amount) + 10
+                          : 0}
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             </div>
+
           </div>
         </div>
       </form>
