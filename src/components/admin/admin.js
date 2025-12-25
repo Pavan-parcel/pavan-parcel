@@ -164,7 +164,7 @@ const Admin = () => {
     }
 
     const rawPlaces = data[0].places;
-    console.log("RAW PLACES FROM DB >>", rawPlaces);
+    // console.log("RAW PLACES FROM DB >>", rawPlaces);
 
     let list = [];
 
@@ -203,7 +203,7 @@ const Admin = () => {
       list = [];
     }
 
-    console.log("FINAL PLACES LIST >>", list);
+    // console.log("FINAL PLACES LIST >>", list);
     setBranches(list);
   };
 
@@ -238,7 +238,10 @@ const Admin = () => {
       if (nextIndex < elements.length - 1) {
         elements[nextIndex].focus();
       } else {
-        !loading && formik.handleSubmit(event);
+        if (!loading) {
+          setLoading(true); // disable button immediately
+          formik.handleSubmit(); // trigger formik submit
+        }
       }
       event.preventDefault();
     }

@@ -22,7 +22,7 @@ const Address = () => {
 
     if (error) {
       console.error("Failed to fetch branches:", error);
-      toast.error("Failed to load branches");
+      // toast.error("Failed to load branches");
       return;
     }
     setBranches(data || []);

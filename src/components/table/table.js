@@ -47,6 +47,15 @@ const Table = () => {
             new Date().toLocaleDateString()
         );
         setData(filteredData);
+      } else if (localStorage.getItem(CONSTANTS.BRANCH) === "Bapunagar (BA)") {
+        console.log("Bapubapu");
+        
+        const filteredData = data.filter(
+          (item) =>
+            new Date(item?.created_at).toLocaleDateString() ===
+            new Date().toLocaleDateString()
+        );
+        setData(filteredData);
       } else if (
         localStorage.getItem(CONSTANTS.BRANCH) === "Mumbai Borivali (BO)"
       ) {
@@ -714,6 +723,8 @@ const Table = () => {
               localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
                 ? getMainBranchData()
                 : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
+                ? getMainBranchData()
+                : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)")
                 ? getMainBranchData()
                 : getGeneralData()
             }

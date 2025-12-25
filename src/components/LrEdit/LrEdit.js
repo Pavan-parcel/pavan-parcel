@@ -20,6 +20,7 @@ const LrEdit = () => {
   const [items, setItems] = useState([]);
   const [colors, setColors] = useState([]);
   const [initialAddressSet, setInitialAddressSet] = useState(false);
+  const [loading, setLoading] = useState(false); // 🔹 for Update & Print + Deliver
 
   const navigate = useNavigate();
   const builtyRef = useRef();
@@ -28,7 +29,6 @@ const LrEdit = () => {
     content: () => builtyRef.current,
   });
 
-  // (Optional) debug only
   useEffect(() => {
     console.log("Selected Branch LR EDIT >>", selectedBranch);
   }, [selectedBranch]);
@@ -115,22 +115,27 @@ const LrEdit = () => {
         },
     validationSchema: validate,
     onSubmit: async (values) => {
-      // ⛔ Do NOT send address to DB (parcels has no address column)
-      const { address, ...rest } = values;
+      const { address, ...rest } = values; // ⛔ don't send address to DB
 
-      const { data: updated, error } = await supabase
-        .from("parcels")
-        .update({
-          ...rest,
-          total_amount: Number(rest.total_amount) + 10,
-        })
-        .eq("receipt_no", data?.[0]?.receipt_no)
-        .select("*");
+      try {
+        const { data: updated, error } = await supabase
+          .from("parcels")
+          .update({
+            ...rest,
+            total_amount: Number(rest.total_amount) + 10,
+          })
+          .eq("receipt_no", data?.[0]?.receipt_no)
+          .select("*");
 
-      if (!error) {
-        setUpdateData(updated);
-      } else {
-        console.log("update error: ", error);
+        if (!error) {
+          setUpdateData(updated);
+        } else {
+          console.log("update error: ", error);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false); // ✅ stop loading (page will reload after print anyway)
       }
     },
   });
@@ -160,7 +165,7 @@ const LrEdit = () => {
       formik.setFieldValue("place_to_send", data[0]?.place_to_send || "");
       formik.setFieldValue("remarks", data[0]?.remarks || "");
       formik.setFieldValue("is_dispatched", data[0]?.is_dispatched || false);
-      formik.setFieldValue("address", data[0]?.address || ""); // will be "" since DB has no address
+      formik.setFieldValue("address", data[0]?.address || "");
     };
 
     init();
@@ -181,7 +186,6 @@ const LrEdit = () => {
 
       if (branchObj) {
         setSelectedBranch(branchObj);
-        // change branchObj.address if your place_to_send table uses another field name
         formik.setFieldValue("address", branchObj.address || "");
         setInitialAddressSet(true);
       }
@@ -238,23 +242,61 @@ const LrEdit = () => {
   };
 
   const dispatchParcel = async () => {
-    const { data: updated, error } = await supabase
-      .from("parcels")
-      .update({
-        is_dispatched: is_dispatched,
-        handover_person_name: formik.values.handover_person_name,
-        handover_person_number: formik.values.handover_person_number,
-        // no address here either
-      })
-      .eq("receipt_no", data?.[0]?.receipt_no)
-      .select("*");
+    try {
+      const { data: updated, error } = await supabase
+        .from("parcels")
+        .update({
+          is_dispatched: is_dispatched,
+          handover_person_name: formik.values.handover_person_name,
+          handover_person_number: formik.values.handover_person_number,
+        })
+        .eq("receipt_no", data?.[0]?.receipt_no)
+        .select("*");
 
-    if (!error) {
-      setUpdateData(updated);
-    } else {
-      console.log("update error: ", error);
+      if (!error) {
+        setUpdateData(updated);
+      } else {
+        console.log("update error: ", error);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // 🔹 Button handler: Update & Print
+  const handleUpdateClick = (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    // respect existing date-based disable logic
+    const isOld =
+      moment(data[0]?.created_at).get("date") !== moment().get("date");
+    if (isOld) return;
+
+    setLoading(true);       // immediately disable button
+    formik.handleSubmit();  // triggers onSubmit
+  };
+
+  // 🔹 Button handler: Deliver
+  const handleDeliverClick = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+
+    if (
+      !formik.values.handover_person_number ||
+      !formik.values.handover_person_name
+    ) {
+      return;
+    }
+
+    setLoading(true);
+    await dispatchParcel();
+  };
+
+  const isOldEntry =
+    moment(data[0]?.created_at).get("date") !== moment().get("date");
 
   return (
     <div className="pt_admin_lr">
@@ -263,15 +305,15 @@ const LrEdit = () => {
         <Builty
           ref={builtyRef}
           data={
-            moment(data[0]?.created_at).get("date") !== moment().get("date")
+            isOldEntry
               ? data
               : updateData
           }
-          address={selectedBranch.address} // address passed to Builty only via props
+          address={selectedBranch.address}
         />
       </div>
 
-      <form onSubmit={formik.handleSubmit}>
+      <form>
         <div className="container">
           <div className="row">
             <div className="col-7">
@@ -287,7 +329,6 @@ const LrEdit = () => {
                         value={formik.values.place_to_send}
                         onChange={(e) => {
                           const value = e.target.value;
-
                           formik.handleChange(e);
 
                           const branchObj = branches.find(
@@ -297,17 +338,13 @@ const LrEdit = () => {
 
                           if (branchObj) {
                             setSelectedBranch(branchObj);
-                            // adjust field name if needed (e.g. branchObj.branch_address)
                             formik.setFieldValue(
                               "address",
                               branchObj.address || ""
                             );
                           }
                         }}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       >
                         <option value="">Select Place to Send...</option>
                         {branches &&
@@ -340,10 +377,7 @@ const LrEdit = () => {
                         type="text"
                         value={formik.values.sender_name}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       />
                       {formik.touched.sender_name &&
                         formik.errors.sender_name && (
@@ -362,10 +396,7 @@ const LrEdit = () => {
                         maxLength={10}
                         value={formik.values.sender_number}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       />
                       {formik.touched.sender_number &&
                         formik.errors.sender_number && (
@@ -383,10 +414,7 @@ const LrEdit = () => {
                         type="text"
                         value={formik.values.receiver_name}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       />
                       {formik.touched.receiver_name &&
                         formik.errors.receiver_name && (
@@ -405,10 +433,7 @@ const LrEdit = () => {
                         maxLength={10}
                         value={formik.values.receiver_number}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       />
                       {formik.touched.receiver_number &&
                         formik.errors.receiver_number && (
@@ -430,10 +455,7 @@ const LrEdit = () => {
                         id="cars"
                         value={formik.values.item_detail}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       >
                         <option value="">Select Item detail...</option>
                         {items &&
@@ -466,10 +488,7 @@ const LrEdit = () => {
                         type="number"
                         value={formik.values.quantity}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       />
                       {formik.touched.quantity && formik.errors.quantity && (
                         <div className="text-danger">
@@ -525,10 +544,7 @@ const LrEdit = () => {
                         id="payment_type"
                         value={formik.values.payment_type}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       >
                         <option value="">Select Payment Type...</option>
                         <option value="To Pay">To Pay</option>
@@ -553,10 +569,7 @@ const LrEdit = () => {
                         name="remarks"
                         value={formik.values.remarks}
                         onChange={formik.handleChange}
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        disabled={isOldEntry}
                       />
                     </div>
                   </div>
@@ -575,35 +588,35 @@ const LrEdit = () => {
                   </div>
                   <div className="col-3 text-end">
                     <button
+                      type="button"
                       onClick={onCancel}
                       className="me-3 time_btn btn btn-submit btn-danger"
                       disabled={
-                        localStorage.getItem(CONSTANTS.USER_TYPE) === "admin"
-                          ? false
-                          : moment(data[0]?.created_at).get("date") !==
-                            moment().get("date")
+                        loading ||
+                        (localStorage.getItem(CONSTANTS.USER_TYPE) !==
+                          "admin" &&
+                          isOldEntry)
                       }
                     >
                       Cancel
                     </button>
-                    {moment(data[0]?.created_at).get("date") !==
-                    moment().get("date") ? (
+                    {isOldEntry ? (
                       <button
+                        type="button"
                         onClick={handlePrint}
                         className="pt__lr_num time_btn btn btn-submit"
+                        disabled={loading}
                       >
                         Print
                       </button>
                     ) : (
                       <button
-                        type="submit"
+                        type="button" // 🔹 custom click handler
                         className="pt__lr_num time_btn btn btn-submit"
-                        disabled={
-                          moment(data[0]?.created_at).get("date") !==
-                          moment().get("date")
-                        }
+                        onClick={handleUpdateClick}
+                        disabled={loading || isOldEntry}
                       >
-                        Update & Print
+                        {loading ? "Please wait" : "Update & Print"}
                       </button>
                     )}
                   </div>
@@ -648,18 +661,16 @@ const LrEdit = () => {
                     </div>
                     <div className="col-6">
                       <button
-                        type="submit"
+                        type="button"
                         className="pt__lr_num time_btn btn btn-submit"
                         disabled={
+                          loading ||
                           !formik.values.handover_person_number ||
                           !formik.values.handover_person_name
                         }
-                        onClick={(e) => {
-                          e.preventDefault();
-                          dispatchParcel();
-                        }}
+                        onClick={handleDeliverClick}
                       >
-                        Deliver
+                        {loading ? "Please wait" : "Deliver"}
                       </button>
                     </div>
                   </div>

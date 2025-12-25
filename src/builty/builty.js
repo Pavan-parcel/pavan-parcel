@@ -29,7 +29,7 @@ console.log("LOG 1")
 console.log("LOG 5")
 
       console.error("Failed to fetch branches:", error);
-      toast.error("Failed to load branches");
+      // toast.error("Failed to load branches");
       return;
     }
    
