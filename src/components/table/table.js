@@ -167,26 +167,19 @@ const Table = () => {
       //   console.log("error: ", error);
       // }
 
-     
-  const { data, error } = await supabase
-    .from("parcels")
-    .select("place_to_send");
-
-  if (!error) {
-    // remove duplicates
-    const uniquePlaces = [
-      ...new Set(data.map((item) => item.place_to_send)),
-    ];
-
-    setPlaceToSend(
-      uniquePlaces.map((place) => ({
-        place_to_send: place,
-      }))
-    );
-  } else {
-    console.log("error: ", error);
-  }
-};
+      const access = await supabase
+        .from("access_branch")
+        .select("*")
+        .eq("branch", localStorage.getItem(CONSTANTS.BRANCH_ID));
+      if (!access.error) {
+        if (access.data.length > 0) {
+          let data = JSON.parse(access.data[0].places);
+          setPlaceToSend(data.map((branch) => ({ place_to_send: branch })));
+        }
+      } else {
+        console.log("error: ", access.error);
+      }
+    };
 
     const getGeneralData = async () => {
       if (startDate.getDate() !== endDate.getDate()) {
@@ -654,15 +647,48 @@ const Table = () => {
 
             <div className="send-to-rec d-flex justify-content-between align-items-center">
               <div className="flex flex-column">
-                <Select
-  options={branches}
-  getOptionLabel={(option) => option.branch_name}
-  getOptionValue={(option) => option.branch_name}
-  isMulti
-  isSearchable={true}
-  value={selectedBranches}
-  onChange={(value) => setSelectedBranches(value)}
-/>
+                {localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)") ? (
+                  <Select
+                    options={branches}
+                    getOptionLabel={(option) => `${option.branch_name}`}
+                    getOptionValue={(option) => `${option.branch_name}`}
+                    isMulti
+                    isSearchable={true}
+                    value={selectedBranches}
+                    onChange={(value) => setSelectedBranches(value)}
+                  />
+                ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)") ? (
+                  <Select
+                    options={branches}
+                    getOptionLabel={(option) => `${option.branch_name}`}
+                    getOptionValue={(option) => `${option.branch_name}`}
+                    isMulti
+                    isSearchable={true}
+                    value={selectedBranches}
+                    onChange={(value) => setSelectedBranches(value)}
+                  />
+                ) : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)") ? (
+                  <Select
+                    options={branches}
+                    getOptionLabel={(option) => `${option.branch_name}`}
+                    getOptionValue={(option) => `${option.branch_name}`}
+                    isMulti
+                    isSearchable={true}
+                    value={selectedBranches}
+                    onChange={(value) => setSelectedBranches(value)}
+                  />
+                ) : (
+                  <select
+                    name=""
+                    id=""
+                    disabled
+                    className="w-100 general_delivery"
+                  >
+                    <option value={localStorage.getItem(CONSTANTS.BRANCH)}>
+                      {localStorage.getItem(CONSTANTS.BRANCH)}
+                    </option>
+                  </select>
+                )}
                 <div className="text-center mt-2">
                   <Button onClick={() => setSelectedBranches(branches)}>
                     Select All
@@ -692,7 +718,17 @@ const Table = () => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={getMainBranchData}>
+          <Button
+            onClick={() =>
+              localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
+                ? getMainBranchData()
+                : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
+                ? getMainBranchData()
+                : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)")
+                ? getMainBranchData()
+                : getGeneralData()
+            }
+          >
             {type === "general"
               ? "Create General"
               : type === "dispatch"
