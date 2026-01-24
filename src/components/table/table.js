@@ -692,17 +692,7 @@ const Table = () => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button
-            onClick={() =>
-              localStorage.getItem(CONSTANTS.BRANCH)?.includes("(HO)")
-                ? getMainBranchData()
-                : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(SA)")
-                ? getMainBranchData()
-                : localStorage.getItem(CONSTANTS.BRANCH)?.includes("(BA)")
-                ? getMainBranchData()
-                : getGeneralData()
-            }
-          >
+          <Button onClick={getMainBranchData}>
             {type === "general"
               ? "Create General"
               : type === "dispatch"
