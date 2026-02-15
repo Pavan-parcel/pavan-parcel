@@ -296,36 +296,71 @@ const Admin = () => {
 
         <form onSubmit={formik.handleSubmit}>
 
-          {/* --- Step 1: Destination Selection (First Priority) --- */}
-          <div className="card-box mb-3" style={{ marginBottom: '20px' }}>
-            <div className="card-header-modern">
-              <h4><FaMapMarkerAlt className="me-2" /> Select Destination</h4>
-            </div>
-            <div className="card-body-modern" style={{ padding: '16px 20px' }}>
-              <div className="form-group-modern" style={{ marginBottom: 0 }}>
-                <div className={`input-wrapper ${formik.touched.place_to_send && formik.errors.place_to_send ? 'has-error' : ''}`}>
-                  <select
-                    name="place_to_send"
-                    value={formik.values.place_to_send}
-                    onChange={(e) => {
-                      formik.handleChange(e);
-                      handlePlaceChange(e);
-                    }}
-                    onKeyDown={handleEnter}
-                    style={{ height: '48px', fontSize: '16px' }} // Make it prominent
-                    autoFocus
-                  >
-                    <option value="">Select Destination Branch / Station...</option>
-                    {Array.isArray(branches) && branches.map((place, idx) => (
-                      <option key={idx} value={place}>{place}</option>
-                    ))}
-                  </select>
+          {/* --- Step 1: Booking Setup (Destination & Payment Type) --- */}
+          <div className="grid-2-col mb-3" style={{ marginBottom: '12px' }}>
+
+            {/* 1.1 Destination */}
+            <div className="card-box">
+              <div className="card-header-modern">
+                <h4><FaMapMarkerAlt className="me-2" /> Select Destination</h4>
+              </div>
+              <div className="card-body-modern" style={{ padding: '12px 16px' }}>
+                <div className="form-group-modern" style={{ marginBottom: 0 }}>
+                  <div className={`input-wrapper ${formik.touched.place_to_send && formik.errors.place_to_send ? 'has-error' : ''}`}>
+                    <select
+                      name="place_to_send"
+                      value={formik.values.place_to_send}
+                      onChange={(e) => {
+                        formik.handleChange(e);
+                        handlePlaceChange(e);
+                      }}
+                      onKeyDown={handleEnter}
+                      style={{ height: '40px', fontSize: '15px' }}
+                      autoFocus
+                    >
+                      <option value="">Select Destination Branch...</option>
+                      {Array.isArray(branches) && branches.map((place, idx) => (
+                        <option key={idx} value={place}>{place}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {formik.touched.place_to_send && formik.errors.place_to_send && (
+                    <div className="error-msg">{formik.errors.place_to_send}</div>
+                  )}
                 </div>
-                {formik.touched.place_to_send && formik.errors.place_to_send && (
-                  <div className="error-msg">{formik.errors.place_to_send}</div>
-                )}
               </div>
             </div>
+
+            {/* 1.2 Payment Type */}
+            <div className="card-box">
+              <div className="card-header-modern">
+                <h4><FaMoneyBillWave className="me-2" /> Payment Type</h4>
+              </div>
+              <div className="card-body-modern" style={{ padding: '12px 16px' }}>
+                <div className="form-group-modern" style={{ marginBottom: 0 }}>
+                  <div className="payment-actions" style={{ marginBottom: 0 }}>
+                    <div
+                      className={`btn-payment-option ${formik.values.payment_type === 'To Pay' ? 'selected-topay' : ''}`}
+                      onClick={() => formik.setFieldValue("payment_type", "To Pay")}
+                      style={{ padding: '8px', fontSize: '14px' }}
+                    >
+                      To Pay
+                    </div>
+                    <div
+                      className={`btn-payment-option ${formik.values.payment_type === 'Paid' ? 'selected-paid' : ''}`}
+                      onClick={() => formik.setFieldValue("payment_type", "Paid")}
+                      style={{ padding: '8px', fontSize: '14px' }}
+                    >
+                      Paid
+                    </div>
+                  </div>
+                  {formik.touched.payment_type && formik.errors.payment_type && (
+                    <div className="error-msg">{formik.errors.payment_type}</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <div className="dashboard-grid">
@@ -490,33 +525,12 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* 4. Payment Details */}
+            {/* 4. Payment Details (Summary) */}
             <div className="card-box payment-card">
               <div className="card-header-modern">
-                <h4><FaMoneyBillWave className="me-2" /> Payment Details</h4>
+                <h4><FaMoneyBillWave className="me-2" /> Payment Summary</h4>
               </div>
               <div className="card-body-modern">
-
-                <div className="form-group-modern">
-                  <label>Payment Type</label>
-                  <div className="payment-actions">
-                    <div
-                      className={`btn-payment-option ${formik.values.payment_type === 'To Pay' ? 'selected-topay' : ''}`}
-                      onClick={() => formik.setFieldValue("payment_type", "To Pay")}
-                    >
-                      To Pay
-                    </div>
-                    <div
-                      className={`btn-payment-option ${formik.values.payment_type === 'Paid' ? 'selected-paid' : ''}`}
-                      onClick={() => formik.setFieldValue("payment_type", "Paid")}
-                    >
-                      Paid
-                    </div>
-                  </div>
-                  {formik.touched.payment_type && formik.errors.payment_type && (
-                    <div className="error-msg" style={{ marginTop: '-15px', marginBottom: '10px' }}>{formik.errors.payment_type}</div>
-                  )}
-                </div>
 
                 <div className="payment-summary">
                   <div className="summary-row">
