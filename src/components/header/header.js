@@ -55,7 +55,7 @@ const Header = () => {
       .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
 
     if (!error) {
-      if(data.length === 0) {
+      if (data.length === 0) {
         setDateModal(false);
         setConfirmationModal(false);
         setTimeout(() => {
@@ -90,7 +90,7 @@ const Header = () => {
 
       // Remove the link from the DOM
       document.body.removeChild(link);
-      
+
       console.log("CSV file downloaded successfully.");
       // setConfirmationModal(false);
       setDateModal(false);
@@ -100,18 +100,18 @@ const Header = () => {
     }
   }
 
-  const onFinalDelete = async() => {
+  const onFinalDelete = async () => {
     const result = await supabase.from("parcels").delete()
       .lt(
         "created_at",
         moment(endDate).add(1, "day").format("YYYY-MM-DD")
       )
       .gte("created_at", moment(startDate).format("YYYY-MM-DD"))
-      if (!result.error) {
-        alert("Data deleted successfully");
-      } else {
-        alert("Failed to delete data, try again!");
-      }
+    if (!result.error) {
+      alert("Data deleted successfully");
+    } else {
+      alert("Failed to delete data, try again!");
+    }
   }
 
   // Function to convert array of objects to CSV format
@@ -181,7 +181,7 @@ const Header = () => {
                   >
                     Find Details
                   </Link>
-                </form> 
+                </form>
                 {/* : null} */}
 
                 <button
@@ -225,28 +225,28 @@ const Header = () => {
           <Modal.Title>Download</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <form action="" className="form_control_wrapper align-items-center">
-          <>
-            {" "}
-            <div className="days_count d-flex gap-3 align-center">
-              {/* <h6>Date : </h6> */}
-              <div className="text-dark d-flex align-items-center gap-3">
-                <div className="">From: </div>
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  maxDate={new Date()}
-                />
-                <div className="">To: </div>
-                <DatePicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  maxDate={new Date()}
-                />
+          <form action="" className="form_control_wrapper align-items-center">
+            <>
+              {" "}
+              <div className="days_count d-flex gap-3 align-center">
+                {/* <h6>Date : </h6> */}
+                <div className="text-dark d-flex align-items-center gap-3">
+                  <div className="">From: </div>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    maxDate={new Date()}
+                  />
+                  <div className="">To: </div>
+                  <DatePicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    maxDate={new Date()}
+                  />
+                </div>
               </div>
-            </div>
-            {/* <div className="line mt-5"></div> */}
-          </>
+              {/* <div className="line mt-5"></div> */}
+            </>
           </form>
         </Modal.Body>
         <Modal.Footer>

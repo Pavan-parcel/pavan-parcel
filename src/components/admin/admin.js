@@ -8,6 +8,7 @@ import { CONSTANTS } from "../../utils/contants";
 import Builty from "../../builty/builty";
 import { useReactToPrint } from "react-to-print";
 import Loader from "../loader/loader";
+import { FaUser, FaBoxOpen, FaMapMarkerAlt, FaMoneyBillWave, FaPrint, FaTruck } from "react-icons/fa";
 
 const Admin = () => {
   const [branches, setBranches] = useState([]);
@@ -239,7 +240,7 @@ const Admin = () => {
         elements[nextIndex].focus();
       } else {
         if (!loading) {
-          setLoading(true); // disable button immediately
+          // setLoading(true); // Removed to prevent stuck loading on validation error
           formik.handleSubmit(); // trigger formik submit
         }
       }
@@ -272,212 +273,193 @@ const Admin = () => {
 
   return (
     <section className="pt__admin">
-      {/* Builty will get address from formik (NOT from parcels table) */}
       <div className="d-none">
         <Builty
           ref={builtyRef}
           data={data}
-          address={formik.values.address} // 👈 comes from place_to_send via handlePlaceChange
+          address={formik.values.address}
         />
       </div>
 
-      <form onSubmit={formik.handleSubmit}>
-        <div className="container">
-          <div className="row">
-            <div className="col-7">
-              <div className="container">
-                <div className="row justify-between">
-                  <div className="col-4">
-                    <ul className="d-flex gap-30">
-                      <li className="zn__main-menu-list">
-                        <Link
-                          to=""
-                          onClick={() =>
-                            formik.setFieldValue("payment_type", "To Pay")
-                          }
-                          className="btn btn-primary"
-                        >
-                          To Pay
-                        </Link>
-                      </li>
-                      <li className="zn__main-menu-list">
-                        <Link
-                          to=""
-                          onClick={() =>
-                            formik.setFieldValue("payment_type", "Paid")
-                          }
-                          className="btn btn-primary"
-                        >
-                          Paid
-                        </Link>
-                      </li>
-                      <li className="zn__main-menu-list">
-                        <Link to="/manual" className="btn btn-primary">
-                          Manual
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+      <div className="container">
+        {/* --- Header --- */}
+        <div className="dashboard-header">
+          <h2>
+            New Parcel <span>Booking</span>
+          </h2>
+          <div className="header-actions">
+            <div className="badge-status active">
+              <span className="dot"></span> System Active
+            </div>
+          </div>
+        </div>
 
-                <div className="row m-15 justify-between">
-                  <div className="col-8">
-                    <div className="form_control_wrapper">
-                      <label>Place to send</label>
-                      <select
-                        onKeyDown={handleEnter}
-                        name="place_to_send"
-                        value={formik.values.place_to_send}
-                        onChange={handlePlaceChange}
-                      >
-                        <option value="">Select Place to Send...</option>
-                        {Array.isArray(branches) &&
-                          branches.map((place, idx) => (
-                            <option key={idx} value={place}>
-                              {place}
-                            </option>
-                          ))}
-                      </select>
-                      {formik.touched.place_to_send &&
-                        formik.errors.place_to_send && (
-                          <div className="text-danger">
-                            {formik.errors.place_to_send}
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                </div>
+        <form onSubmit={formik.handleSubmit}>
 
-                <div className="row justify-between">
-                  <div className="col-30">
-                    <div className="form_control_wrapper">
-                      <label>Sender Name</label>
+          {/* --- Step 1: Destination Selection (First Priority) --- */}
+          <div className="card-box mb-3" style={{ marginBottom: '20px' }}>
+            <div className="card-header-modern">
+              <h4><FaMapMarkerAlt className="me-2" /> Select Destination</h4>
+            </div>
+            <div className="card-body-modern" style={{ padding: '16px 20px' }}>
+              <div className="form-group-modern" style={{ marginBottom: 0 }}>
+                <div className={`input-wrapper ${formik.touched.place_to_send && formik.errors.place_to_send ? 'has-error' : ''}`}>
+                  <select
+                    name="place_to_send"
+                    value={formik.values.place_to_send}
+                    onChange={(e) => {
+                      formik.handleChange(e);
+                      handlePlaceChange(e);
+                    }}
+                    onKeyDown={handleEnter}
+                    style={{ height: '48px', fontSize: '16px' }} // Make it prominent
+                    autoFocus
+                  >
+                    <option value="">Select Destination Branch / Station...</option>
+                    {Array.isArray(branches) && branches.map((place, idx) => (
+                      <option key={idx} value={place}>{place}</option>
+                    ))}
+                  </select>
+                </div>
+                {formik.touched.place_to_send && formik.errors.place_to_send && (
+                  <div className="error-msg">{formik.errors.place_to_send}</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="dashboard-grid">
+
+            {/* 1. Sender Details */}
+            <div className="card-box sender-card">
+              <div className="card-header-modern">
+                <h4><FaUser className="me-2" /> Sender Details</h4>
+              </div>
+              <div className="card-body-modern">
+                <div className="grid-2-col">
+                  <div className="form-group-modern">
+                    <label>Sender Name</label>
+                    <div className={`input-wrapper ${formik.touched.sender_name && formik.errors.sender_name ? 'has-error' : ''}`}>
                       <input
                         type="text"
-                        onKeyDown={handleEnter}
                         name="sender_name"
-                        value={formik.values.sender_name}
-                        onChange={formik.handleChange}
+                        {...formik.getFieldProps('sender_name')}
+                        onKeyDown={handleEnter}
+                        placeholder="Enter Name"
                       />
-                      {formik.touched.sender_name &&
-                        formik.errors.sender_name && (
-                          <div className="text-danger">
-                            {formik.errors.sender_name}
-                          </div>
-                        )}
                     </div>
+                    {formik.touched.sender_name && formik.errors.sender_name && (
+                      <div className="error-msg">{formik.errors.sender_name}</div>
+                    )}
                   </div>
-                  <div className="col-2">
-                    <div className="form_control_wrapper">
-                      <label>Sender Number</label>
+                  <div className="form-group-modern">
+                    <label>Mobile Number</label>
+                    <div className={`input-wrapper ${formik.touched.sender_number && formik.errors.sender_number ? 'has-error' : ''}`}>
                       <input
                         type="text"
-                        onKeyDown={handleEnter}
                         name="sender_number"
                         maxLength={10}
-                        value={formik.values.sender_number}
-                        onChange={formik.handleChange}
+                        {...formik.getFieldProps('sender_number')}
+                        onKeyDown={handleEnter}
+                        placeholder="10-digit Mobile"
                       />
-                      {formik.touched.sender_number &&
-                        formik.errors.sender_number && (
-                          <div className="text-danger">
-                            {formik.errors.sender_number}
-                          </div>
-                        )}
                     </div>
+                    {formik.touched.sender_number && formik.errors.sender_number && (
+                      <div className="error-msg">{formik.errors.sender_number}</div>
+                    )}
                   </div>
-                  <div className="col-30">
-                    <div className="form_control_wrapper">
-                      <label>Receiver Name</label>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Receiver Details */}
+            <div className="card-box receiver-card">
+              <div className="card-header-modern">
+                <h4><FaUser className="me-2" /> Receiver Details</h4>
+              </div>
+              <div className="card-body-modern">
+                <div className="grid-2-col">
+                  <div className="form-group-modern">
+                    <label>Receiver Name</label>
+                    <div className={`input-wrapper ${formik.touched.receiver_name && formik.errors.receiver_name ? 'has-error' : ''}`}>
                       <input
                         type="text"
-                        onKeyDown={handleEnter}
                         name="receiver_name"
-                        value={formik.values.receiver_name}
-                        onChange={formik.handleChange}
+                        {...formik.getFieldProps('receiver_name')}
+                        onKeyDown={handleEnter}
+                        placeholder="Enter Name"
                       />
-                      {formik.touched.receiver_name &&
-                        formik.errors.receiver_name && (
-                          <div className="text-danger">
-                            {formik.errors.receiver_name}
-                          </div>
-                        )}
                     </div>
+                    {formik.touched.receiver_name && formik.errors.receiver_name && (
+                      <div className="error-msg">{formik.errors.receiver_name}</div>
+                    )}
                   </div>
-                  <div className="col-2">
-                    <div className="form_control_wrapper">
-                      <label>Receiver Number</label>
+                  <div className="form-group-modern">
+                    <label>Mobile Number</label>
+                    <div className={`input-wrapper ${formik.touched.receiver_number && formik.errors.receiver_number ? 'has-error' : ''}`}>
                       <input
                         type="text"
-                        onKeyDown={handleEnter}
                         name="receiver_number"
-                        value={formik.values.receiver_number}
-                        onChange={formik.handleChange}
                         maxLength={10}
+                        {...formik.getFieldProps('receiver_number')}
+                        onKeyDown={handleEnter}
+                        placeholder="10-digit Mobile"
                       />
-                      {formik.touched.receiver_number &&
-                        formik.errors.receiver_number && (
-                          <div className="text-danger">
-                            {formik.errors.receiver_number}
-                          </div>
-                        )}
                     </div>
+                    {formik.touched.receiver_number && formik.errors.receiver_number && (
+                      <div className="error-msg">{formik.errors.receiver_number}</div>
+                    )}
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <div className="row justify-between mt-30">
-                  <div className="col-30">
-                    <div className="form_control_wrapper">
-                      <label>Item Details</label>
-                      <select
-                        onKeyDown={handleEnter}
-                        name="item_detail"
-                        value={formik.values.item_detail}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Item detail...</option>
-                        {items &&
-                          items.map((item) => (
-                            <option key={item.id} value={item.item_name}>
-                              {item.item_name}
-                            </option>
-                          ))}
-                      </select>
-                      {formik.touched.item_detail &&
-                        formik.errors.item_detail && (
-                          <div className="text-danger">
-                            {formik.errors.item_detail}
-                          </div>
-                        )}
-                    </div>
+            {/* 3. Parcel Info */}
+            <div className="card-box parcel-card">
+              <div className="card-header-modern">
+                <h4><FaBoxOpen className="me-2" /> Parcel Info</h4>
+              </div>
+              <div className="card-body-modern">
+                <div className="form-group-modern">
+                  <label>Item Description</label>
+                  <div className={`input-wrapper ${formik.touched.item_detail && formik.errors.item_detail ? 'has-error' : ''}`}>
+                    <select
+                      name="item_detail"
+                      {...formik.getFieldProps('item_detail')}
+                      onKeyDown={handleEnter}
+                    >
+                      <option value="">Select Item...</option>
+                      {items && items.map((item) => (
+                        <option key={item.id} value={item.item_name}>
+                          {item.item_name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+                  {formik.touched.item_detail && formik.errors.item_detail && (
+                    <div className="error-msg">{formik.errors.item_detail}</div>
+                  )}
                 </div>
 
-                <div className="row justify-between mt-30">
-                  <div className="col-25">
-                    <div className="form_control_wrapper">
-                      <label>Quantity Number</label>
+                <div className="grid-2-col">
+                  <div className="form-group-modern">
+                    <label>Quantity</label>
+                    <div className="input-wrapper">
                       <input
-                        onKeyDown={handleEnter}
                         type="number"
                         name="quantity"
-                        value={formik.values.quantity}
-                        onChange={formik.handleChange}
+                        {...formik.getFieldProps('quantity')}
+                        onKeyDown={handleEnter}
+                        placeholder="Qty"
                       />
-                      {formik.touched.quantity && formik.errors.quantity && (
-                        <div className="text-danger">
-                          {formik.errors.quantity}
-                        </div>
-                      )}
                     </div>
                   </div>
-                  <div className="col-25">
-                    <div className="form_control_wrapper">
-                      <label>Rate</label>
+                  <div className="form-group-modern">
+                    <label>Rate (₹)</label>
+                    <div className="input-wrapper">
                       <input
-                        onKeyDown={handleEnter}
-                        name="rate"
                         type="number"
+                        name="rate"
                         value={formik.values.rate}
                         onChange={(e) => {
                           formik.handleChange(e);
@@ -486,113 +468,92 @@ const Admin = () => {
                             formik.values.quantity * e.target.value
                           );
                         }}
-                      />
-                      {formik.touched.rate && formik.errors.rate && (
-                        <div className="text-danger">{formik.errors.rate}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="col-25">
-                    <div className="form_control_wrapper">
-                      <label>Total Amount</label>
-                      <input
                         onKeyDown={handleEnter}
-                        disabled
-                        name="total_amount"
-                        value={formik.values.total_amount}
-                        onChange={formik.handleChange}
+                        placeholder="0.00"
                       />
-                      {formik.touched.total_amount &&
-                        formik.errors.total_amount && (
-                          <div className="text-danger">
-                            {formik.errors.total_amount}
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                  <div className="col-25">
-                    <div className="form_control_wrapper">
-                      <label>Payment Type</label>
-                      <select
-                        disabled
-                        onKeyDown={handleEnter}
-                        name="payment_type"
-                        id="payment_type"
-                        value={formik.values.payment_type}
-                        onChange={formik.handleChange}
-                      >
-                        <option value="">Select Payment Type...</option>
-                        <option value="To Pay">To Pay</option>
-                        <option value="Paid">Paid</option>
-                      </select>
-                      {formik.touched.payment_type &&
-                        formik.errors.payment_type && (
-                          <div className="text-danger">
-                            {formik.errors.payment_type}
-                          </div>
-                        )}
                     </div>
                   </div>
                 </div>
 
-                <div className="row justify-between align-items-end mt-30">
-                  <div className="col-4">
-                    <div className="form_control_wrapper">
-                      <label>Remarks</label>
-                      <input
-                        onKeyDown={handleEnter}
-                        name="remarks"
-                        value={formik.values.remarks}
-                        onChange={formik.handleChange}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-4 d-flex justify-content-end align-items-center text-end">
-                    <button
+                <div className="form-group-modern">
+                  <label>Remarks / Notes</label>
+                  <div className="input-wrapper">
+                    <input
+                      type="text"
+                      name="remarks"
+                      {...formik.getFieldProps('remarks')}
                       onKeyDown={handleEnter}
-                      type="submit"
-                      disabled={loading}
-                      className="pt__lr_num print_button time_btn btn btn-submit"
-                    >
-                      {loading ? "Please wait" : "Print and Save"}
-                      {loading && <Loader />}
-                    </button>
+                      placeholder="Optional remarks..."
+                    />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="col-25">
-              <div className="pt__admin_charges">
-                <table>
-                  <tbody>
-                    <tr>
-                      <th width="50">Charges</th>
-                      <th width="50"></th>
-                    </tr>
-                    <tr>
-                      <td>Freight</td>
-                      <td>{formik.values.total_amount || 0}</td>
-                    </tr>
-                    <tr>
-                      <td>LR Charge</td>
-                      <td>10</td>
-                    </tr>
-                    <tr>
-                      <td>Total</td>
-                      <td>{Number(formik.values.total_amount) + 10}</td>
-                    </tr>
-                    <tr>
-                      <td>Grand Total</td>
-                      <td>{Number(formik.values.total_amount) + 10}</td>
-                    </tr>
-                  </tbody>
-                </table>
+            {/* 4. Payment Details */}
+            <div className="card-box payment-card">
+              <div className="card-header-modern">
+                <h4><FaMoneyBillWave className="me-2" /> Payment Details</h4>
+              </div>
+              <div className="card-body-modern">
+
+                <div className="form-group-modern">
+                  <label>Payment Type</label>
+                  <div className="payment-actions">
+                    <div
+                      className={`btn-payment-option ${formik.values.payment_type === 'To Pay' ? 'selected-topay' : ''}`}
+                      onClick={() => formik.setFieldValue("payment_type", "To Pay")}
+                    >
+                      To Pay
+                    </div>
+                    <div
+                      className={`btn-payment-option ${formik.values.payment_type === 'Paid' ? 'selected-paid' : ''}`}
+                      onClick={() => formik.setFieldValue("payment_type", "Paid")}
+                    >
+                      Paid
+                    </div>
+                  </div>
+                  {formik.touched.payment_type && formik.errors.payment_type && (
+                    <div className="error-msg" style={{ marginTop: '-15px', marginBottom: '10px' }}>{formik.errors.payment_type}</div>
+                  )}
+                </div>
+
+                <div className="payment-summary">
+                  <div className="summary-row">
+                    <span>Freight Charges</span>
+                    <span>₹ {formik.values.total_amount || 0}</span>
+                  </div>
+                  <div className="summary-row">
+                    <span>LR Charge</span>
+                    <span>₹ 10</span>
+                  </div>
+                  <div className="summary-row total">
+                    <span>Grand Total</span>
+                    <span>₹ {Number(formik.values.total_amount || 0) + 10}</span>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '24px' }}>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-submit-modern"
+                    onKeyDown={handleEnter}
+                  >
+                    {loading ? (
+                      <>Processing <Loader /></>
+                    ) : (
+                      <><FaPrint /> PRINT & SAVE</>
+                    )}
+                  </button>
+                </div>
+
               </div>
             </div>
+
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </section>
   );
 };

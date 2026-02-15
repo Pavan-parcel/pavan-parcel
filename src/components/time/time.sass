@@ -1,28 +1,80 @@
-@import '../../css/general'
-@import '../../css/variable'
+@import "../../css/variable"
+@import "../../css/general"
 
 .pt__time
-    color: #000
-    .col-12
-        padding: 0
+    // Match Header Background (Deep Slate)
+    background-color: #0f172a
+    padding: 0 0 20px 0 // Slightly more bottom spacing
+    border-bottom: 1px solid rgba(255,255,255,0.08)
+    margin-top: -1px
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) // Drop shadow for depth
+
+    .container
+        max-width: 1400px
+        padding: 0 20px
+
     .pt__time_inner
-        background-color: $dark-blur
-        padding: 15px
-        margin-top: 15px
-        border-radius: 10px 
         display: flex
-        align-items: center
         justify-content: space-between
+        align-items: center
+        gap: 20px
+        flex-wrap: wrap
+        background: transparent
+        padding: 0
+        margin-top: 0
+        border-radius: 0
+
+        // Shared style for LR, Branch, Time items
         .time_btn
-            padding: 8px 14px
-            font-size: 14px
-            border-radius: 5px
-            font-weight: 600
+            background: rgba(255, 255, 255, 0.04) // Very subtle
+            color: rgba(255, 255, 255, 0.9)
+            padding: 8px 24px
+            border-radius: 8px // Slightly squarer for professional look
+            font-size: 13px
+            font-weight: 500
+            letter-spacing: 0.04em
+            border: 1px solid rgba(255, 255, 255, 0.08)
+            display: flex
+            align-items: center
+            justify-content: center
+            backdrop-filter: blur(4px)
+            transition: all 0.3s ease
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1)
+            text-transform: uppercase
+
+            &:hover
+                background: rgba(255, 255, 255, 0.08)
+                border-color: rgba(255, 255, 255, 0.2)
+                transform: translateY(-1px)
+                color: white
+
+        // Specific adjustments
         .pt__lr_num
-            background-color: #FFAD33
+            background-color: rgba(6, 182, 212, 0.1) !important
+            border-color: rgba(6, 182, 212, 0.3)
+            color: #22D3EE // Cyan
+            font-weight: 700
+            font-family: 'Inter', monospace
+
         .pt__lr_time
-            background-color: #FFf
+            // Center item (Branch Name)
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%) !important
+            border: 1px solid rgba(96, 165, 250, 0.3)
+            color: #BFDBFE // Pale Blue
+            font-weight: 700
+            padding: 8px 32px
+            letter-spacing: 0.08em
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2)
+
         .pt__lr_item
-            background-color: #007BFF
-            a
-                color: #fff
+             background: transparent !important
+
+    @media (max-width: 768px)
+        .pt__time_inner
+            justify-content: center
+            gap: 12px
+            padding: 0 10px
+        
+        .time_btn
+            width: 100%
+            font-size: 12px

@@ -1,55 +1,308 @@
 @import "../../css/variable"
 @import "../../css/general"
 
+// ============================================
+// Professional Operator Dashboard (Refined)
+// ============================================
+
 .pt__admin
-    padding: 30px 0
+    padding: 24px 0
+    background-color: #F8FAFC // Light Slate bg for less eye strain
+    min-height: 100vh
+    font-family: 'Inter', sans-serif
+    color: #334155 // Slate-700
+    display: flex
+    flex-direction: column
+
     .container
-        max-width: 100%
-    .gap-30
-        gap: 20px    
-    .pt__admin_charges
-        table
-            width: 100%
-            border: 1px solid #000
-            td,th
-                padding: 5px
-                &:last-child
-                    text-align: right
-                    padding-right: 10px
-                    font-weight: 500
-                    background-color: #000
-                    color: #fff
-            tr
-                &:first-child
-                    border-bottom: 1px solid #000
-    .m-15
-        margin: 0 -15px 15px
-    .pt__lr_item    
-        background-color: #007BFF
-    .time_btn
-        padding: 8px 14px
-        font-size: 14px
-        border-radius: 5px
-        font-weight: 500
-    .pt__lr_num
-        background-color: #FFAD33
-    .print_button
-        display: flex
-        gap: 10px
-        padding: 8px 25px
-    .form_control_wrapper
+        max-width: 1440px // Wide but constrained
+        margin: 0 auto
+        padding: 0 32px
+        flex-grow: 1
         display: flex
         flex-direction: column
-        label
-            margin-bottom: 6px
-            color: #000
+
+    // --- Header Section ---
+    .dashboard-header
+        display: flex
+        justify-content: space-between
+        align-items: center
+        margin-bottom: 24px
+        flex-shrink: 0
+        background: #FFFFFF
+        padding: 16px 24px
+        border-radius: 8px
+        border: 1px solid #E2E8F0
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04)
+
+        h2
+            font-size: 20px
+            font-weight: 700
+            color: #1E293B // Slate-800
+            margin: 0
+            display: flex
+            align-items: center
+            gap: 12px
+            letter-spacing: -0.02em
+            
+            span
+                color: $theme-primary
+                font-weight: 800
+
+        .header-actions
+            display: flex
+            align-items: center
+
+    // --- Grid Layout (2x2 Balanced) ---
+    .dashboard-grid
+        display: grid
+        grid-template-columns: 1fr 1fr
+        gap: 20px
+        align-items: stretch
+        flex-grow: 1
+        
+        @media (max-width: 1024px)
+            grid-template-columns: 1fr
+
+    // --- Professional Card Styles ---
+    .card-box
+        background: #FFFFFF
+        border-radius: 8px // Moderately rounded
+        border: 1px solid #E2E8F0 // Subtle border
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)
+        display: flex
+        flex-direction: column
+        transition: box-shadow 0.2s ease
+        
+        &:hover
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02)
+            border-color: #CBD5E1
+
+    .card-header-modern
+        padding: 16px 20px
+        border-bottom: 1px solid #F1F5F9
+        background: #FFFFFF
+        display: flex
+        align-items: center
+        border-radius: 8px 8px 0 0
+        
+        h4
+            font-size: 14px
             font-weight: 600
-        input,select
-            border: 1px solid #1E2330
-            height: 35px
-            border-radius: 5px
+            color: #475569 // Slate-600
+            text-transform: uppercase
+            letter-spacing: 0.04em
+            margin: 0
+            display: flex
+            align-items: center
+            gap: 10px
+
+            .icon-wrapper
+                display: flex
+                align-items: center
+                justify-content: center
+                width: 28px
+                height: 28px
+                background-color: #F8FAFC
+                border-radius: 6px
+                color: $theme-primary
+                font-size: 14px
+            
+            i, svg
+                color: inherit // Inherit from wrapper or direct style
+
+    .card-body-modern
+        padding: 20px // Comfortable padding
+        flex-grow: 1
+        
+    // --- Enterprise Form Controls ---
+    .form-group-modern
+        margin-bottom: 16px
+        
+        label
+            display: block
+            font-size: 12px
+            font-weight: 600
+            color: #64748B // Slate-500
+            margin-bottom: 6px
+            text-transform: uppercase
+            letter-spacing: 0.02em
+        
+        .input-wrapper
+            position: relative
+            
+            input, select
+                width: 100%
+                padding: 10px 14px // Comfortable touch/click target
+                font-size: 14px
+                font-weight: 500
+                color: #0F172A // Slate-900 (High contrast text)
+                background-color: #FFFFFF
+                border: 1px solid #E2E8F0
+                border-radius: 6px
+                transition: all 0.2s ease
+                outline: none
+                height: 42px // Standard enterprise height
+                
+                &:focus
+                    border-color: $theme-primary
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1)
+                
+                &:disabled
+                    background-color: #F8FAFC
+                    color: #94A3B8
+                    cursor: not-allowed
+
+                &::placeholder
+                    color: #CBD5E1
+
+            // Error state
+            &.has-error
+                input, select
+                    background-color: #FEF2F2
+                    border-color: #FCA5A5
+                    color: #BE123C
+                    
+                    &:focus
+                        box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1)
+                        border-color: #E11D48
+                
+        .error-msg
+            font-size: 12px
+            color: #E11D48
+            margin-top: 5px
+            font-weight: 500
+            display: flex
+            align-items: center
+            gap: 4px
+
+    // --- Payment & Totals Section ---
+    .payment-summary
+        background: #F8FAFC
+        border: 1px solid #E2E8F0
+        border-radius: 8px
+        padding: 16px
+        margin-top: 24px
+
+        .summary-row
+            display: flex
+            justify-content: space-between
+            margin-bottom: 10px
+            font-size: 14px
+            color: #475569
+            
+            &.total
+                border-top: 1px solid #E2E8F0
+                padding-top: 14px
+                margin-top: 14px
+                margin-bottom: 0
+                
+                span:first-child
+                    font-weight: 600
+                    color: #1E293B
+                
+                span:last-child
+                    font-weight: 800
+                    font-size: 18px
+                    color: $theme-primary
+
+    .payment-actions
+        display: flex
+        gap: 12px
+        margin-bottom: 16px
+
+        .btn-payment-option
+            flex: 1
+            padding: 10px 14px
+            border-radius: 6px
+            border: 1px solid #E2E8F0
+            background: #FFFFFF
+            font-weight: 600
             font-size: 13px
-            padding: 0px 8px
-            &:focus
-                background-color: #1E2330
-                color: $white
+            color: #64748B
+            cursor: pointer
+            text-align: center
+            transition: all 0.2s ease
+            
+            display: flex
+            align-items: center
+            justify-content: center
+            gap: 8px
+
+            &:hover
+                border-color: #CBD5E1
+                background-color: #F8FAFC
+                color: #334155
+
+            &.selected-topay
+                background-color: #FEF2F2
+                border-color: #FECACA
+                color: #DC2626
+                box-shadow: 0 1px 2px rgba(220, 38, 38, 0.05)
+                
+            &.selected-paid
+                background-color: #F0FDF4
+                border-color: #BBF7D0
+                color: #16A34A
+                box-shadow: 0 1px 2px rgba(22, 163, 74, 0.05)
+
+    // --- Main Action Button ---
+    .btn-submit-modern
+        background: linear-gradient(to bottom, $theme-primary, #1D4ED8) // Subtle depth
+        color: white
+        width: 100%
+        padding: 12px
+        border: 1px solid #1D4ED8
+        border-radius: 8px
+        font-size: 14px
+        font-weight: 600
+        letter-spacing: 0.01em
+        cursor: pointer
+        transition: all 0.2s ease
+        display: flex
+        justify-content: center
+        align-items: center
+        gap: 10px
+        height: 48px
+        box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2)
+
+        &:hover:not(:disabled)
+            background: linear-gradient(to bottom, #1D4ED8, #1E40AF)
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3)
+            transform: translateY(-1px)
+
+        &:active
+            transform: translateY(0)
+            box-shadow: none
+
+        &:disabled
+            background: #94A3B8
+            border-color: #94A3B8
+            cursor: not-allowed
+            box-shadow: none
+
+    // --- Badge Animation ---
+    .badge-status
+        display: inline-flex
+        align-items: center
+        gap: 8px
+        padding: 6px 12px
+        background: #ECFDF5
+        border: 1px solid #A7F3D0
+        border-radius: 20px
+        font-size: 12px
+        font-weight: 600
+        color: #047857
+        letter-spacing: 0.02em
+        
+        .dot
+            width: 8px
+            height: 8px
+            background-color: #10B981
+            border-radius: 50%
+            box-shadow: 0 0 0 2px #A7F3D0
+
+    .grid-2-col
+        display: grid
+        grid-template-columns: 1fr 1fr
+        gap: 16px
